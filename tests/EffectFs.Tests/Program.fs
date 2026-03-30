@@ -11,6 +11,9 @@ module Assert =
         if actual <> expected then
             raise (TestFailure(sprintf "Expected %A but got %A." expected actual))
 
+    let true' (value: bool) : unit =
+        equal true value
+
 module Tests =
     let run (name: string) (test: unit -> unit) : bool =
         try
@@ -73,6 +76,57 @@ module Tests =
 
         Assert.equal (Error "port must be positive") result
 
+    let effectExpressionBindsResultAsyncAndTaskDirectly () : unit =
+        let workflow : Effect<unit, string, int> =
+            effect {
+                let! a = Ok 20
+                let! b = async { return 20 }
+                let! c = Task.FromResult 2
+                return a + b + c
+            }
+
+        let result =
+            workflow
+            |> Effect.execute ()
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 42) result
+
+    let provideSuppliesEnvironmentExplicitly () : unit =
+        let workflow : Effect<unit, string, int> =
+            effect {
+                let! text = Effect.environment<string, string>
+                return text.Length
+            }
+            |> Effect.provide "effect"
+
+        let result =
+            workflow
+            |> Effect.execute ()
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 6) result
+
+    let logWritesThroughEnvironmentDependency () : unit =
+        let messages = ResizeArray<string>()
+
+        let writer (sink: ResizeArray<string>) (entry: LogEntry) =
+            sink.Add(sprintf "%A:%s" entry.Level entry.Message)
+
+        let workflow : Effect<ResizeArray<string>, string, unit> =
+            effect {
+                do! Effect.log writer LogLevel.Information "hello"
+                do! Effect.logWith writer LogLevel.Warning (fun sink -> sprintf "count=%d" sink.Count)
+            }
+
+        let result =
+            workflow
+            |> Effect.execute messages
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok ()) result
+        Assert.equal [ "Information:hello"; "Warning:count=1" ] (List.ofSeq messages)
+
     let taskInteropRemainsColdUntilExecution () : unit =
         let started = ref false
 
@@ -91,6 +145,62 @@ module Tests =
         Assert.equal true started.Value
         Assert.equal (Ok 42) result
 
+    let timeoutTurnsSlowWorkIntoTypedError () : unit =
+        let workflow : Effect<unit, string, int> =
+            Effect.fromAsync(async {
+                do! Async.Sleep 100
+                return 42
+            })
+            |> Effect.timeout (TimeSpan.FromMilliseconds 10) "timed out"
+
+        let result =
+            workflow
+            |> Effect.execute ()
+            |> Async.RunSynchronously
+
+        Assert.equal (Error "timed out") result
+
+    let retryRepeatsFailuresUntilSuccess () : unit =
+        let attempts = ref 0
+
+        let workflow : Effect<unit, string, int> =
+            Effect.delay(fun () ->
+                attempts.Value <- attempts.Value + 1
+
+                if attempts.Value < 3 then
+                    Effect.fail "retry"
+                else
+                    Effect.succeed 42)
+            |> Effect.retry
+                { MaxAttempts = 3
+                  Delay = fun _ -> TimeSpan.Zero
+                  ShouldRetry = ((=) "retry") }
+
+        let result =
+            workflow
+            |> Effect.execute ()
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 42) result
+        Assert.equal 3 attempts.Value
+
+    let bracketReleasesResourcesOnSuccess () : unit =
+        let disposed = ref false
+
+        let workflow : Effect<unit, string, int> =
+            Effect.bracket
+                (Effect.succeed "resource")
+                (fun _ -> disposed.Value <- true)
+                (fun resource -> Effect.succeed resource.Length)
+
+        let result =
+            workflow
+            |> Effect.execute ()
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 8) result
+        Assert.true' disposed.Value
+
 [<EntryPoint>]
 let main _ =
     let results =
@@ -98,6 +208,12 @@ let main _ =
           Tests.run "ask returns the environment" Tests.askReturnsTheEnvironment
           Tests.run "read projects from the environment" Tests.readProjectsFromTheEnvironment
           Tests.run "ofResult lifts validation failures" Tests.ofResultLiftsValidationFailures
-          Tests.run "task interop remains cold until execution" Tests.taskInteropRemainsColdUntilExecution ]
+          Tests.run "effect expression binds Result Async and Task directly" Tests.effectExpressionBindsResultAsyncAndTaskDirectly
+          Tests.run "provide supplies environment explicitly" Tests.provideSuppliesEnvironmentExplicitly
+          Tests.run "log writes through environment dependency" Tests.logWritesThroughEnvironmentDependency
+          Tests.run "task interop remains cold until execution" Tests.taskInteropRemainsColdUntilExecution
+          Tests.run "timeout turns slow work into typed error" Tests.timeoutTurnsSlowWorkIntoTypedError
+          Tests.run "retry repeats failures until success" Tests.retryRepeatsFailuresUntilSuccess
+          Tests.run "bracket releases resources on success" Tests.bracketReleasesResourcesOnSuccess ]
 
     if List.forall id results then 0 else 1
