@@ -1,0 +1,6 @@
+artifacts/*
+!artifacts/.gitkeep
+.vs/
+.idea/
+.fake
+*.swp
