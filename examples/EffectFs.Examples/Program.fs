@@ -13,8 +13,15 @@ type AppConfig =
     { ApiBaseUrl: string
       ApiKey: string
       RetryCount: int
+      RequestTimeout: TimeSpan
       Prefix: string
+      FailuresBeforeSuccess: int
       SimulateLegacyFailure: bool }
+
+type AppEnvironment =
+    { Config: AppConfig
+      AttemptCount: int ref
+      WriteLog: LogEntry -> unit }
 
 type ValidationError =
     | MissingValue of string
@@ -23,11 +30,14 @@ type ValidationError =
 type AppError =
     | ValidationFailed of ValidationError
     | LegacyFailure of string
+    | TimedOut
+    | TransientFailure of int
 
 type RequestPlan =
     { Banner: string
       Url: string
-      RetryCount: int }
+      RetryCount: int
+      RequestTimeout: TimeSpan }
 
 type Response =
     { StatusCode: int
@@ -53,27 +63,32 @@ let requirePositive (name: string) (value: int) : Result<int, ValidationError> =
     else
         Error(NonPositiveNumber name)
 
+let writeLog (environment: AppEnvironment) (entry: LogEntry) : unit =
+    environment.WriteLog entry
+
+let logInformation (message: string) : Effect<AppEnvironment, AppError, unit> =
+    Effect.log writeLog LogLevel.Information message
+
 let validateConfig : Effect<AppConfig, AppError, RequestPlan> =
     effect {
-        let! config = Effect.ask<AppConfig, AppError>
+        let! config = Effect.environment<AppConfig, AppError>
 
         let! apiBaseUrl =
-            config.ApiBaseUrl
-            |> requireNonEmpty "apiBaseUrl"
+            requireNonEmpty "apiBaseUrl" config.ApiBaseUrl
             |> Result.mapError ValidationFailed
-            |> Effect.ofResult
 
         let! apiKey =
-            config.ApiKey
-            |> requireNonEmpty "apiKey"
+            requireNonEmpty "apiKey" config.ApiKey
             |> Result.mapError ValidationFailed
-            |> Effect.ofResult
 
         let! retryCount =
-            config.RetryCount
-            |> requirePositive "retryCount"
+            requirePositive "retryCount" config.RetryCount
             |> Result.mapError ValidationFailed
-            |> Effect.ofResult
+
+        let! timeoutMilliseconds =
+            int config.RequestTimeout.TotalMilliseconds
+            |> requirePositive "requestTimeoutMs"
+            |> Result.mapError ValidationFailed
 
         let banner =
             sprintf "%s :: %s" config.Prefix apiKey
@@ -82,14 +97,36 @@ let validateConfig : Effect<AppConfig, AppError, RequestPlan> =
         return
             { Banner = banner
               Url = sprintf "%s/ping" apiBaseUrl
-              RetryCount = retryCount }
+              RetryCount = retryCount
+              RequestTimeout = TimeSpan.FromMilliseconds(float timeoutMilliseconds) }
     }
 
-let fetchResponse (plan: RequestPlan) : Effect<AppConfig, AppError, Response> =
-    Effect.ofTask(fun (_: CancellationToken) ->
-        Task.FromResult
+let fetchResponse (plan: RequestPlan) : Effect<AppEnvironment, AppError, Response> =
+    effect {
+        let! environment = Effect.environment<AppEnvironment, AppError>
+        let attempt = environment.AttemptCount.Value + 1
+        environment.AttemptCount.Value <- attempt
+
+        do! logInformation (sprintf "attempt=%d url=%s" attempt plan.Url)
+
+        if attempt <= environment.Config.FailuresBeforeSuccess then
+            return! Error(TransientFailure attempt)
+
+        let! body =
+            Task.FromResult(sprintf "GET %s (retries=%d)" plan.Url plan.RetryCount)
+
+        return
             { StatusCode = 200
-              Body = sprintf "GET %s (retries=%d)" plan.Url plan.RetryCount })
+              Body = body }
+    }
+    |> Effect.retry
+        { MaxAttempts = plan.RetryCount + 1
+          Delay = fun attempt -> TimeSpan.FromMilliseconds(float (attempt * 10))
+          ShouldRetry =
+            function
+            | TransientFailure _ -> true
+            | _ -> false }
+    |> Effect.timeout plan.RequestTimeout TimedOut
 
 let runLegacyBoundary : Effect<AppConfig, AppError, unit> =
     Effect.delay(fun () ->
@@ -105,11 +142,31 @@ let runLegacyBoundary : Effect<AppConfig, AppError, unit> =
 
 let program : Effect<AppConfig, AppError, string> =
     effect {
+        let environment =
+            { Config = Unchecked.defaultof<AppConfig>
+              AttemptCount = ref 0
+              WriteLog = ignore }
+
+        let! appConfig = Effect.environment<AppConfig, AppError>
+        let appEnvironment =
+            { environment with
+                Config = appConfig
+                WriteLog = fun entry -> printfn "[%A] %s" entry.Level entry.Message }
+
+        let! () =
+            Effect.withEnvironment (fun (_: AppConfig) -> appEnvironment) (logInformation "starting program")
+
         let! plan = validateConfig
-        let! response = fetchResponse plan
+        let! response = fetchResponse plan |> Effect.withEnvironment (fun (_: AppConfig) -> appEnvironment)
         let! () = runLegacyBoundary
 
-        return sprintf "%s -> %d %s" plan.Banner response.StatusCode response.Body
+        return
+            sprintf
+                "%s -> %d %s (attempts=%d)"
+                plan.Banner
+                response.StatusCode
+                response.Body
+                appEnvironment.AttemptCount.Value
     }
 
 let printScenario (label: string) (config: AppConfig) : unit =
@@ -126,13 +183,21 @@ let main _ =
         { ApiBaseUrl = "https://example.test"
           ApiKey = "demo-key"
           RetryCount = 2
+          RequestTimeout = TimeSpan.FromMilliseconds 250
           Prefix = "demo"
+          FailuresBeforeSuccess = 1
           SimulateLegacyFailure = false }
 
     let validationFailure =
         { success with
             ApiKey = ""
-            RetryCount = 0 }
+            RetryCount = 0
+            RequestTimeout = TimeSpan.Zero }
+
+    let exhaustedRetryFailure =
+        { success with
+            RetryCount = 1
+            FailuresBeforeSuccess = 2 }
 
     let legacyFailure =
         { success with
@@ -140,5 +205,6 @@ let main _ =
 
     printScenario "Success" success
     printScenario "Validation Failure" validationFailure
+    printScenario "Retries Exhausted" exhaustedRetryFailure
     printScenario "Legacy Failure Boundary" legacyFailure
     0

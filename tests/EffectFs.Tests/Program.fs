@@ -107,6 +107,30 @@ module Tests =
 
         Assert.equal (Ok 6) result
 
+    let withEnvironmentProjectsLargerDependencyContext () : unit =
+        let workflow : Effect<int * string, string, int> =
+            Effect.read String.length
+            |> Effect.withEnvironment snd
+
+        let result =
+            workflow
+            |> Effect.execute (42, "effect")
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 6) result
+
+    let asyncResultCompatibilityRoundTrips () : unit =
+        let workflow : Effect<unit, string, int> =
+            async { return Ok 42 }
+            |> Effect.fromAsyncResult
+
+        let result =
+            workflow
+            |> Effect.toAsyncResult ()
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 42) result
+
     let logWritesThroughEnvironmentDependency () : unit =
         let messages = ResizeArray<string>()
 
@@ -210,6 +234,8 @@ let main _ =
           Tests.run "ofResult lifts validation failures" Tests.ofResultLiftsValidationFailures
           Tests.run "effect expression binds Result Async and Task directly" Tests.effectExpressionBindsResultAsyncAndTaskDirectly
           Tests.run "provide supplies environment explicitly" Tests.provideSuppliesEnvironmentExplicitly
+          Tests.run "withEnvironment projects larger dependency context" Tests.withEnvironmentProjectsLargerDependencyContext
+          Tests.run "Async Result compatibility round trips" Tests.asyncResultCompatibilityRoundTrips
           Tests.run "log writes through environment dependency" Tests.logWritesThroughEnvironmentDependency
           Tests.run "task interop remains cold until execution" Tests.taskInteropRemainsColdUntilExecution
           Tests.run "timeout turns slow work into typed error" Tests.timeoutTurnsSlowWorkIntoTypedError
