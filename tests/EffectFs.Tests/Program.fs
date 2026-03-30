@@ -117,6 +117,20 @@ module Tests =
 
         Assert.equal (Ok 6) result
 
+    let environmentWithBindsEnvironmentOnceAsLambdaParam () : unit =
+        let workflow : Effect<string, string, int> =
+            Effect.environmentWith(fun env ->
+                effect {
+                    return env.Length
+                })
+
+        let result =
+            workflow
+            |> Effect.execute "effect"
+            |> Async.RunSynchronously
+
+        Assert.equal (Ok 6) result
+
     let withEnvironmentProjectsLargerDependencyContext () : unit =
         let workflow : Effect<int * string, string, int> =
             Effect.read String.length
@@ -349,6 +363,7 @@ let main _ =
           Tests.run "ofResult lifts validation failures" Tests.ofResultLiftsValidationFailures
           Tests.run "effect expression binds Result Async and Task directly" Tests.effectExpressionBindsResultAsyncAndTaskDirectly
           Tests.run "provide supplies environment explicitly" Tests.provideSuppliesEnvironmentExplicitly
+          Tests.run "environmentWith binds environment once as lambda param" Tests.environmentWithBindsEnvironmentOnceAsLambdaParam
           Tests.run "withEnvironment projects larger dependency context" Tests.withEnvironmentProjectsLargerDependencyContext
           Tests.run "Async Result compatibility round trips" Tests.asyncResultCompatibilityRoundTrips
           Tests.run "Task Result compatibility round trips" Tests.taskResultCompatibilityRoundTrips

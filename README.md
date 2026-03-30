@@ -125,6 +125,35 @@ Migration support is built in:
 
 See [`docs/FSTOOLKIT_MIGRATION.md`](docs/FSTOOLKIT_MIGRATION.md).
 
+## Getting Started
+
+If you want the shortest path into the library, start with [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md).
+
+One important note from that guide: you usually do not need to write:
+
+```fsharp
+let! env = Effect.environment<AppEnv, AppError>
+```
+
+If the surrounding workflow type is already known, F# can usually infer the shorter form:
+
+```fsharp
+let! env = Effect.environment
+```
+
+The explicit generic arguments are mainly a fallback for places where type inference does not yet know the environment or error type.
+
+If you prefer getting the environment once as a lambda parameter, there is now also:
+
+```fsharp
+Effect.environmentWith (fun env ->
+    effect {
+        return env
+    })
+```
+
+That is a convenience helper for the common "bind environment once, then keep using it" shape.
+
 ## Running It
 
 Run the test harness:
@@ -144,7 +173,8 @@ dotnet run --project examples/EffectFs.Examples/EffectFs.Examples.fsproj --nolog
 Start here:
 
 1. [`examples/EffectFs.Examples/Program.fs`](examples/EffectFs.Examples/Program.fs)
-2. [`src/EffectFs/Effect.fs`](src/EffectFs/Effect.fs)
-3. [`docs/FSTOOLKIT_MIGRATION.md`](docs/FSTOOLKIT_MIGRATION.md)
-4. [`docs/EFFECT_TS_COMPARISON.md`](docs/EFFECT_TS_COMPARISON.md)
-5. [`PLAN.md`](PLAN.md)
+2. [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
+3. [`src/EffectFs/Effect.fs`](src/EffectFs/Effect.fs)
+4. [`docs/FSTOOLKIT_MIGRATION.md`](docs/FSTOOLKIT_MIGRATION.md)
+5. [`docs/EFFECT_TS_COMPARISON.md`](docs/EFFECT_TS_COMPARISON.md)
+6. [`PLAN.md`](PLAN.md)

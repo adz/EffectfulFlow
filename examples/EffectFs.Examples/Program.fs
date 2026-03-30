@@ -158,7 +158,7 @@ let createEnvironment (config: AppConfig) : AppEnvironment =
 
 let validateConfig : Effect<AppConfig, AppError, RequestPlan> =
     effect {
-        let! config = Effect.environment<AppConfig, AppError>
+        let! config = Effect.environment
 
         let! apiBaseUrl =
             requireNonEmpty "apiBaseUrl" config.ApiBaseUrl
@@ -193,8 +193,8 @@ let validateConfig : Effect<AppConfig, AppError, RequestPlan> =
 let fetchResponse (plan: RequestPlan) : Effect<AppEnvironment, AppError, Response> =
     let invokeGateway =
         effect {
-            let! environment = Effect.environment<AppEnvironment, AppError>
-            let! token = Effect.cancellationToken<AppEnvironment, AppError>
+            let! environment = Effect.environment
+            let! token = Effect.cancellationToken
             do! logWith LogLevel.Information (fun env -> sprintf "gateway call attempt=%d url=%s" (env.AttemptCount.Value + 1) plan.Url)
 
             let! response =
@@ -218,13 +218,13 @@ let fetchResponse (plan: RequestPlan) : Effect<AppEnvironment, AppError, Respons
 
 let saveAudit (plan: RequestPlan) (response: Response) : Effect<AppEnvironment, AppError, unit> =
     effect {
-        let! environment = Effect.environment<AppEnvironment, AppError>
+        let! environment = Effect.environment
         let record =
             { Url = plan.Url
               Attempts = environment.AttemptCount.Value
               StatusCode = response.StatusCode }
 
-        let! token = Effect.cancellationToken<AppEnvironment, AppError>
+        let! token = Effect.cancellationToken
 
         do!
             environment.AuditStore.Save(record, token)
@@ -246,7 +246,7 @@ let runLegacyBoundary : Effect<AppConfig, AppError, unit> =
 
 let program : Effect<AppConfig, AppError, string> =
     effect {
-        let! config = Effect.environment<AppConfig, AppError>
+        let! config = Effect.environment
         let environment = createEnvironment config
 
         let runInAppEnvironment workflow =

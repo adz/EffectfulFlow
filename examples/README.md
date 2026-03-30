@@ -50,3 +50,19 @@ Read the example in this order:
 4. `program`
 
 That sequence shows the pure validation layer, the dependency/operational layer, the persistence layer, and the full composed workflow.
+
+## Inference Note
+
+You will notice the example usually uses:
+
+```fsharp
+let! env = Effect.environment
+```
+
+not:
+
+```fsharp
+let! env = Effect.environment<AppEnvironment, AppError>
+```
+
+That shorter form works because the surrounding workflow type already fixes the environment and error types. Use the longer form only when F# cannot infer them.

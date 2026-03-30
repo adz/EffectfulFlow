@@ -144,6 +144,11 @@ module Effect =
                 |> map (fun () -> value))
             effect
 
+    let environmentWith
+        (binder: 'env -> Effect<'env, 'error, 'value>)
+        : Effect<'env, 'error, 'value> =
+        bind binder environment
+
     let mapError
         (mapper: 'error -> 'nextError)
         (effect: Effect<'env, 'error, 'value>)
