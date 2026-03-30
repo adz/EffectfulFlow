@@ -99,6 +99,12 @@ See [`docs/FSTOOLKIT_MIGRATION.md`](docs/FSTOOLKIT_MIGRATION.md).
 5. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
 6. [`src/EffectFs/Effect.fs`](src/EffectFs/Effect.fs)
 
+## Compatibility
+
+NativeAOT is verified in this repo through a small publish-and-run probe application.
+
+Fable is not currently supported. The public API depends on .NET-specific runtime surfaces such as `Task`, `CancellationToken`, `IAsyncDisposable`, `TimeSpan`, `DateTimeOffset`, `Async.AwaitTask`, `Task.Delay`, and `Async.StartChild`.
+
 ## Run The Repo
 
 Run the test suite:
@@ -117,4 +123,10 @@ Run the maintenance example:
 
 ```bash
 dotnet run --project examples/EffectFs.MaintenanceExamples/EffectFs.MaintenanceExamples.fsproj --nologo
+```
+
+Run the NativeAOT probe:
+
+```bash
+bash scripts/run-aot-probe.sh
 ```

@@ -732,8 +732,8 @@ module Effect =
     /// <example>
     /// <code lang="fsharp">
     /// let workflow =
-    ///     Effect.sleep (TimeSpan.FromSeconds 1)
-    ///     |> Effect.timeout (TimeSpan.FromMilliseconds 10) "timed out"
+    ///     Effect.sleep (TimeSpan.FromSeconds 1.0)
+    ///     |> Effect.timeout (TimeSpan.FromMilliseconds 10.0) "timed out"
     /// </code>
     /// </example>
     let timeout

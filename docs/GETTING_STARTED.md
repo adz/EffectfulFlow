@@ -21,9 +21,9 @@ let validateName (name: string) =
 
 You do not need `Effect` for code that is already clear as plain `Result`.
 
-## 2. Introduce `Effect` At The Boundary
+## 2. Introduce `Effect` Without An Environment First
 
-When the workflow needs dependencies or async work, return:
+Start with the smallest useful effect:
 
 ```fsharp
 Effect<'env, 'error, 'value>
@@ -32,17 +32,10 @@ Effect<'env, 'error, 'value>
 Example:
 
 ```fsharp
-type AppEnv =
-    { Prefix: string }
-
-type AppError =
-    | ValidationFailed of ValidationError
-
-let greet input : Effect<AppEnv, AppError, string> =
+let greet input : Effect<unit, ValidationError, string> =
     effect {
-        let! env = Effect.environment
-        let! name = validateName input |> Result.mapError ValidationFailed
-        return $"{env.Prefix} {name}"
+        let! name = validateName input
+        return $"Hello {name}"
     }
 ```
 
@@ -59,7 +52,7 @@ Effects are cold. They do nothing until you execute them:
 ```fsharp
 let result =
     greet "Ada"
-    |> Effect.execute { Prefix = "Hello" }
+    |> Effect.execute ()
     |> Async.RunSynchronously
 ```
 
@@ -69,7 +62,49 @@ Result:
 Ok "Hello Ada"
 ```
 
-## 4. Bind Existing Wrapper Types Directly
+Use `unit` for `'env` when the workflow does not need any dependencies yet.
+
+## 4. Map The Whole Effect
+
+Once you have an effect, transform the success value with `Effect.map`:
+
+```fsharp
+let greetingLength =
+    greet "Ada"
+    |> Effect.map String.length
+
+let result =
+    greetingLength
+    |> Effect.execute ()
+    |> Async.RunSynchronously
+```
+
+Result:
+
+```fsharp
+Ok 9
+```
+
+This keeps the workflow focused on producing the main value, then applies the next step to the whole effect.
+
+## 5. Do The Same Inline
+
+You can also build the workflow inline, then map it:
+
+```fsharp
+let result =
+    effect {
+        let! name = validateName "Ada"
+        return $"Hello {name}"
+    }
+    |> Effect.map String.length
+    |> Effect.execute ()
+    |> Async.RunSynchronously
+```
+
+This is a good shape when the workflow is short and only used once.
+
+## 6. Bind Existing Wrapper Types Directly
 
 Inside `effect {}` you can bind directly from common F# and .NET shapes:
 
@@ -85,7 +120,7 @@ let workflow : Effect<unit, string, int> =
 
 This is the main ergonomic goal of the library: keep the workflow close to the happy path even when the inputs come in different wrapper shapes.
 
-## 5. Access The Environment Explicitly
+## 7. Add The Environment When You Need Dependencies
 
 Use the environment helpers when the workflow depends on external context:
 
@@ -97,11 +132,21 @@ Use the environment helpers when the workflow depends on external context:
 Example:
 
 ```fsharp
-let prefixLength : Effect<AppEnv, AppError, int> =
+type AppEnv =
+    { Prefix: string }
+
+let greetWithPrefix input : Effect<AppEnv, ValidationError, string> =
+    effect {
+        let! env = Effect.environment
+        let! name = validateName input
+        return $"{env.Prefix} {name}"
+    }
+
+let prefixLength : Effect<AppEnv, ValidationError, int> =
     Effect.read (fun env -> env.Prefix.Length)
 ```
 
-## 6. Prefer The Inferred `environment` Form
+## 8. Prefer The Inferred `environment` Form
 
 Most of the time you can write:
 
@@ -112,17 +157,17 @@ let! env = Effect.environment
 The longer form:
 
 ```fsharp
-let! env = Effect.environment<AppEnv, AppError>
+let! env = Effect.environment<AppEnv, ValidationError>
 ```
 
 is only needed when F# cannot infer the environment and error types yet.
 
-## 7. Use `environmentWith` When It Reads Better
+## 9. Use `environmentWith` When It Reads Better
 
 If the workflow uses the environment throughout, this can be a cleaner shape:
 
 ```fsharp
-let greet : Effect<AppEnv, AppError, string> =
+let greet : Effect<AppEnv, ValidationError, string> =
     Effect.environmentWith(fun env ->
         effect {
             return $"{env.Prefix} world"
@@ -131,7 +176,7 @@ let greet : Effect<AppEnv, AppError, string> =
 
 Use it when it reduces repetition. Do not force it into every workflow.
 
-## 8. Add Operational Helpers Only Where They Help
+## 10. Add Operational Helpers Only Where They Help
 
 Effect.FS includes helpers for common application concerns:
 
@@ -145,7 +190,7 @@ Effect.FS includes helpers for common application concerns:
 
 Add them when they make the workflow clearer. Keep the core flow small and direct.
 
-## 9. Migrate One Workflow At A Time
+## 11. Migrate One Workflow At A Time
 
 If you already have `Async<Result<_,_>>` code, start at the boundary:
 

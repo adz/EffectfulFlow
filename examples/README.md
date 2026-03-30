@@ -16,6 +16,12 @@ Maintenance example:
 dotnet run --project examples/EffectFs.MaintenanceExamples/EffectFs.MaintenanceExamples.fsproj --nologo
 ```
 
+NativeAOT probe:
+
+```bash
+bash scripts/run-aot-probe.sh
+```
+
 ## Main Example
 
 The main example in [`examples/EffectFs.Examples/Program.fs`](./EffectFs.Examples/Program.fs) shows a small application-shaped workflow:

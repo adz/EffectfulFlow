@@ -295,8 +295,8 @@ let main _ =
         { ApiBaseUrl = "https://example.test"
           ApiKey = "demo-key"
           RetryCount = 2
-          RequestTimeout = TimeSpan.FromMilliseconds 200
-          NetworkDelay = TimeSpan.FromMilliseconds 25
+          RequestTimeout = TimeSpan.FromMilliseconds 200.0
+          NetworkDelay = TimeSpan.FromMilliseconds 25.0
           Prefix = "demo"
           FailuresBeforeSuccess = 1
           SimulateLegacyFailure = false }
@@ -314,8 +314,8 @@ let main _ =
 
     let timedOut =
         { success with
-            RequestTimeout = TimeSpan.FromMilliseconds 10
-            NetworkDelay = TimeSpan.FromMilliseconds 50 }
+            RequestTimeout = TimeSpan.FromMilliseconds 10.0
+            NetworkDelay = TimeSpan.FromMilliseconds 50.0 }
 
     let legacyFailure =
         { success with

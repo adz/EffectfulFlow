@@ -392,7 +392,7 @@ module Tests =
                 do! Async.Sleep 100
                 return 42
             })
-            |> Effect.timeout (TimeSpan.FromMilliseconds 10) "timed out"
+            |> Effect.timeout (TimeSpan.FromMilliseconds 10.0) "timed out"
 
         let result =
             workflow
@@ -411,7 +411,7 @@ module Tests =
                     completed.SetResult ()
                     return 42
                 })
-            |> Effect.timeout (TimeSpan.FromMilliseconds 10) "timed out"
+            |> Effect.timeout (TimeSpan.FromMilliseconds 10.0) "timed out"
 
         let result =
             workflow

@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Run test harness
+        run: dotnet run --project tests/EffectFs.Tests/EffectFs.Tests.fsproj --nologo
+
+      - name: Run main example
+        run: dotnet run --project examples/EffectFs.Examples/EffectFs.Examples.fsproj --nologo
+
+      - name: Run maintenance example
+        run: dotnet run --project examples/EffectFs.MaintenanceExamples/EffectFs.MaintenanceExamples.fsproj --nologo
+
+      - name: Publish and run NativeAOT probe
+        run: bash scripts/run-aot-probe.sh
