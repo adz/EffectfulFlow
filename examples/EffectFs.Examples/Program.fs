@@ -3,45 +3,114 @@ open System.Threading
 open System.Threading.Tasks
 open EffectFs
 
-// Getting started:
-//
-// - use plain F# for pure validation and transformation
-// - use Effect when code needs configuration, async work, tasks, or typed failures
-// - keep the effect boundary visible in the type
-
 type AppConfig =
     { ApiBaseUrl: string
       ApiKey: string
       RetryCount: int
       RequestTimeout: TimeSpan
+      NetworkDelay: TimeSpan
       Prefix: string
       FailuresBeforeSuccess: int
       SimulateLegacyFailure: bool }
-
-type AppEnvironment =
-    { Config: AppConfig
-      AttemptCount: int ref
-      WriteLog: LogEntry -> unit }
 
 type ValidationError =
     | MissingValue of string
     | NonPositiveNumber of string
 
+type GatewayError =
+    | Transient of int
+    | Rejected of string
+
 type AppError =
     | ValidationFailed of ValidationError
+    | GatewayFailed of GatewayError
+    | PersistenceFailed of string
     | LegacyFailure of string
     | TimedOut
-    | TransientFailure of int
+    | Canceled
 
 type RequestPlan =
     { Banner: string
       Url: string
       RetryCount: int
-      RequestTimeout: TimeSpan }
+      RequestTimeout: TimeSpan
+      NetworkDelay: TimeSpan }
 
 type Response =
     { StatusCode: int
       Body: string }
+
+type AuditRecord =
+    { Url: string
+      Attempts: int
+      StatusCode: int }
+
+type IPingGateway =
+    abstract Ping: RequestPlan * CancellationToken -> Task<Result<Response, GatewayError>>
+
+type IAuditStore =
+    abstract Save: AuditRecord * CancellationToken -> Task
+    abstract Snapshot: unit -> AuditRecord list
+
+type AppEnvironment =
+    { Config: AppConfig
+      Gateway: IPingGateway
+      AuditStore: IAuditStore
+      AttemptCount: int ref
+      WriteLog: LogEntry -> unit }
+
+type RequestScope(writeLog: LogEntry -> unit, name: string) =
+    do
+        writeLog
+            { Level = LogLevel.Debug
+              Message = sprintf "opening scope=%s" name
+              TimestampUtc = DateTimeOffset.UtcNow }
+
+    interface IAsyncDisposable with
+        member _.DisposeAsync() =
+            writeLog
+                { Level = LogLevel.Debug
+                  Message = sprintf "closing scope=%s" name
+                  TimestampUtc = DateTimeOffset.UtcNow }
+
+            ValueTask()
+
+type FakePingGateway(attemptCount: int ref, config: AppConfig) =
+    interface IPingGateway with
+        member _.Ping(plan: RequestPlan, cancellationToken: CancellationToken) =
+            task {
+                do! Task.Delay(plan.NetworkDelay, cancellationToken)
+
+                let attempt = attemptCount.Value + 1
+                attemptCount.Value <- attempt
+
+                if plan.Url.Contains("blocked") then
+                    return Error(Rejected "upstream rejected the request")
+                elif attempt <= config.FailuresBeforeSuccess then
+                    return Error(Transient attempt)
+                else
+                    return
+                        Ok
+                            { StatusCode = 200
+                              Body = sprintf "GET %s with key=%s" plan.Url config.ApiKey }
+            }
+
+type InMemoryAuditStore(writeLog: LogEntry -> unit) =
+    let records = ResizeArray<AuditRecord>()
+
+    interface IAuditStore with
+        member _.Save(record: AuditRecord, cancellationToken: CancellationToken) =
+            task {
+                cancellationToken.ThrowIfCancellationRequested()
+                do! Task.Delay(5, cancellationToken)
+                records.Add record
+                writeLog
+                    { Level = LogLevel.Information
+                      Message = sprintf "audit saved url=%s attempts=%d" record.Url record.Attempts
+                      TimestampUtc = DateTimeOffset.UtcNow }
+            }
+
+        member _.Snapshot() = List.ofSeq records
 
 let execute<'env, 'value>
     (environment: 'env)
@@ -57,22 +126,35 @@ let requireNonEmpty (name: string) (value: string) : Result<string, ValidationEr
     else
         Ok value
 
-let requirePositive (name: string) (value: int) : Result<int, ValidationError> =
+let requirePositiveDurationMs (name: string) (value: TimeSpan) : Result<TimeSpan, ValidationError> =
+    if value > TimeSpan.Zero then
+        Ok value
+    else
+        Error(NonPositiveNumber name)
+
+let requirePositiveInt (name: string) (value: int) : Result<int, ValidationError> =
     if value > 0 then
         Ok value
     else
         Error(NonPositiveNumber name)
 
-let writeLog (environment: AppEnvironment) (entry: LogEntry) : unit =
-    environment.WriteLog entry
+let logWith level messageFactory : Effect<AppEnvironment, AppError, unit> =
+    Effect.logWith (fun env entry -> env.WriteLog entry) level messageFactory
 
-let logInformation (message: string) : Effect<AppEnvironment, AppError, unit> =
-    Effect.log writeLog LogLevel.Information message
+let logInfo message : Effect<AppEnvironment, AppError, unit> =
+    logWith LogLevel.Information (fun _ -> message)
 
 let createEnvironment (config: AppConfig) : AppEnvironment =
+    let attemptCount = ref 0
+
+    let writeLog entry =
+        printfn "[%A] %s" entry.Level entry.Message
+
     { Config = config
-      AttemptCount = ref 0
-      WriteLog = fun entry -> printfn "[%A] %s" entry.Level entry.Message }
+      Gateway = FakePingGateway(attemptCount, config) :> IPingGateway
+      AuditStore = InMemoryAuditStore(writeLog) :> IAuditStore
+      AttemptCount = attemptCount
+      WriteLog = writeLog }
 
 let validateConfig : Effect<AppConfig, AppError, RequestPlan> =
     effect {
@@ -82,56 +164,73 @@ let validateConfig : Effect<AppConfig, AppError, RequestPlan> =
             requireNonEmpty "apiBaseUrl" config.ApiBaseUrl
             |> Result.mapError ValidationFailed
 
-        let! apiKey =
+        let! _ =
             requireNonEmpty "apiKey" config.ApiKey
             |> Result.mapError ValidationFailed
 
         let! retryCount =
-            requirePositive "retryCount" config.RetryCount
+            requirePositiveInt "retryCount" config.RetryCount
             |> Result.mapError ValidationFailed
 
-        let! timeoutMilliseconds =
-            int config.RequestTimeout.TotalMilliseconds
-            |> requirePositive "requestTimeoutMs"
+        let! requestTimeout =
+            requirePositiveDurationMs "requestTimeout" config.RequestTimeout
             |> Result.mapError ValidationFailed
 
-        let banner =
-            sprintf "%s :: %s" config.Prefix apiKey
-            |> fun value -> value.ToUpperInvariant()
+        let! networkDelay =
+            requirePositiveDurationMs "networkDelay" config.NetworkDelay
+            |> Result.mapError ValidationFailed
 
         return
-            { Banner = banner
+            { Banner =
+                sprintf "%s :: %s" config.Prefix config.ApiKey
+                |> fun value -> value.ToUpperInvariant()
               Url = sprintf "%s/ping" apiBaseUrl
               RetryCount = retryCount
-              RequestTimeout = TimeSpan.FromMilliseconds(float timeoutMilliseconds) }
+              RequestTimeout = requestTimeout
+              NetworkDelay = networkDelay }
     }
 
 let fetchResponse (plan: RequestPlan) : Effect<AppEnvironment, AppError, Response> =
-    effect {
-        let! environment = Effect.environment<AppEnvironment, AppError>
-        let attempt = environment.AttemptCount.Value + 1
-        environment.AttemptCount.Value <- attempt
+    let invokeGateway =
+        effect {
+            let! environment = Effect.environment<AppEnvironment, AppError>
+            let! token = Effect.cancellationToken<AppEnvironment, AppError>
+            do! logWith LogLevel.Information (fun env -> sprintf "gateway call attempt=%d url=%s" (env.AttemptCount.Value + 1) plan.Url)
 
-        do! logInformation (sprintf "attempt=%d url=%s" attempt plan.Url)
+            let! response =
+                environment.Gateway.Ping(plan, token)
+                |> Effect.fromTaskResultValue
+                |> Effect.mapError GatewayFailed
 
-        if attempt <= environment.Config.FailuresBeforeSuccess then
-            return! Error(TransientFailure attempt)
+            return response
+        }
 
-        let! body =
-            Task.FromResult(sprintf "GET %s (retries=%d)" plan.Url plan.RetryCount)
-
-        return
-            { StatusCode = 200
-              Body = body }
-    }
+    invokeGateway
     |> Effect.retry
         { MaxAttempts = plan.RetryCount + 1
-          Delay = fun attempt -> TimeSpan.FromMilliseconds(float (attempt * 10))
+          Delay = fun attempt -> TimeSpan.FromMilliseconds(float (attempt * 15))
           ShouldRetry =
             function
-            | TransientFailure _ -> true
+            | GatewayFailed(Transient _) -> true
             | _ -> false }
     |> Effect.timeout plan.RequestTimeout TimedOut
+    |> Effect.catchCancellation (fun _ -> Canceled)
+
+let saveAudit (plan: RequestPlan) (response: Response) : Effect<AppEnvironment, AppError, unit> =
+    effect {
+        let! environment = Effect.environment<AppEnvironment, AppError>
+        let record =
+            { Url = plan.Url
+              Attempts = environment.AttemptCount.Value
+              StatusCode = response.StatusCode }
+
+        let! token = Effect.cancellationToken<AppEnvironment, AppError>
+
+        do!
+            environment.AuditStore.Save(record, token)
+            |> Effect.fromTaskUnit
+            |> Effect.catch (fun error -> PersistenceFailed error.Message)
+    }
 
 let runLegacyBoundary : Effect<AppConfig, AppError, unit> =
     Effect.delay(fun () ->
@@ -147,23 +246,39 @@ let runLegacyBoundary : Effect<AppConfig, AppError, unit> =
 
 let program : Effect<AppConfig, AppError, string> =
     effect {
-        let! appConfig = Effect.environment<AppConfig, AppError>
-        let appEnvironment = createEnvironment appConfig
+        let! config = Effect.environment<AppConfig, AppError>
+        let environment = createEnvironment config
 
-        let! () =
-            Effect.withEnvironment (fun (_: AppConfig) -> appEnvironment) (logInformation "starting program")
+        let runInAppEnvironment workflow =
+            workflow |> Effect.withEnvironment (fun (_: AppConfig) -> environment)
 
         let! plan = validateConfig
-        let! response = fetchResponse plan |> Effect.withEnvironment (fun (_: AppConfig) -> appEnvironment)
+
+        let! response =
+            Effect.usingAsync
+                (RequestScope(environment.WriteLog, "request"))
+                (fun _ ->
+                    effect {
+                        do! runInAppEnvironment (logInfo "starting request workflow")
+                        let! response = runInAppEnvironment (fetchResponse plan)
+                        do! runInAppEnvironment (saveAudit plan response)
+                        return response
+                    })
+
         let! () = runLegacyBoundary
+
+        let audits =
+            environment.AuditStore.Snapshot()
+            |> List.length
 
         return
             sprintf
-                "%s -> %d %s (attempts=%d)"
+                "%s -> %d %s (attempts=%d audits=%d)"
                 plan.Banner
                 response.StatusCode
                 response.Body
-                appEnvironment.AttemptCount.Value
+                environment.AttemptCount.Value
+                audits
     }
 
 let printScenario (label: string) (config: AppConfig) : unit =
@@ -180,7 +295,8 @@ let main _ =
         { ApiBaseUrl = "https://example.test"
           ApiKey = "demo-key"
           RetryCount = 2
-          RequestTimeout = TimeSpan.FromMilliseconds 250
+          RequestTimeout = TimeSpan.FromMilliseconds 200
+          NetworkDelay = TimeSpan.FromMilliseconds 25
           Prefix = "demo"
           FailuresBeforeSuccess = 1
           SimulateLegacyFailure = false }
@@ -191,10 +307,15 @@ let main _ =
             RetryCount = 0
             RequestTimeout = TimeSpan.Zero }
 
-    let exhaustedRetryFailure =
+    let retriesExhausted =
         { success with
             RetryCount = 1
             FailuresBeforeSuccess = 2 }
+
+    let timedOut =
+        { success with
+            RequestTimeout = TimeSpan.FromMilliseconds 10
+            NetworkDelay = TimeSpan.FromMilliseconds 50 }
 
     let legacyFailure =
         { success with
@@ -202,6 +323,7 @@ let main _ =
 
     printScenario "Success" success
     printScenario "Validation Failure" validationFailure
-    printScenario "Retries Exhausted" exhaustedRetryFailure
+    printScenario "Retries Exhausted" retriesExhausted
+    printScenario "Timeout" timedOut
     printScenario "Legacy Failure Boundary" legacyFailure
     0
