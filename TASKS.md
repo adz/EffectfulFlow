@@ -8,12 +8,12 @@ The current answer is not mainly "the core idea is bad." The current answer is t
 
 ## Top Priorities
 
-- Add XML doc comments to the new public `Flow` surface and its nested `Task` and `Runtime` modules.
-- Rewrite all user-facing docs so they speak to the library user only, not to the repo author, reviewer, or an implied chat partner.
-- Add XML doc comments to every public data type, union case where appropriate, module, and function, each with a minimal example suitable for generated API docs.
-- Prove the library's value against FsToolkit with sharper side-by-side examples and explicit "choose this when / do not choose this when" guidance.
-- Lock down semantics for timeout, cancellation, exception capture, and cleanup, then test those semantics directly.
-- Improve trust signals: standard test project structure, stronger edge-case coverage, and docs that read like a maintained product rather than a design memo.
+- [x] Add XML doc comments to the new public `Flow` surface and its nested `Task` and `Runtime` modules.
+- [ ] Rewrite all user-facing docs so they speak to the library user only, not to the repo author, reviewer, or an implied chat partner.
+- [x] Add XML doc comments to every public data type, union case where appropriate, module, and function, each with a minimal example suitable for generated API docs.
+- [ ] Prove the library's value against FsToolkit with sharper side-by-side examples and explicit "choose this when / do not choose this when" guidance.
+- [ ] Lock down semantics for timeout, cancellation, exception capture, and cleanup, then test those semantics directly.
+- [x] Improve trust signals: standard test project structure, stronger edge-case coverage, and docs that read like a maintained product rather than a design memo.
 
 ## Flow Follow-Up Work
 
@@ -22,7 +22,7 @@ The public API and repo identity now center on `EffectfulFlow` plus the `Flow` p
 
 Tasks:
 
-- Add XML doc comments for the public `Flow<'env, 'error, 'value>` type, `Flow` module, `Flow.Task`, `Flow.Runtime`, the `flow` builder, and all public functions in [`src/EffectfulFlow/Flow.fs`](/home/adam/projects/mylibs/effect.fs/main/src/EffectfulFlow/Flow.fs).
+- [x] Add XML doc comments for the public `Flow<'env, 'error, 'value>` type, `Flow` module, `Flow.Task`, `Flow.Runtime`, the `flow` builder, and all public functions in [`src/EffectfulFlow/Flow.fs`](/home/adam/projects/mylibs/effect.fs/main/src/EffectfulFlow/Flow.fs).
 - Review whether `Flow.value` should remain as a convenience alias or be removed in favor of the canonical `Flow.succeed` name.
 - Review whether direct `Task` bind support in `flow {}` is sufficient now that task interop has a more explicit `Flow.Task` home.
 
@@ -84,7 +84,7 @@ The API should not rely on readers opening the source to guess semantics.
 Tasks:
 
 - Document constructors and lifting functions: `succeed`, `value`, `fail`, `fromResult`, `fromAsync`, `fromAsyncResult`, `fromCold`, `fromHot`, `fromColdResult`, `fromHotResult`, `fromColdUnit`, and `fromHotUnit`.
-- Document environment functions: `env`, `read`, and `mapEnv`.
+- Document environment functions: `env`, `read`, and `localEnv`.
 - Document execution functions: `run` and `toAsyncResult`.
 - Document composition functions: `map`, `bind`, `tap`, `mapError`, and `delay`.
 - Document error and cancellation helpers: `catch`, `catchCancellation`, `ensureNotCanceled`, and `cancellationToken`.
@@ -157,7 +157,7 @@ Even with better docs, some users will still compare the ergonomics with FsToolk
 Tasks:
 
 - Review the core combinator surface for missing high-value helpers such as `tapError`, `orElse`, `zip`, `map2`, or similar low-ceremony composition tools.
-- Revisit the environment story for larger applications if `mapEnv` becomes repetitive plumbing.
+- Revisit the environment story for larger applications if `localEnv` becomes repetitive plumbing.
 - Measure basic overhead against equivalent `Async<Result<_,_>>` workflows and publish the result.
 - Decide whether the direct `Async<Result<_,_>>` migration story needs more helpers beyond `Flow.fromAsyncResult` and `Flow.toAsyncResult`.
 

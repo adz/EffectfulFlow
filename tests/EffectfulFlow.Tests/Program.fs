@@ -1,47 +1,26 @@
+namespace EffectfulFlow.Tests
+
 open System
 open System.Threading
 open System.Threading.Tasks
 open EffectfulFlow
-
-type TestFailure(message: string) =
-    inherit Exception(message)
-
-module Assert =
-    let equal<'value when 'value: equality> (expected: 'value) (actual: 'value) : unit =
-        if actual <> expected then
-            raise (TestFailure(sprintf "Expected %A but got %A." expected actual))
-
-    let true' (value: bool) : unit =
-        equal true value
+open Xunit
+open Swensen.Unquote
 
 module Tests =
     type DisposableFlag() =
         let disposed = ref false
-
         member _.Disposed = disposed
-
         interface IDisposable with
-            member _.Dispose() =
-                disposed.Value <- true
+            member _.Dispose() = disposed.Value <- true
 
     type AsyncDisposableFlag() =
         let disposed = ref false
-
         member _.Disposed = disposed
-
         interface IAsyncDisposable with
             member _.DisposeAsync() =
                 disposed.Value <- true
                 ValueTask()
-
-    let run (name: string) (test: unit -> unit) : bool =
-        try
-            test ()
-            printfn "[pass] %s" name
-            true
-        with error ->
-            eprintfn "[fail] %s: %s" name error.Message
-            false
 
     let execute<'env, 'error, 'value>
         (environment: 'env)
@@ -55,32 +34,33 @@ module Tests =
     let executeUnit<'error, 'value> (workflow: Flow<unit, 'error, 'value>) : Result<'value, 'error> =
         execute () CancellationToken.None workflow
 
-    let flowExpressionBindsValues () : unit =
+    [<Fact>]
+    let ``flow expression binds values`` () =
         let workflow : Flow<unit, string, int> =
             flow {
                 let! value = Flow.succeed 40
                 let! other = Flow.succeed 2
                 return value + other
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let envReturnsTheEnvironment () : unit =
+    [<Fact>]
+    let ``env returns the environment`` () =
         let workflow : Flow<int, string, int> =
             flow {
                 let! value = Flow.env<int, string>
                 return value * 2
             }
+        test <@ execute 21 CancellationToken.None workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (execute 21 CancellationToken.None workflow)
-
-    let readProjectsFromTheEnvironment () : unit =
+    [<Fact>]
+    let ``read projects from the environment`` () =
         let workflow : Flow<string, string, int> =
             Flow.read String.length
+        test <@ execute "effect" CancellationToken.None workflow = Ok 6 @>
 
-        Assert.equal (Ok 6) (execute "effect" CancellationToken.None workflow)
-
-    let fromResultLiftsValidationFailures () : unit =
+    [<Fact>]
+    let ``fromResult lifts validation failures`` () =
         let validatePort (value: int) : Result<int, string> =
             if value > 0 then Ok value else Error "port must be positive"
 
@@ -88,45 +68,89 @@ module Tests =
             validatePort 0
             |> Flow.fromResult
             |> executeUnit
+        test <@ result = Error "port must be positive" @>
 
-        Assert.equal (Error "port must be positive") result
-
-    let flowExpressionBindsResultAndAsyncDirectly () : unit =
+    [<Fact>]
+    let ``flow expression binds Result and Async directly`` () =
         let workflow : Flow<unit, string, int> =
             flow {
                 let! a = Ok 20
                 let! b = async { return 22 }
                 return a + b
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let flowExpressionBindsTaskDirectly () : unit =
+    [<Fact>]
+    let ``flow expression binds Task directly`` () =
         let workflow : Flow<unit, string, int> =
             flow {
                 let! value = Task.FromResult 42
                 return value
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let flowExpressionBindsTaskResultDirectly () : unit =
+    [<Fact>]
+    let ``flow expression binds Task Result directly`` () =
         let workflow : Flow<unit, string, int> =
             flow {
                 let! (value: int) = Task.FromResult(Ok 42)
                 return value
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
+    [<Fact>]
+    let ``flow expression binds ColdTask directly`` () =
+        let readValue : ColdTask<int> =
+            fun _ -> Task.FromResult 42
 
-    let mapEnvProjectsLargerDependencyContext () : unit =
+        let workflow : Flow<unit, string, int> =
+            flow {
+                let! value = readValue
+                return value
+            }
+        test <@ executeUnit workflow = Ok 42 @>
+
+    [<Fact>]
+    let ``ColdTaskResult alias works with explicit helper`` () =
+        let readValue : ColdTaskResult<int, string> =
+            fun _ -> Task.FromResult(Ok 42)
+
+        let workflow : Flow<unit, string, int> =
+            readValue
+            |> Flow.Task.fromColdResult
+        test <@ executeUnit workflow = Ok 42 @>
+
+    [<Fact>]
+    let ``flow expression return! ColdTask directly`` () =
+        let readValue : ColdTask<int> =
+            fun _ -> Task.FromResult 42
+
+        let workflow : Flow<unit, string, int> =
+            flow {
+                return! readValue
+            }
+        test <@ executeUnit workflow = Ok 42 @>
+
+    [<Fact>]
+    let ``ColdTaskResult alias works with explicit return! helper`` () =
+        let readValue : ColdTaskResult<int, string> =
+            fun _ -> Task.FromResult(Ok 42)
+
+        let workflow : Flow<unit, string, int> =
+            flow {
+                return! Flow.Task.fromColdResult readValue
+            }
+        test <@ executeUnit workflow = Ok 42 @>
+
+    [<Fact>]
+    let ``localEnv projects larger dependency context`` () =
         let workflow : Flow<int * string, string, int> =
             Flow.read String.length
-            |> Flow.mapEnv snd
+            |> Flow.localEnv snd
+        test <@ execute (42, "effect") CancellationToken.None workflow = Ok 6 @>
 
-        Assert.equal (Ok 6) (execute (42, "effect") CancellationToken.None workflow)
-
-    let asyncResultRoundTrips () : unit =
+    [<Fact>]
+    let ``Async Result round trips`` () =
         let workflow : Flow<unit, string, int> =
             async { return Ok 42 }
             |> Flow.fromAsyncResult
@@ -135,17 +159,17 @@ module Tests =
             workflow
             |> Flow.toAsyncResult () CancellationToken.None
             |> Async.RunSynchronously
+        test <@ result = Ok 42 @>
 
-        Assert.equal (Ok 42) result
-
-    let taskResultRoundTrips () : unit =
+    [<Fact>]
+    let ``Task Result round trips`` () =
         let workflow : Flow<unit, string, int> =
             Task.FromResult(Ok 42)
             |> Flow.Task.fromHotResult
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let logWritesThroughEnvironmentDependency () : unit =
+    [<Fact>]
+    let ``log writes through environment dependency`` () =
         let messages = ResizeArray<string>()
 
         let writer (sink: ResizeArray<string>) (entry: LogEntry) =
@@ -158,11 +182,11 @@ module Tests =
             }
 
         let result = execute messages CancellationToken.None workflow
+        test <@ result = Ok () @>
+        test <@ List.ofSeq messages = [ "Information:hello"; "Warning:count=1" ] @>
 
-        Assert.equal (Ok ()) result
-        Assert.equal [ "Information:hello"; "Warning:count=1" ] (List.ofSeq messages)
-
-    let coldTaskRemainsColdUntilExecution () : unit =
+    [<Fact>]
+    let ``cold task remains cold until execution`` () =
         let started = ref false
 
         let workflow : Flow<unit, string, int> =
@@ -170,11 +194,12 @@ module Tests =
                 started.Value <- true
                 Task.FromResult 42)
 
-        Assert.equal false started.Value
-        Assert.equal (Ok 42) (executeUnit workflow)
-        Assert.equal true started.Value
+        test <@ started.Value = false @>
+        test <@ executeUnit workflow = Ok 42 @>
+        test <@ started.Value = true @>
 
-    let hotTaskStartsBeforeExecution () : unit =
+    [<Fact>]
+    let ``hot task starts before execution`` () =
         let started = ref false
 
         let hotTask =
@@ -184,10 +209,11 @@ module Tests =
         let workflow : Flow<unit, string, int> =
             Flow.Task.fromHot hotTask
 
-        Assert.equal true started.Value
-        Assert.equal (Ok 42) (executeUnit workflow)
+        test <@ started.Value = true @>
+        test <@ executeUnit workflow = Ok 42 @>
 
-    let flowExpressionCanNormalizeAsyncAsyncResult () : unit =
+    [<Fact>]
+    let ``flow expression can normalize Async Async Result`` () =
         let nested : Async<Async<Result<int, string>>> =
             async {
                 return async { return Ok 42 }
@@ -199,10 +225,10 @@ module Tests =
                 let! (value: int) = next
                 return value
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let flowExpressionCanNormalizeResultOfAsync () : unit =
+    [<Fact>]
+    let ``flow expression can normalize Result of Async`` () =
         let nested : Result<Async<int>, string> =
             Ok(async { return 42 })
 
@@ -212,10 +238,10 @@ module Tests =
                 let! value = next
                 return value
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let flowExpressionCanNormalizeNestedResults () : unit =
+    [<Fact>]
+    let ``flow expression can normalize nested Results`` () =
         let nested : Result<Result<int, string>, string> =
             Ok(Ok 42)
 
@@ -225,10 +251,10 @@ module Tests =
                 let! value = next
                 return value
             }
+        test <@ executeUnit workflow = Ok 42 @>
 
-        Assert.equal (Ok 42) (executeUnit workflow)
-
-    let runPassesTokenToColdTaskFactory () : unit =
+    [<Fact>]
+    let ``run passes token to cold task factory`` () =
         let seen = ref CancellationToken.None
         use cts = new CancellationTokenSource()
 
@@ -238,31 +264,51 @@ module Tests =
                 Task.FromResult 42)
 
         let result = execute () cts.Token workflow
+        test <@ result = Ok 42 @>
+        test <@ seen.Value = cts.Token @>
 
-        Assert.equal (Ok 42) result
-        Assert.equal cts.Token seen.Value
+    [<Fact>]
+    let ``flow expression passes token to cold task factory directly`` () =
+        let seen = ref CancellationToken.None
+        use cts = new CancellationTokenSource()
 
-    let cancellationTokenReadsCurrentToken () : unit =
+        let readValue : ColdTask<int> =
+            fun cancellationToken ->
+                seen.Value <- cancellationToken
+                Task.FromResult 42
+
+        let workflow : Flow<unit, string, int> =
+            flow {
+                let! value = readValue
+                return value
+            }
+
+        let result = execute () cts.Token workflow
+        test <@ result = Ok 42 @>
+        test <@ seen.Value = cts.Token @>
+
+    [<Fact>]
+    let ``cancellationToken reads current token`` () =
         use cts = new CancellationTokenSource()
 
         let workflow : Flow<unit, string, CancellationToken> =
             Flow.Runtime.cancellationToken
 
         let result = execute () cts.Token workflow
+        test <@ result = Ok cts.Token @>
 
-        Assert.equal (Ok cts.Token) result
-
-    let ensureNotCanceledTurnsCanceledTokenIntoTypedError () : unit =
+    [<Fact>]
+    let ``ensureNotCanceled turns canceled token into typed error`` () =
         use cts = new CancellationTokenSource()
         cts.Cancel()
 
         let result =
             Flow.Runtime.ensureNotCanceled "canceled"
             |> execute () cts.Token
+        test <@ result = Error "canceled" @>
 
-        Assert.equal (Error "canceled") result
-
-    let catchCancellationTurnsTaskCancellationIntoTypedError () : unit =
+    [<Fact>]
+    let ``catchCancellation turns task cancellation into typed error`` () =
         use cts = new CancellationTokenSource()
         cts.Cancel()
 
@@ -275,20 +321,20 @@ module Tests =
             |> Flow.Runtime.catchCancellation (fun _ -> "canceled")
 
         let result = execute () cts.Token workflow
+        test <@ result = Error "canceled" @>
 
-        Assert.equal (Error "canceled") result
-
-    let timeoutTurnsSlowWorkIntoTypedError () : unit =
+    [<Fact>]
+    let ``timeout turns slow work into typed error`` () =
         let workflow : Flow<unit, string, int> =
             Flow.fromAsync(async {
                 do! Async.Sleep 100
                 return 42
             })
             |> Flow.Runtime.timeout (TimeSpan.FromMilliseconds 10.0) "timed out"
+        test <@ executeUnit workflow = Error "timed out" @>
 
-        Assert.equal (Error "timed out") (executeUnit workflow)
-
-    let timeoutDoesNotCancelUnderlyingWorkByItself () : unit =
+    [<Fact>]
+    let ``timeout does not cancel underlying work by itself`` () =
         let completed = TaskCompletionSource<unit>()
 
         let workflow : Flow<unit, string, int> =
@@ -301,11 +347,11 @@ module Tests =
             |> Flow.Runtime.timeout (TimeSpan.FromMilliseconds 10.0) "timed out"
 
         let result = executeUnit workflow
+        test <@ result = Error "timed out" @>
+        test <@ completed.Task.Wait 200 = true @>
 
-        Assert.equal (Error "timed out") result
-        Assert.true' (completed.Task.Wait 200)
-
-    let sleepObservesCancellation () : unit =
+    [<Fact>]
+    let ``sleep observes cancellation`` () =
         use cts = new CancellationTokenSource()
         cts.Cancel()
 
@@ -314,10 +360,10 @@ module Tests =
             |> Flow.Runtime.catchCancellation (fun _ -> "canceled")
 
         let result = execute () cts.Token workflow
+        test <@ result = Error "canceled" @>
 
-        Assert.equal (Error "canceled") result
-
-    let retryRepeatsFailuresUntilSuccess () : unit =
+    [<Fact>]
+    let ``retry repeats failures until success`` () =
         let attempts = ref 0
 
         let workflow : Flow<unit, string, int> =
@@ -334,11 +380,11 @@ module Tests =
                   ShouldRetry = ((=) "retry") }
 
         let result = executeUnit workflow
+        test <@ result = Ok 42 @>
+        test <@ attempts.Value = 3 @>
 
-        Assert.equal (Ok 42) result
-        Assert.equal 3 attempts.Value
-
-    let useWithAcquireReleaseReleasesResourcesOnSuccess () : unit =
+    [<Fact>]
+    let ``useWithAcquireRelease releases resources on success`` () =
         let disposed = ref false
 
         let workflow : Flow<unit, string, int> =
@@ -350,11 +396,11 @@ module Tests =
                 (fun resource -> Flow.succeed resource.Length)
 
         let result = executeUnit workflow
+        test <@ result = Ok 8 @>
+        test <@ disposed.Value = true @>
 
-        Assert.equal (Ok 8) result
-        Assert.true' disposed.Value
-
-    let useWithAcquireReleaseReleasesResourcesOnTypedFailure () : unit =
+    [<Fact>]
+    let ``useWithAcquireRelease releases resources on typed failure`` () =
         let disposed = ref false
 
         let workflow : Flow<unit, string, int> =
@@ -366,11 +412,11 @@ module Tests =
                 (fun _ -> Flow.fail "failed")
 
         let result = executeUnit workflow
+        test <@ result = Error "failed" @>
+        test <@ disposed.Value = true @>
 
-        Assert.equal (Error "failed") result
-        Assert.true' disposed.Value
-
-    let flowUseDisposesIDisposableResources () : unit =
+    [<Fact>]
+    let ``flow use disposes IDisposable resources`` () =
         let resource = new DisposableFlag()
 
         let workflow : Flow<unit, string, int> =
@@ -380,11 +426,11 @@ module Tests =
             }
 
         let result = executeUnit workflow
+        test <@ result = Ok 42 @>
+        test <@ resource.Disposed.Value = true @>
 
-        Assert.equal (Ok 42) result
-        Assert.true' resource.Disposed.Value
-
-    let flowUseDisposesIAsyncDisposableResources () : unit =
+    [<Fact>]
+    let ``flow use disposes IAsyncDisposable resources`` () =
         let resource = new AsyncDisposableFlag()
 
         let workflow : Flow<unit, string, int> =
@@ -394,11 +440,11 @@ module Tests =
             }
 
         let result = executeUnit workflow
+        test <@ result = Ok 42 @>
+        test <@ resource.Disposed.Value = true @>
 
-        Assert.equal (Ok 42) result
-        Assert.true' resource.Disposed.Value
-
-    let flowUseBangDisposesFlowAcquiredResources () : unit =
+    [<Fact>]
+    let ``flow use! disposes flow acquired resources`` () =
         let resource = new AsyncDisposableFlag()
 
         let acquire : Flow<unit, string, AsyncDisposableFlag> =
@@ -411,20 +457,21 @@ module Tests =
             }
 
         let result = executeUnit workflow
+        test <@ result = Ok 42 @>
+        test <@ resource.Disposed.Value = true @>
 
-        Assert.equal (Ok 42) result
-        Assert.true' resource.Disposed.Value
-
-    let catchConvertsSynchronousExceptionsIntoTypedErrors () : unit =
+    [<Fact>]
+    let ``catch converts synchronous exceptions into typed errors`` () =
         let workflow : Flow<unit, string, int> =
             Flow.delay(fun () ->
                 invalidOp "boom"
                 Flow.succeed 42)
             |> Flow.catch (fun error -> error.Message)
 
-        Assert.equal (Error "boom") (executeUnit workflow)
+        test <@ executeUnit workflow = Error "boom" @>
 
-    let catchConvertsAsynchronousExceptionsIntoTypedErrors () : unit =
+    [<Fact>]
+    let ``catch converts asynchronous exceptions into typed errors`` () =
         let workflow : Flow<unit, string, int> =
             Flow.Task.fromCold(fun _ ->
                 task {
@@ -432,41 +479,8 @@ module Tests =
                 })
             |> Flow.catch (fun error -> error.GetBaseException().Message)
 
-        Assert.equal (Error "boom") (executeUnit workflow)
+        test <@ executeUnit workflow = Error "boom" @>
 
-[<EntryPoint>]
-let main _ =
-    let results =
-        [ Tests.run "flow expression binds values" Tests.flowExpressionBindsValues
-          Tests.run "env returns the environment" Tests.envReturnsTheEnvironment
-          Tests.run "read projects from the environment" Tests.readProjectsFromTheEnvironment
-          Tests.run "fromResult lifts validation failures" Tests.fromResultLiftsValidationFailures
-          Tests.run "flow expression binds Result and Async directly" Tests.flowExpressionBindsResultAndAsyncDirectly
-          Tests.run "flow expression binds Task directly" Tests.flowExpressionBindsTaskDirectly
-          Tests.run "flow expression binds Task Result directly" Tests.flowExpressionBindsTaskResultDirectly
-          Tests.run "mapEnv projects larger dependency context" Tests.mapEnvProjectsLargerDependencyContext
-          Tests.run "Async Result round trips" Tests.asyncResultRoundTrips
-          Tests.run "Task Result round trips" Tests.taskResultRoundTrips
-          Tests.run "log writes through environment dependency" Tests.logWritesThroughEnvironmentDependency
-          Tests.run "cold task remains cold until execution" Tests.coldTaskRemainsColdUntilExecution
-          Tests.run "hot task starts before execution" Tests.hotTaskStartsBeforeExecution
-          Tests.run "flow expression can normalize Async Async Result" Tests.flowExpressionCanNormalizeAsyncAsyncResult
-          Tests.run "flow expression can normalize Result of Async" Tests.flowExpressionCanNormalizeResultOfAsync
-          Tests.run "flow expression can normalize nested Results" Tests.flowExpressionCanNormalizeNestedResults
-          Tests.run "run passes token to cold task factory" Tests.runPassesTokenToColdTaskFactory
-          Tests.run "cancellationToken reads current token" Tests.cancellationTokenReadsCurrentToken
-          Tests.run "ensureNotCanceled turns canceled token into typed error" Tests.ensureNotCanceledTurnsCanceledTokenIntoTypedError
-          Tests.run "catchCancellation turns task cancellation into typed error" Tests.catchCancellationTurnsTaskCancellationIntoTypedError
-          Tests.run "timeout turns slow work into typed error" Tests.timeoutTurnsSlowWorkIntoTypedError
-          Tests.run "timeout does not cancel underlying work by itself" Tests.timeoutDoesNotCancelUnderlyingWorkByItself
-          Tests.run "sleep observes cancellation" Tests.sleepObservesCancellation
-          Tests.run "retry repeats failures until success" Tests.retryRepeatsFailuresUntilSuccess
-          Tests.run "useWithAcquireRelease releases resources on success" Tests.useWithAcquireReleaseReleasesResourcesOnSuccess
-          Tests.run "useWithAcquireRelease releases resources on typed failure" Tests.useWithAcquireReleaseReleasesResourcesOnTypedFailure
-          Tests.run "flow use disposes IDisposable resources" Tests.flowUseDisposesIDisposableResources
-          Tests.run "flow use disposes IAsyncDisposable resources" Tests.flowUseDisposesIAsyncDisposableResources
-          Tests.run "flow use! disposes flow acquired resources" Tests.flowUseBangDisposesFlowAcquiredResources
-          Tests.run "catch converts synchronous exceptions into typed errors" Tests.catchConvertsSynchronousExceptionsIntoTypedErrors
-          Tests.run "catch converts asynchronous exceptions into typed errors" Tests.catchConvertsAsynchronousExceptionsIntoTypedErrors ]
-
-    if List.forall id results then 0 else 1
+module Program =
+    [<EntryPoint>]
+    let main _ = 0

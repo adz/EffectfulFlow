@@ -253,15 +253,15 @@ let program : Flow<AppConfig, AppError, string> =
 
         use _ = new RequestScope(environment.WriteLog, "request")
 
-        do! logInfo "starting request workflow" |> Flow.mapEnv (fun (_: AppConfig) -> environment)
+        do! logInfo "starting request workflow" |> Flow.localEnv (fun (_: AppConfig) -> environment)
 
         let! response =
             fetchResponse plan
-            |> Flow.mapEnv (fun (_: AppConfig) -> environment)
+            |> Flow.localEnv (fun (_: AppConfig) -> environment)
 
         do!
             saveAudit plan response
-            |> Flow.mapEnv (fun (_: AppConfig) -> environment)
+            |> Flow.localEnv (fun (_: AppConfig) -> environment)
 
         do! runLegacyBoundary
 

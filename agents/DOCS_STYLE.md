@@ -1,52 +1,38 @@
-# Documentation Style
+# Documentation Style Guide
 
-Use this guide when writing or editing user-facing documentation in this repository.
+This guide establishes the voice and structure for EffectfulFlow documentation.
 
 ## Audience
 
-Write for the end user of the library.
+The audience is a **senior F# developer** who wants to solve real-world problems involving dependencies, async work, and typed failures.
 
-Do not write for:
+- They do not need the category theory behind the library.
+- They do need to know the trade-offs vs `Async<Result<_,_>>` or FsToolkit.
+- They value conciseness and "just show me the code" examples.
 
-- the maintainer talking to themselves
-- a reviewer evaluating the design
-- an imagined chat partner asking a question
+## Tone and Voice
 
-## Voice
+- **Direct and Instructive:** Use "do this" instead of "it might be good to do this."
+- **User-Centric:** Start with the user's problem, not the library's abstraction.
+- **Fact-Based:** Prefer technical trade-offs over marketing-speak.
+- **No Conversational Filler:** Avoid phrases like "you might ask," "the real question is," or "it's worth noting."
+- **No Internal Narrative:** Do not describe the design process or history unless it helps the user make a decision today.
 
-- write in a direct, calm, technical voice
-- assume the reader is competent but new to this library
-- explain tradeoffs without arguing for the project
-- prefer instruction over rhetoric
+## Structural Requirements
 
-## Structure
+- **Page Headers:** Every page must start with a one-sentence "When you should read this page" summary.
+- **Examples First:** Use small, credible examples before deep-diving into semantics.
+- **API Docstrings:** Every public function must have an XML doc comment with an example.
+- **Trade-offs:** Explicitly state when NOT to use a feature.
 
-Each page should answer one user need.
+## Forbidden Patterns
 
-At the top of the page, say when the user should read it.
+- **Rhetorical Q&A:** Avoid FAQ-style headers that sound like a transcript.
+- **Justifying Content:** Do not explain *why* a section exists; just provide the value.
+- **Wait-and-See:** Do not promise future features as a way to excuse current gaps.
 
-At the end of the page, say where the user should go next.
+## Done Means
 
-Prefer this order:
-
-1. what this page is for
-2. the smallest useful example or rule
-3. practical guidance
-4. tradeoffs or caveats
-5. next step
-
-## Examples
-
-- start from the user's task, not from the library's self-description
-- keep examples small enough to scan quickly
-- avoid unnecessary environment boilerplate unless the page is about environment handling
-- use realistic names and small error types
-
-## Avoid
-
-- transcript-style phrasing such as "you asked about this shape"
-- argumentative phrasing such as "the real question is"
-- pages that justify themselves instead of teaching
-- mixing multiple audiences in one page
-- abstract positioning where a concrete example would be clearer
-
+- The reader can build a working flow without opening the source code.
+- The reader knows exactly why they would choose this library over FsToolkit.
+- The documentation feels like a maintained product, not a design notebook.

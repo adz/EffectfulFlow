@@ -1,6 +1,6 @@
 # EffectfulFlow
 
-EffectfulFlow is a small F# library built around composable flows:
+EffectfulFlow is a small experimental (for now!) F# library built around composable flows:
 
 - explicit environment requirements
 - typed failures
@@ -20,7 +20,7 @@ Use it when plain `Result` is no longer enough, but `Async<Result<_,_>>` plus he
 
 - one workflow type for dependencies, async work, and typed failures
 - one computation expression: `flow {}`
-- explicit environment access through `Flow.env` and `Flow.read`
+- explicit environment access through `Flow.env`, `Flow.read`, and `Flow.localEnv`
 - explicit execution through `Flow.run env cancellationToken flow`
 - task interop in `Flow.Task`
 - runtime helpers in `Flow.Runtime`
@@ -74,22 +74,24 @@ EffectfulFlow is usually not worth it when:
 ## Learn The Library In This Order
 
 1. [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
-2. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
-3. [`examples/README.md`](examples/README.md)
-4. [`docs/FSTOOLKIT_MIGRATION.md`](docs/FSTOOLKIT_MIGRATION.md)
-5. [`docs/TROUBLESHOOTING_TYPES.md`](docs/TROUBLESHOOTING_TYPES.md)
-6. [`src/EffectfulFlow/Flow.fs`](src/EffectfulFlow/Flow.fs)
+2. [`docs/TASK_ASYNC_INTEROP.md`](docs/TASK_ASYNC_INTEROP.md)
+3. [`docs/ENV_SLICING.md`](docs/ENV_SLICING.md)
+4. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
+5. [`examples/README.md`](examples/README.md)
+6. [`docs/TROUBLESHOOTING_TYPES.md`](docs/TROUBLESHOOTING_TYPES.md)
+7. [`src/EffectfulFlow/Flow.fs`](src/EffectfulFlow/Flow.fs)
 
 ## Compatibility
 
-The current design is `.NET`-first. Cancellation is explicit in the `Flow` execution model, and task interop is part of the first-class public surface.
+The design is `.NET`-first. Cancellation is explicit in the `Flow` execution model, and task interop is part of the first-class public surface.
+This means we don't have a Fable story (yet).
 
-The repo no longer keeps separate compatibility modules for old `Async<Result<_,_>>` or FsToolkit-style workflows. Migration is through direct adapters such as:
+If working with `Async<Result<_,_>>` or FsToolkit-style workflows, you can use adapters like:
 
 - `Flow.fromAsyncResult`
 - `Flow.toAsyncResult`
 
-NativeAOT is still verified in this repo through a small publish-and-run probe application.
+NativeAOT is verified in this repo through a small publish-and-run probe application.
 
 ## Run The Repo
 

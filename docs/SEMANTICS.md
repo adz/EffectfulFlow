@@ -1,6 +1,7 @@
 # Semantics
 
-Read this page when you need to know exactly how EffectfulFlow behaves around failure, exceptions, cancellation, timeout, and cleanup.
+This page describes how EffectfulFlow behaves around failure, exceptions, cancellation,
+timeout, and cleanup.
 
 ## Success And Typed Failure
 
@@ -56,6 +57,10 @@ Use cold task helpers when work should start at flow execution time.
 
 Use hot task helpers only when you already have a task value on purpose.
 
+`ColdTask<'value>` binds directly in `flow {}`. `ColdTaskResult<'value, 'error>` stays
+explicit through `Flow.Task.fromColdResult` so result-shaped cold task functions do not create
+ambiguous builder behavior.
+
 ## Retry Attempts
 
 `RetryPolicy.MaxAttempts` counts total attempts, including the first run.
@@ -69,7 +74,7 @@ So:
 
 The test suite currently verifies:
 
-- direct binding from `Result`, `Async`, and `Async<Result<_,_>>`
+- direct binding from `Result`, `Async`, `Async<Result<_,_>>`, `Task`, and `ColdTask`
 - cancellation token propagation into task factories
 - timeout behavior
 - retry attempt counting

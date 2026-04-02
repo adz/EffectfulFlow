@@ -1,6 +1,6 @@
 # Examples
 
-Read this page when you want to see what EffectfulFlow looks like in code before reading the API surface in detail.
+This page points to runnable examples so you can see what EffectfulFlow looks like in code.
 
 ## Run The Examples
 
@@ -39,7 +39,7 @@ The main example in [`examples/EffectfulFlow.Examples/Program.fs`](./EffectfulFl
 - apply a timeout
 - persist an audit record through a `Task` boundary
 - scope an async resource with `use`
-- compose smaller flows into a larger config-driven flow with `Flow.mapEnv`
+- compose smaller flows into a larger config-driven flow with `Flow.localEnv`
 
 Read it in this order:
 
@@ -66,4 +66,5 @@ The playground example in [`examples/EffectfulFlow.Playground/Program.fs`](./Eff
 
 ## Next
 
-If you want the smallest introduction, read [`docs/GETTING_STARTED.md`](../docs/GETTING_STARTED.md). If you are migrating from `Async<Result<_,_>>`, read [`docs/FSTOOLKIT_MIGRATION.md`](../docs/FSTOOLKIT_MIGRATION.md).
+If you want the smallest introduction, read [`docs/GETTING_STARTED.md`](../docs/GETTING_STARTED.md).
+For task and async boundary shapes, read [`docs/TASK_ASYNC_INTEROP.md`](../docs/TASK_ASYNC_INTEROP.md).

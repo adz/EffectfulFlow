@@ -1,6 +1,7 @@
 # Troubleshooting Types
 
-Read this page when the compiler is unhappy with a `flow {}` block and you need to understand what type shape it is asking for.
+This page explains the wrapper-shape mismatches that usually sit behind `flow {}` compiler
+errors.
 
 Most of the time, the problem is not that Flow is doing something exotic. The problem is that the compiler sees one wrapper shape and you intended another.
 
@@ -78,6 +79,22 @@ If the task should start only when the flow runs, prefer a cold task factory ins
 ```fsharp
 flow {
     let! load = Flow.read _.Load
+    let! response = load
+    return response
+}
+```
+
+That works when `load` has the shape `ColdTask<'value>`, which means:
+
+```fsharp
+CancellationToken -> Task<'value>
+```
+
+If you want the boundary to stay explicit, this is still valid:
+
+```fsharp
+flow {
+    let! load = Flow.read _.Load
     return!
         load
         |> Flow.Task.fromCold
@@ -116,6 +133,8 @@ The same rule applies to:
 - `fromColdResult` / `fromHotResult`
 - `fromColdUnit` / `fromHotUnit`
 
+`ColdTaskResult<'value, 'error>` stays explicit through `fromColdResult`.
+
 ## Error: The Flow Requires A Different Environment Type
 
 This usually means you wrote a smaller flow against one env type and are trying to run it inside a larger env.
@@ -133,11 +152,11 @@ let greet : Flow<SmallEnv, string, string> =
     }
 ```
 
-If you want to run it in `BigEnv`, map the outer env into the smaller one:
+If you want to run it in `BigEnv`, derive the smaller local env from the outer one:
 
 ```fsharp
 let greetInBigEnv : Flow<BigEnv, string, string> =
-    greet |> Flow.mapEnv _.App
+    greet |> Flow.localEnv _.App
 ```
 
 ## Error: Disposal Or Cleanup Does Not Fit The Flow Shape
@@ -175,7 +194,7 @@ Most fixes are one of:
 
 - add a type annotation to disambiguate `let!`
 - lift `Task` values through `Flow.Task`
-- map the environment with `Flow.mapEnv`
+- derive a smaller local environment with `Flow.localEnv`
 - move back to plain `Result` until the real boundary appears
 
 ## Next

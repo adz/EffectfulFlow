@@ -1,6 +1,7 @@
 # EffectfulFlow And Effect-TS
 
-Read this page when you already know Effect-TS and want to place EffectfulFlow correctly.
+This page places EffectfulFlow in relation to Effect-TS without pretending they solve the
+same problem at the same scale.
 
 EffectfulFlow presents its core abstraction as a composable `Flow`, but it is still not trying to recreate the full Effect-TS ecosystem in F#.
 
@@ -50,4 +51,5 @@ Do not evaluate it as a feature-peer to Effect-TS. Evaluate it against the F# co
 
 ## Next
 
-If you are deciding whether to adopt the library, read [`docs/FSTOOLKIT_MIGRATION.md`](./FSTOOLKIT_MIGRATION.md) and [`examples/README.md`](../examples/README.md).
+If you are deciding whether to adopt the library, read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md),
+[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md), and [`examples/README.md`](../examples/README.md).
