@@ -4,60 +4,186 @@
 [![NuGet](https://img.shields.io/nuget/v/EffectfulFlow.svg)](https://www.nuget.org/packages/EffectfulFlow)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-EffectfulFlow is a small experimental (for now!) F# library built around composable flows:
+When one F# use case starts mixing `Result`, `async {}`, `.NET Task`, and dependency injection,
+the code often stops reading like the happy path.
 
-- explicit environment requirements
-- typed failures
-- explicit cancellation
-- direct `Async` and `.NET Task` interop
-- runtime helpers for retry, timeout, logging, and scoped cleanup
+## Why This Exists In F#
 
-The core type is:
+Most real F# application code ends up mixing:
+
+- dependencies passed through several layers
+- `Result` for expected business errors
+- `Async` or `.NET Task` for IO
+
+That often turns into:
+
+```fsharp
+AppEnv -> Async<Result<'value, 'error>>
+```
+
+plus helper modules, adapters, and wrapper-specific boilerplate.
+
+EffectfulFlow is a minimal, idiomatic way to represent that shape directly in F#.
+
+It gives that use case one shape:
 
 ```fsharp
 Flow<'env, 'error, 'value>
 ```
 
-Use it when plain `Result` is no longer enough, but `Async<Result<_,_>>` plus helper modules is starting to hide the happy path.
+and one workflow:
 
-## What You Get
+```fsharp
+flow { ... }
+```
 
-- one workflow type for dependencies, async work, and typed failures
+so env access, typed failures, `Async`, and `Task` stay in one place instead of spreading
+across helper modules, adapters, and wrapper-specific CEs.
+
+## Before And After
+
+Before:
+
+```fsharp
+let handle userId (env: AppEnv) =
+    async {
+        let! loaded = env.LoadName userId |> Async.AwaitTask
+
+        match loaded with
+        | Error error ->
+            return Error (GatewayFailed error)
+        | Ok loadedName ->
+            match validateName loadedName with
+            | Error error ->
+                return Error error
+            | Ok validName ->
+                return Ok $"{env.Prefix} {validName}"
+    }
+```
+
+After:
+
+```fsharp
+let handle userId : Flow<AppEnv, AppError, string> =
+    flow {
+        let! env = Flow.env
+        let! loadedName =
+            env.LoadName userId
+            |> Flow.mapError GatewayFailed
+        let! validName = validateName loadedName
+        return $"{env.Prefix} {validName}"
+    }
+```
+
+This is the same application flow without the plumbing taking over the happy path.
+
+## What It Actually Is
+
+EffectfulFlow is a small, focused F# library built around composable flows:
+
+- explicit environment requirements
+- typed failures via Result
+- cancellation-aware execution without passing tokens through every step
+- direct `Async` and `.NET Task` interop
+- helpers for retry, timeout, logging, and scoped cleanup
+
+The point is to keep that code in one place, with one workflow type, while staying in ordinary F#:
+
 - one computation expression: `flow {}`
-- explicit environment access through `Flow.env`, `Flow.read`, and `Flow.localEnv`
+- one CE that binds `Result`, `Async`, `Task`, and env access in one place
+- explicit environment access through `Flow.read` and `Flow.env`
 - explicit execution through `Flow.run env cancellationToken flow`
-- task interop in `Flow.Task`
-- runtime helpers in `Flow.Runtime`
+
+It does not replace F# `Async`, `.NET Task`, or `Result`.
+It gives you a smaller, more consistent way to compose them in application code.
+Cancellation stays explicit at the runtime boundary and in cold task signatures, but usually disappears inside `flow {}` itself.
+
+## What It Is Not
+
+EffectfulFlow is not trying to become a new runtime platform.
+
+- it does not reimplement `Async` or `Task`
+- it does not introduce its own concurrency system
+- it does not hide when effects run
+- it stays explicit at the execution boundary with `Flow.run`
+
+The library is intentionally narrow:
+
+- better DX for mixed application workflows
+- better readability across `Result` / `Async` / `Task` code
+- less wrapper and adapter noise around the happy path
+
+Reader-style composition can feel imported in F# when it arrives as a larger FP stack.
+EffectfulFlow keeps the same practical benefits in plain F# terms:
+
+- one computation expression
+- plain functions
+- explicit environment access
+- no transformer stacks or typeclass machinery
 
 Flows are cold by default. Building a flow does not run it.
 
-## A Small Example
+## Full Code
 
 ```fsharp
 type AppEnv =
-    { Prefix: string }
+    { Prefix: string
+      LoadName: int -> Task<Result<string, AppError>> }
 
 type AppError =
     | MissingName
+    | GatewayFailed of string
 
-let validateName name =
+let validateName (name: string) =
     if System.String.IsNullOrWhiteSpace name then
         Error MissingName
     else
         Ok name
 
-let greet name : Flow<AppEnv, AppError, string> =
+let greet userId : Flow<AppEnv, AppError, string> =
     flow {
-        let! validName = validateName name
+        let! loadName = Flow.read _.LoadName
+        let! loadedName =
+            loadName userId
+            |> Flow.mapError GatewayFailed
+
+        let! validName = validateName loadedName
         let! prefix = Flow.read _.Prefix
         return $"{prefix} {validName}"
     }
 
 let result =
-    greet "Ada"
-    |> Flow.run { Prefix = "Hello" } System.Threading.CancellationToken.None
+    greet 42
+    |> Flow.run
+        { Prefix = "Hello"
+          LoadName = fun _ -> Task.FromResult(Ok "Ada") }
+        System.Threading.CancellationToken.None
     |> Async.RunSynchronously
 ```
+
+This full example shows the intended shape in one place:
+
+- one env dependency through `Flow.read`
+- one plain `Result` function
+- one `Task<Result<_,_>>` boundary
+- one happy-path workflow in `flow {}`
+
+## Where To Use It
+
+Use EffectfulFlow at the effectful application boundary:
+
+- handlers
+- use cases
+- service orchestration
+- infrastructure-facing application services
+
+Keep the domain plain F# where possible:
+
+- plain functions
+- plain domain types
+- plain `Result` when that already reads well
+
+Keep domain code plain. Use `flow {}` by default in the application layer.
 
 ## When EffectfulFlow Fits Well
 
@@ -78,49 +204,53 @@ EffectfulFlow is usually not worth it when:
 ## Learn The Library In This Order
 
 1. [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
-2. [`docs/TASK_ASYNC_INTEROP.md`](docs/TASK_ASYNC_INTEROP.md)
-3. [`docs/ENV_SLICING.md`](docs/ENV_SLICING.md)
-4. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
-5. [`examples/README.md`](examples/README.md)
-6. [`docs/TROUBLESHOOTING_TYPES.md`](docs/TROUBLESHOOTING_TYPES.md)
-7. [`src/EffectfulFlow/Flow.fs`](src/EffectfulFlow/Flow.fs)
+2. [`docs/WHY_EFFECTFULFLOW.md`](docs/WHY_EFFECTFULFLOW.md)
+3. [`docs/TASK_ASYNC_INTEROP.md`](docs/TASK_ASYNC_INTEROP.md)
+4. [`docs/ENV_SLICING.md`](docs/ENV_SLICING.md)
+5. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
+6. [`examples/README.md`](examples/README.md)
+7. [`docs/TROUBLESHOOTING_TYPES.md`](docs/TROUBLESHOOTING_TYPES.md)
+8. [`src/EffectfulFlow/Flow.fs`](src/EffectfulFlow/Flow.fs)
 
 ## Compatibility
 
+### AOT Verified
+NativeAOT is verified in this repo through a small publish-and-run probe application.
+
+### .NET only - no Fable story
 The design is `.NET`-first. Cancellation is explicit in the `Flow` execution model, and task interop is part of the first-class public surface.
 This means we don't have a Fable story (yet).
 
-If working with `Async<Result<_,_>>` or FsToolkit-style workflows, you can use adapters like:
+### Existing Shapes
+EffectfulFlow builds on existing F# and .NET primitives rather than replacing them.
+If a direct `Result`, `Async<'T>`, or `Task<'T>` boundary is already the clearest shape,
+use that shape directly.
+
+If you already have `Async<Result<_,_>>` or FsToolkit-style workflows, you can adopt `Flow`
+per use case and interoperate through adapters like:
 
 - `Flow.fromAsyncResult`
 - `Flow.toAsyncResult`
 
-NativeAOT is verified in this repo through a small publish-and-run probe application.
-
 ## Run The Repo
+
+Run the examples:
+
+```bash
+# Longer main example
+dotnet run --project examples/EffectfulFlow.Examples/EffectfulFlow.Examples.fsproj
+
+# Maintenance example:
+dotnet run --project examples/EffectfulFlow.MaintenanceExamples/EffectfulFlow.MaintenanceExamples.fsproj
+
+# Minimal playground example:
+dotnet run --project examples/EffectfulFlow.Playground/EffectfulFlow.Playground.fsproj
+```
 
 Run the test suite:
 
 ```bash
-dotnet run --project tests/EffectfulFlow.Tests/EffectfulFlow.Tests.fsproj --nologo
-```
-
-Run the main example:
-
-```bash
-dotnet run --project examples/EffectfulFlow.Examples/EffectfulFlow.Examples.fsproj --nologo
-```
-
-Run the maintenance example:
-
-```bash
-dotnet run --project examples/EffectfulFlow.MaintenanceExamples/EffectfulFlow.MaintenanceExamples.fsproj --nologo
-```
-
-Run the playground example:
-
-```bash
-dotnet run --project examples/EffectfulFlow.Playground/EffectfulFlow.Playground.fsproj --nologo
+dotnet run --project tests/EffectfulFlow.Tests/EffectfulFlow.Tests.fsproj
 ```
 
 Run the NativeAOT probe:

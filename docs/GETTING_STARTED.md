@@ -1,10 +1,9 @@
 # Getting Started
 
-This guide introduces the smallest useful Flow shape before moving into environment access,
-task boundaries, and runtime helpers.
+Read this page when you want the fastest path from plain `Result` code to an application-shaped `flow {}` workflow.
 
-Let's start by keeping code as plain F# then introduce `Flow` only at the boundary where
-dependencies, async work, or typed failures start.
+Start with plain F# first, then introduce `Flow` only at the boundary where dependencies,
+async work, or typed failures start.
 
 ## 1. Start With Pure Code
 
@@ -23,7 +22,8 @@ let validateName (name: string) =
 
 ## 2. Introduce `Flow`
 
-Use a flow to keep working on the successful `Ok` path:
+Use a flow to keep working on the successful path while staying in the same CE you will use
+later for environment access and async or task boundaries:
 
 ```fsharp
 Flow<'env, 'error, 'value>
@@ -38,6 +38,10 @@ let greet input : Flow<unit, ValidationError, string> =
         return $"Hello {name}"
     }
 ```
+
+The point of this step is simple: `validateName` stays an ordinary `Result` function, and
+`flow {}` keeps the success path readable without forcing you into a separate CE for each
+wrapper shape.
 
 Read the type as:
 

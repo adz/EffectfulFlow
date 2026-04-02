@@ -3,6 +3,10 @@
 This page describes how EffectfulFlow behaves around failure, exceptions, cancellation,
 timeout, and cleanup.
 
+EffectfulFlow does not replace the underlying async or task machinery.
+It composes existing `Result`, `Async`, and `.NET Task` behavior behind one workflow type,
+while keeping execution explicit through `Flow.run`.
+
 ## Success And Typed Failure
 
 - `Flow.succeed value` returns `Ok value`
