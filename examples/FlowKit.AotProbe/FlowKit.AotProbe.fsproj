@@ -11,8 +11,17 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\FlowKit\FlowKit.fsproj" />
+  <ItemGroup Condition="'$(UsePrebuiltFlowKit)' != 'true'">
+    <ProjectReference Include="..\..\src\FlowKit\FlowKit.fsproj"
+                      SetTargetFramework="TargetFramework=net8.0"
+                      GlobalPropertiesToRemove="PublishAot" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UsePrebuiltFlowKit)' == 'true'">
+    <Reference Include="FlowKit">
+      <HintPath>..\..\artifacts\bin\FlowKit\release_net8.0\FlowKit.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
 
 </Project>
