@@ -1,5 +1,7 @@
 # FlowKit
 
+![FlowKit logo](docs/content/logo.svg)
+
 Simple to use F# flow {} computation expression for unifying Dependencies (Reader), 
 Error Handling (Result), and Async/Task.
 
