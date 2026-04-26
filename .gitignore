@@ -4,3 +4,6 @@ artifacts/*
 .idea/
 .fake
 *.swp
+.codex
+.fsdocs/
+output/

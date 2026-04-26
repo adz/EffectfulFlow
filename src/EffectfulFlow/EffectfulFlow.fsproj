@@ -1,20 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <IsAotCompatible>true</IsAotCompatible>
+    <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
+    <PackageId>EffectfulFlow</PackageId>
     <Version>0.1.0</Version>
     <Authors>Adam Davies</Authors>
     <Description>A small F# library for composable flows with explicit environment requirements and typed failures.</Description>
+    <PackageProjectUrl>https://adz.github.io/EffectfulFlow/</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/yourusername/EffectfulFlow</RepositoryUrl>
+    <RepositoryUrl>https://github.com/adz/EffectfulFlow</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageReleaseNotes>Initial public preview release of EffectfulFlow with the core Flow abstraction, task and async interop, cancellation-aware execution, retry and timeout helpers, scoped cleanup, runnable examples, and GitHub Pages API documentation.</PackageReleaseNotes>
     <PackageTags>fsharp;effects;flow;async;result;dependencies</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

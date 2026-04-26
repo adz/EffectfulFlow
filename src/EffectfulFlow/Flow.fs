@@ -318,8 +318,8 @@ module Flow =
     /// <param name="flow">The flow requiring the inner environment.</param>
     /// <example>
     /// <code>
-    /// let innerFlow : Flow<Config, string, unit> = ...
-    /// let outerFlow : Flow<AppEnv, string, unit> = innerFlow |> Flow.localEnv (fun env -> env.Config)
+    /// let innerFlow : Flow&lt;Config, string, unit&gt; = ...
+    /// let outerFlow : Flow&lt;AppEnv, string, unit&gt; = innerFlow |> Flow.localEnv (fun env -> env.Config)
     /// </code>
     /// </example>
     let localEnv
