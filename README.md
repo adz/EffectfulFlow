@@ -10,6 +10,8 @@ Error Handling (Result), and Async/Task.
 [![NuGet](https://img.shields.io/nuget/v/FlowKit.svg)](https://www.nuget.org/packages/FlowKit)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
+Docs: [adz.github.io/FlowKit](https://adz.github.io/FlowKit/)
+
 When one F# use case starts mixing `Result`, `async {}`, `.NET Task`, and dependency management,
 the code often stops reading like the happy path.
 
