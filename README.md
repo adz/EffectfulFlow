@@ -3,27 +3,31 @@
 Simple to use F# flow {} computation expression for unifying Dependencies (Reader), 
 Error Handling (Result), and Async/Task.
 
-The modern way to build F# application use cases.
-
 [![ci](https://github.com/adz/FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/adz/FlowKit/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/FlowKit.svg)](https://www.nuget.org/packages/FlowKit)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-When one F# use case starts mixing `Result`, `async {}`, `.NET Task`, and dependency injection,
+When one F# use case starts mixing `Result`, `async {}`, `.NET Task`, and dependency management,
 the code often stops reading like the happy path.
 
 ## Why This Exists In F#
 
 Most real F# application code ends up mixing:
 
-- dependencies passed through several layers
+- dependencies passed through several layers, whether as one app environment or explicit feature dependencies
 - `Result` for expected business errors
 - `Async` or `.NET Task` for IO
 
-That often turns into:
+That often turns into one of these shapes:
 
 ```fsharp
 AppEnv -> Async<Result<'value, 'error>>
+```
+
+or:
+
+```fsharp
+Deps -> Input -> Async<Result<'value, 'error>>
 ```
 
 plus helper modules, adapters, and wrapper-specific boilerplate.
@@ -42,7 +46,7 @@ and one workflow:
 flow { ... }
 ```
 
-so env access, typed failures, `Async`, and `Task` stay in one place instead of spreading
+so dependency access, typed failures, `Async`, and `Task` stay in one place instead of spreading
 across helper modules, adapters, and wrapper-specific CEs.
 
 ## Before And After
@@ -50,9 +54,9 @@ across helper modules, adapters, and wrapper-specific CEs.
 Before:
 
 ```fsharp
-let handle userId (env: AppEnv) =
+let handle (deps: UserDeps) userId =
     async {
-        let! loaded = env.LoadName userId |> Async.AwaitTask
+        let! loaded = deps.LoadName userId |> Async.AwaitTask
 
         match loaded with
         | Error error ->
@@ -62,25 +66,24 @@ let handle userId (env: AppEnv) =
             | Error error ->
                 return Error error
             | Ok validName ->
-                return Ok $"{env.Prefix} {validName}"
+                return Ok $"{deps.Prefix} {validName}"
     }
 ```
 
 After:
 
 ```fsharp
-let handle userId : Flow<AppEnv, AppError, string> =
+let handle (deps: UserDeps) userId : Flow<RequestContext, AppError, string> =
     flow {
-        let! env = Flow.env
         let! loadedName =
-            env.LoadName userId
+            deps.LoadName userId
             |> Flow.mapError GatewayFailed
         let! validName = validateName loadedName
-        return $"{env.Prefix} {validName}"
+        return $"{deps.Prefix} {validName}"
     }
 ```
 
-This is the same application flow without the plumbing taking over the happy path.
+This is the same application flow without the plumbing taking over the happy path. If your codebase prefers a single booted app environment, that style works too. FlowKit supports both.
 
 ## What It Actually Is
 
