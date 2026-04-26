@@ -185,6 +185,23 @@ Keep the domain plain F# where possible:
 
 Keep domain code plain. Use `flow {}` by default in the application layer.
 
+## Supported Architectural Styles
+
+EffectfulFlow supports three valid architectural styles:
+
+- Booted App Environment
+- Explicit Dependencies + Context
+- Standard `.NET` AppHost + DI
+
+The library does not require one application shape.
+Choose the style that fits your codebase and team:
+
+- use Booted App Environment when app composition simplicity matters most
+- use Explicit Dependencies + Context when feature locality and testability matter most
+- use standard `.NET` AppHost + DI when familiarity and incremental adoption matter most
+
+Read [`docs/ARCHITECTURAL_STYLES.md`](docs/ARCHITECTURAL_STYLES.md) for examples and trade-offs.
+
 ## When EffectfulFlow Fits Well
 
 EffectfulFlow is a good fit when:
@@ -204,13 +221,14 @@ EffectfulFlow is usually not worth it when:
 ## Learn The Library In This Order
 
 1. [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
-2. [`docs/WHY_EFFECTFULFLOW.md`](docs/WHY_EFFECTFULFLOW.md)
-3. [`docs/TASK_ASYNC_INTEROP.md`](docs/TASK_ASYNC_INTEROP.md)
-4. [`docs/ENV_SLICING.md`](docs/ENV_SLICING.md)
-5. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
-6. [`examples/README.md`](examples/README.md)
-7. [`docs/TROUBLESHOOTING_TYPES.md`](docs/TROUBLESHOOTING_TYPES.md)
-8. [`src/EffectfulFlow/Flow.fs`](src/EffectfulFlow/Flow.fs)
+2. [`docs/ARCHITECTURAL_STYLES.md`](docs/ARCHITECTURAL_STYLES.md)
+3. [`docs/WHY_EFFECTFULFLOW.md`](docs/WHY_EFFECTFULFLOW.md)
+4. [`docs/TASK_ASYNC_INTEROP.md`](docs/TASK_ASYNC_INTEROP.md)
+5. [`docs/ENV_SLICING.md`](docs/ENV_SLICING.md)
+6. [`docs/SEMANTICS.md`](docs/SEMANTICS.md)
+7. [`examples/README.md`](examples/README.md)
+8. [`docs/TROUBLESHOOTING_TYPES.md`](docs/TROUBLESHOOTING_TYPES.md)
+9. [`src/EffectfulFlow/Flow.fs`](src/EffectfulFlow/Flow.fs)
 
 ## Compatibility
 
