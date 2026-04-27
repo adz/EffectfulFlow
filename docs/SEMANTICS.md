@@ -1,126 +1,109 @@
 # Semantics
 
-Task-oriented semantics on this page refer to the `FsFlow.Net` package. The core `FsFlow`
-package keeps only sync and `Async` concepts in its public surface.
+Read this page when you want the exact execution model of `Flow`, `AsyncFlow`, `TaskFlow`, and `ColdTask`.
 
-This page describes how FsFlow behaves around failure, exceptions, cancellation,
-timeout, and cleanup.
-
-FsFlow does not replace the underlying async or task machinery.
-It composes existing `Result`, `Async`, and `.NET Task` behavior behind one workflow type,
-while keeping execution explicit through `Flow.toAsync`.
+Task-oriented semantics on this page refer to the `FsFlow.Net` package.
+The core `FsFlow` package keeps only sync and `Async` concepts in its public surface.
 
 ## Success And Typed Failure
 
 - `Flow.succeed value` returns `Ok value`
-- `Flow.fail error` returns `Error error`
-- `Flow.map` only transforms successful values
-- `Flow.mapError` only transforms typed failures
+- `AsyncFlow.succeed value` returns `Ok value`
+- `TaskFlow.succeed value` returns `Ok value`
+- `fail` produces the typed `Error`
+- `map` only transforms successful values
+- `mapError` only transforms typed failures
+
+## Cold By Default
+
+All three workflow families are cold.
+Building a workflow does not run it.
+
+Rerun behavior:
+
+- `Flow` reruns from scratch each time you call `Flow.run`
+- `AsyncFlow` reruns from scratch each time you call `AsyncFlow.run` or `AsyncFlow.toAsync`
+- `TaskFlow` reruns from scratch each time you call `TaskFlow.run` or `TaskFlow.toTask`
+
+The `delay` combinator preserves that behavior in each family.
+
+## Execution Is Explicit
+
+Run each workflow family with its own execution function:
+
+- `Flow.run env flow`
+- `AsyncFlow.toAsync env flow`
+- `TaskFlow.toTask env cancellationToken flow`
+
+The runtime shape is part of the public contract.
+That is why the library keeps three families instead of forcing every workflow through one wrapper.
 
 ## Exceptions
 
-Use `Flow.catch` to convert exceptions into typed errors.
+Each family exposes `catch` to convert exceptions into typed errors:
 
-`Flow.catch` can handle exceptions thrown:
+- `Flow.catch`
+- `AsyncFlow.catch`
+- `TaskFlow.catch`
 
-- while building delayed work
-- during async execution
-- during task execution lifted through `Flow.Task`
-- before an awaited async or task boundary produces a value
-- after the workflow has already entered async execution
+This handles exceptions that occur while the workflow is being executed.
+Typed failures still stay in `Result`.
 
-It does not turn ordinary typed failures into exceptions or vice versa unless you ask it to.
+## Environments
 
-## Cancellation
+Each family reads dependencies explicitly:
 
-Cancellation is explicit in the execution model:
+- `env` reads the whole environment
+- `read` projects one dependency
+- `localEnv` runs a smaller workflow inside a larger environment
 
-- `Flow.toAsync environment cancellationToken flow` runs with the supplied token
-- `Flow.Runtime.cancellationToken` reads that token inside the flow
-- `Flow.Runtime.ensureNotCanceled` checks whether the token is already canceled and returns a typed failure if so
-- `Flow.Runtime.catchCancellation` translates `OperationCanceledException` into a typed error
-
-`Flow.Runtime.catchCancellation` handles cancellation thrown while the workflow is already running:
-
-- from `Flow.Runtime.sleep`
-- from cold task factories that observe the runtime token
-- from task or async work that raises `OperationCanceledException`
-
-`Flow.Runtime.ensureNotCanceled` does not catch exceptions.
-It checks the token up front and returns a typed error immediately if cancellation has already been requested.
-
-If a task or async operation ignores cancellation, Flow does not invent cancellation behavior for it.
-
-## Timeout
-
-`Flow.Runtime.timeout after timeoutError flow` returns `Error timeoutError` when the flow does not complete before the timeout.
-
-Timeout does not cancel underlying work by itself. If the underlying work continues independently, it may still complete later.
-
-## Cleanup
-
-- `Flow.tryFinally` runs the compensation action on success, typed failure, and exception
-- builder `use` and `use!` dispose resources after the flow body completes
-- when a resource implements `IAsyncDisposable`, the builder prefers async disposal
-- `Flow.Runtime.useWithAcquireRelease` runs the release action on success, typed failure, exception, and cancellation
+The environment semantics are aligned across all three families.
 
 ## Task Temperature
 
-Task helpers come in two groups:
+`TaskFlow` and the `.NET` extensions for `asyncFlow {}` distinguish between:
 
-- cold factories such as `Flow.Task.fromCold` and `Flow.Task.fromColdResult`
-- already-created task values such as `Flow.Task.fromHot` and `Flow.Task.fromHotResult`
+- already-started task values such as `Task<'value>` and `ValueTask<'value>`
+- delayed task work represented by `ColdTask<'value>`
 
-Use cold task helpers when work should start at flow execution time.
+`ColdTask<'value>` means:
 
-Use hot task helpers only when you already have a task value on purpose.
+```fsharp
+CancellationToken -> Task<'value>
+```
 
-Rerun behavior is different:
+That distinction matters because reruns behave differently:
 
-- `Flow` itself is cold and reruns from scratch on each execution
-- lifting a hot `Task` or `ValueTask` does not make the underlying effect cold again
-- rerunning a flow that lifted a hot `Task` or `ValueTask` re-awaits the same started work
-- rerunning a flow that lifted a `ColdTask<'value>` invokes the factory again
+- rerunning a workflow that binds a started `Task` or `ValueTask` re-awaits the same started work
+- rerunning a workflow that binds a `ColdTask` calls the factory again
 
-`ValueTask` adds one more caveat: it is a single-consumption oriented type, which makes it a poor
-stored backbone for reusable workflows and shared combinators. If you need to keep and rerun
-already-started work safely, normalize the `ValueTask` to `Task` or `ColdTask` before you store it
-in reusable flow code.
+`ColdTask` is the right shape when task work should start at workflow execution time.
 
-Cancellation-token propagation is also different:
+## Family Direction
 
-- hot `Task` and hot `ValueTask` lifts cannot receive the current runtime `CancellationToken`
-- `ColdTask<'value>` receives the current runtime token on each run
-- a cold task may still ignore that token, but the runtime token is available to it
+The workflow families intentionally compose upward:
 
-`ColdTask<'value>` binds directly in `flow {}`. `ColdTask<Result<'value, 'error>>` stays
-explicit through `Flow.Task.fromColdResult` so result-shaped cold task functions do not create
-ambiguous builder behavior.
+- `AsyncFlow` can lift `Flow`
+- `TaskFlow` can lift `Flow`
+- `TaskFlow` can lift `AsyncFlow`
 
-Prefer `ColdTask<'value>` for new task-based interop helpers when restartability and runtime
-token fidelity matter more than reusing one already-started operation.
-
-## Retry Attempts
-
-`RetryPolicy.MaxAttempts` counts total attempts, including the first run.
-
-So:
-
-- `MaxAttempts = 1` means "run once, never retry"
-- `MaxAttempts = 3` means "initial run plus up to two retries"
+Keep the smallest honest workflow at each boundary, then lift it only when the outer runtime actually changes.
 
 ## What The Tests Cover
 
 The test suite currently verifies:
 
-- direct binding from `Result`, `Async`, `Async<Result<_,_>>`, `Task`, and `ColdTask`
-- cancellation token propagation into task factories
-- timeout behavior
-- retry attempt counting
-- sync and async disposal through builder `use` / `use!`
-- explicit release on cancellation through `useWithAcquireRelease`
-- exception capture across synchronous and asynchronous boundaries
+- sync, async, and task execution
+- rerun behavior for `delay`
+- direct binding across the supported wrapper shapes
+- `ColdTask` hot and cold adaptation behavior
+- cancellation-token propagation into `ColdTask`
+- environment projection through `localEnv`
+- option and value-option behavior across all builders
 
 ## Next
 
-Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the basic flow model, or [`src/FsFlow/Flow.fs`](../src/FsFlow/Flow.fs) for the full API surface.
+Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the workflow-family overview,
+[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for the direct binding surface,
+or [`src/FsFlow/Flow.fs`](../src/FsFlow/Flow.fs) and [`src/FsFlow.Net/TaskFlow.fs`](../src/FsFlow.Net/TaskFlow.fs)
+for the full API surface.

@@ -62,7 +62,7 @@ The playground example in [`examples/FsFlow.Playground/Program.fs`](./FsFlow.Pla
 - plain `Result` validation first
 - a small `flow {}` workflow
 - projected environment reads through `Flow.read`
-- one `.NET` boundary through `Flow.Task.fromCold`
+- one `.NET` boundary through `taskFlow {}`
 
 ## Smallest Docs-First Examples
 

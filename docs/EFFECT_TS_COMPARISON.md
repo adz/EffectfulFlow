@@ -3,7 +3,7 @@
 This page places FsFlow in relation to Effect-TS without pretending they solve the
 same problem at the same scale.
 
-FsFlow presents its core abstraction as a composable `Flow`, but it is still not trying to recreate the full Effect-TS ecosystem in F#.
+FsFlow presents a small workflow family, but it is still not trying to recreate the full Effect-TS ecosystem in F#.
 
 ## What Carries Over
 
@@ -18,9 +18,9 @@ These ideas are shared:
 
 FsFlow is aimed at ordinary F# application code:
 
-- `flow {}` instead of generator-based syntax
+- `flow {}`, `asyncFlow {}`, and `taskFlow {}` instead of generator-based syntax
 - first-class interop with `Result`, `Async`, and `.NET Task`
-- explicit environment reads such as `Flow.read _.Gateway`
+- explicit environment reads such as `Flow.read _.Gateway` or `TaskFlow.read _.Gateway`
 - a much smaller surface focused on application flows rather than a broader runtime platform
 
 ## What Effect-TS Still Has That FsFlow Does Not
@@ -41,7 +41,7 @@ The useful questions are:
 
 - is this clearer than `Async<Result<_,_>>` for the flows you actually write?
 - do explicit env requirements help enough to justify the abstraction?
-- does `Flow.Task` and `Flow.Runtime` make mixed `.NET` code easier to keep readable?
+- does the workflow-family split make mixed sync, `Async`, and `.NET Task` code easier to keep readable?
 
 ## Practical Takeaway
 

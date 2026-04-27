@@ -1,10 +1,10 @@
 # Architectural Styles
 
-Read this page when you want to choose how `Flow` should fit into your application architecture without forcing one app shape on every codebase.
+Read this page when you want to choose how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.
 
 FsFlow supports three valid architectural styles.
 
-> One core workflow abstraction. Three valid architectural styles. Choose based on app shape and team preferences.
+> Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.
 
 ## 1. Booted App Environment
 
@@ -108,7 +108,7 @@ Choose this when clarity and locality matter most.
 ## 3. Standard `.NET` AppHost Plus DI
 
 Use this when the surrounding application should stay in standard `.NET` startup and dependency
-injection, and `Flow` should only appear inside workflow code.
+injection, and FsFlow should only appear inside workflow code.
 
 Keep the host conventional:
 
@@ -117,7 +117,7 @@ Keep the host conventional:
 - logging, config, and options
 - normal `.NET` startup
 
-Use `Flow` inside:
+Use FsFlow inside:
 
 - feature workflows
 - handlers
@@ -128,13 +128,11 @@ Typical shape:
 
 ```fsharp
 type ShipOrderWorkflow(logger: ILogger<ShipOrderWorkflow>, gateway: IShippingGateway) =
-    member _.Run(input: ShipOrderInput) : Flow<RequestContext, AppError, ShipmentId> =
-        flow {
-            let! ctx = Flow.env
+    member _.Run(input: ShipOrderInput) : TaskFlow<RequestContext, AppError, ShipmentId> =
+        taskFlow {
+            let! ctx = TaskFlow.env
             logger.LogInformation("shipping order {OrderId} trace={TraceId}", input.OrderId, ctx.TraceId)
-            let! shipmentId =
-                gateway.CreateShipment(input.OrderId, ctx.CancellationToken)
-                |> Flow.Task.fromHotResult
+            let! shipmentId = gateway.CreateShipment(input.OrderId, ctx.CancellationToken)
             return shipmentId
         }
 ```
@@ -153,11 +151,10 @@ There is no single mandated architecture.
 
 - Use Booted App Environment when app-level composition is the main concern.
 - Use Explicit Dependencies Plus Context when feature-level reasoning and testability matter more.
-- Use standard `.NET` AppHost plus DI when the host should stay conventional and `Flow` is an internal workflow abstraction.
+- Use standard `.NET` AppHost plus DI when the host should stay conventional and the workflow family is an internal application abstraction.
 
 The important constraint is not which style you pick.
-The important constraint is that `Flow` stays explicit at the workflow boundary and `Flow.toAsync`
-stays explicit at execution time.
+The important constraint is that the chosen workflow family stays explicit at the workflow boundary and at execution time.
 
 ## Next
 

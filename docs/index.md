@@ -2,11 +2,19 @@
 
 Read this page when you want the quickest route into the published docs, examples, and API reference for FsFlow.
 
-FsFlow gives application workflows one explicit shape:
+FsFlow gives application workflows a small family of explicit shapes:
 
 ```fsharp
 Flow<'env, 'error, 'value>
+AsyncFlow<'env, 'error, 'value>
+TaskFlow<'env, 'error, 'value>
 ```
+
+Start here:
+
+- choose `Flow` for synchronous workflows
+- choose `AsyncFlow` for `Async`-based workflows in the core package
+- choose `TaskFlow` for `.NET Task`-based workflows in `FsFlow.Net`
 
 Use these pages in this order:
 

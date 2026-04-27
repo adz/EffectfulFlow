@@ -1,6 +1,6 @@
 # Tiny Examples
 
-Read this page when you want the smallest useful `Flow` examples without the larger application setup from the main guides.
+Read this page when you want the smallest useful examples for each FsFlow workflow family without the larger application setup from the main guides.
 
 These examples are intentionally small.
 They are the quickest way to sanity-check the model before moving on to the longer docs.
@@ -18,6 +18,12 @@ let workflow : Flow<unit, string, int> =
     }
 ```
 
+Run it with:
+
+```fsharp
+let result = workflow |> Flow.run ()
+```
+
 ## Read A Dependency From The Environment
 
 ```fsharp
@@ -30,48 +36,67 @@ let workflow : Flow<AppEnv, string, string> =
     }
 ```
 
-## Bind A Cold Task Factory
+## Lift Sync Work Into `asyncFlow {}`
+
+```fsharp
+let validateName name =
+    if System.String.IsNullOrWhiteSpace name then Error "missing"
+    else Ok name
+
+let workflow : AsyncFlow<unit, string, string> =
+    asyncFlow {
+        let! name = validateName "Ada"
+        let! suffix = async { return "!" }
+        return name + suffix
+    }
+```
+
+Run it with:
+
+```fsharp
+let result =
+    workflow
+    |> AsyncFlow.toAsync ()
+    |> Async.RunSynchronously
+```
+
+## Bind A Task In `taskFlow {}`
+
+```fsharp
+let workflow : TaskFlow<unit, string, int> =
+    taskFlow {
+        let! value = Task.FromResult 42
+        return value
+    }
+```
+
+Run it with:
+
+```fsharp
+let result =
+    workflow
+    |> TaskFlow.toTask () CancellationToken.None
+    |> Async.AwaitTask
+    |> Async.RunSynchronously
+```
+
+## Bind A `ColdTask`
 
 ```fsharp
 let readText path : ColdTask<string> =
     ColdTask(fun ct -> System.IO.File.ReadAllTextAsync(path, ct))
 
-let workflow : Flow<unit, string, string> =
-    flow {
+let workflow : TaskFlow<unit, string, string> =
+    taskFlow {
         let! text = readText "config.json"
         return text
     }
 ```
 
-Use `ColdTask<'value>` when work should start only when the flow runs and should receive the runtime cancellation token.
-
-## Keep A Task Boundary Explicit
-
-```fsharp
-let started = Task.FromResult 42
-
-let workflow : Flow<unit, string, int> =
-    started
-    |> Flow.Task.fromHot
-```
-
-Use `fromHot*` for already-created hot `Task` values.
-Use `fromCold*` for task factories that should start at run time and receive the runtime token.
-
-## Run The Flow Explicitly
-
-```fsharp
-let result =
-    workflow
-    |> Flow.toAsync () CancellationToken.None
-    |> Async.RunSynchronously
-```
-
-`Flow` values are cold.
-Nothing runs until you call `Flow.toAsync`.
+Use `ColdTask<'value>` when work should start only when the task-oriented workflow runs.
 
 ## Next
 
-Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the first full walkthrough,
-[`docs/FSTOOLKIT_MIGRATION.md`](./FSTOOLKIT_MIGRATION.md) if you are adopting `Flow` incrementally,
-and [`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for the complete boundary-shape map.
+Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the full workflow-family overview,
+[`docs/FSTOOLKIT_MIGRATION.md`](./FSTOOLKIT_MIGRATION.md) if you are adopting the library incrementally,
+and [`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for the direct binding surface.

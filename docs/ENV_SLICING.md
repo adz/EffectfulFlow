@@ -1,7 +1,7 @@
 # Environment Slicing
 
-This page shows two ways to keep `Flow<'env, 'error, 'value>` honest about dependencies:
-small record environments with `Flow.localEnv`, and interface-based capability environments.
+This page shows two ways to keep an FsFlow workflow honest about dependencies:
+small record environments with `localEnv`, and interface-based capability environments.
 
 The common goal is the same in both styles: each flow should depend on the smallest environment
 it actually needs.
@@ -16,20 +16,15 @@ type FetchResponseEnv =
       AttemptCount: int ref
       Log: string -> unit }
 
-let fetchResponse (plan: RequestPlan) : Flow<FetchResponseEnv, AppError, Response> =
-    flow {
-        let! gateway = Flow.read _.Gateway
-        let! attempts = Flow.read _.AttemptCount
-        let! log = Flow.read _.Log
-        let! ct = Flow.Runtime.cancellationToken
+let fetchResponse (plan: RequestPlan) : TaskFlow<FetchResponseEnv, AppError, Response> =
+    taskFlow {
+        let! gateway = TaskFlow.read _.Gateway
+        let! attempts = TaskFlow.read _.AttemptCount
+        let! log = TaskFlow.read _.Log
 
         log (sprintf "gateway call attempt=%d url=%s" (attempts.Value + 1) plan.Url)
 
-        let! response =
-            gateway.Ping(plan, ct)
-            |> Flow.Task.fromHotResult
-            |> Flow.mapError GatewayFailed
-
+        let! response = gateway.Ping plan
         return response
     }
 ```
@@ -48,9 +43,9 @@ type AppEnv =
       AttemptCount: int ref
       Log: string -> unit }
 
-let fetchResponseInAppEnv plan : Flow<AppEnv, AppError, Response> =
+let fetchResponseInAppEnv plan : TaskFlow<AppEnv, AppError, Response> =
     fetchResponse plan
-    |> Flow.localEnv (fun env ->
+    |> TaskFlow.localEnv (fun env ->
         { Gateway = env.Gateway
           AttemptCount = env.AttemptCount
           Log = env.Log })
@@ -104,11 +99,11 @@ Record-based slicing is useful when:
 - you want straightforward code and predictable compiler errors
 - you want to teach the library without SRTP or flexible-type syntax
 - most flows live inside one application and only need projection from a larger env
-- `Flow.localEnv` already gives you the composition step cleanly
+- `localEnv` already gives you the composition step cleanly
 
 ## Recommended Default For This Repo
 
-Prefer small record environments plus `Flow.localEnv`.
+Prefer small record environments plus `localEnv`.
 
 That matches the rest of the library better:
 
@@ -130,7 +125,7 @@ For example:
 - gateway I/O is explicit through `Gateway` in the environment
 - persistence is explicit through `AuditStore`
 - logging is explicit through `Log`
-- cancellation is explicit through `Flow.toAsync` and `Flow.Runtime.cancellationToken`
+- task-oriented cancellation is explicit through `TaskFlow.toTask`
 
 Small environment slices already make those requirements visible without adding another layer
 of abstraction.

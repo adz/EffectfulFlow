@@ -1,12 +1,12 @@
 # Migration Guide
 
-Read this page when you already have `Async<Result<_,_>>` or FsToolkit-style workflows and want to adopt `Flow` incrementally without rewriting the whole application.
+Read this page when you already have `Async<Result<_,_>>` or FsToolkit-style workflows and want to adopt the FsFlow workflow family incrementally without rewriting the whole application.
 
-The migration path is: keep the code that is already honest, wrap the awkward boundary, then move one workflow at a time to `Flow<'env, 'error, 'value>`.
+The migration path is: keep the code that is already honest, choose the workflow family that matches the runtime you already have, then move one use case at a time.
 
 ## Start From The Existing Shape
 
-A typical pre-Flow use case already looks like this:
+A typical pre-FsFlow use case already looks like this:
 
 ```fsharp
 type AppEnv =
@@ -28,28 +28,25 @@ let greet userId (env: AppEnv) : Async<Result<string, string>> =
 Do not rewrite pure validation or domain logic first.
 Move the workflow boundary first.
 
-## Step 1. Wrap The Existing `Async<Result<_,_>>`
+## Step 1. Keep Existing `Async<Result<_,_>>` Helpers Honest
 
-If the old helper already returns `Async<Result<_,_>>`, keep it and lift it directly:
+If the existing helper already returns `Async<Result<_,_>>`, `AsyncFlow` is usually the smallest useful migration:
 
 ```fsharp
-let greet userId : Flow<AppEnv, string, string> =
-    flow {
-        let! loadUser = Flow.read _.LoadUser
-        let! name =
-            loadUser userId
-            |> Flow.fromAsyncResult
-
-        let! prefix = Flow.read _.Prefix
+let greet userId : AsyncFlow<AppEnv, string, string> =
+    asyncFlow {
+        let! loadUser = AsyncFlow.read _.LoadUser
+        let! name = loadUser userId
+        let! prefix = AsyncFlow.read _.Prefix
         return $"{prefix} {name}"
     }
 ```
 
-This is usually the smallest useful migration.
+This avoids inventing a task-oriented wrapper where the code is already `Async`.
 
 ## Step 2. Keep Validation Plain
 
-Do not convert plain `Result` helpers just because the outer workflow moved to `Flow`.
+Do not convert plain `Result` helpers just because the outer workflow moved.
 
 ```fsharp
 let validateName name =
@@ -58,45 +55,37 @@ let validateName name =
     else
         Ok name
 
-let greet userId : Flow<AppEnv, string, string> =
-    flow {
-        let! loadUser = Flow.read _.LoadUser
-        let! loadedName =
-            loadUser userId
-            |> Flow.fromAsyncResult
-
+let greet userId : AsyncFlow<AppEnv, string, string> =
+    asyncFlow {
+        let! loadUser = AsyncFlow.read _.LoadUser
+        let! loadedName = loadUser userId
         let! validName = validateName loadedName
-        let! prefix = Flow.read _.Prefix
+        let! prefix = AsyncFlow.read _.Prefix
         return $"{prefix} {validName}"
     }
 ```
 
 Keep the pure parts pure.
-Use `flow {}` where dependencies, async work, or typed failure translation meet.
 
-## Step 3. Introduce Task Boundaries Explicitly
+## Step 3. Switch To `TaskFlow` Only When The Workflow Is Really Task-Oriented
 
-When a dependency is really `.NET Task`-based, make that boundary visible:
+When a dependency is truly `.NET Task`-based, use `TaskFlow` instead of forcing task work through a smaller family:
 
 ```fsharp
 type AppEnv =
     { LoadUser: int -> Task<Result<string, string>>
       Prefix: string }
 
-let greet userId : Flow<AppEnv, string, string> =
-    flow {
-        let! loadUser = Flow.read _.LoadUser
-        let! loadedName =
-            loadUser userId
-            |> Flow.Task.fromHotResult
-
-        let! prefix = Flow.read _.Prefix
+let greet userId : TaskFlow<AppEnv, string, string> =
+    taskFlow {
+        let! loadUser = TaskFlow.read _.LoadUser
+        let! loadedName = loadUser userId
+        let! prefix = TaskFlow.read _.Prefix
         return $"{prefix} {loadedName}"
     }
 ```
 
-Use `fromHot*` when you already have a started task value.
-Use `fromCold*` when the helper should start only when the flow runs.
+Use `TaskFlow` when the workflow should run as a task and observe a runtime `CancellationToken`.
 
 ## Step 4. Keep Execution At The App Edge
 
@@ -106,31 +95,39 @@ The old style:
 greet 42 env |> Async.RunSynchronously
 ```
 
-The migrated style:
+The migrated style for `AsyncFlow`:
 
 ```fsharp
 greet 42
-|> Flow.toAsync env cancellationToken
+|> AsyncFlow.toAsync env
 |> Async.RunSynchronously
 ```
 
-That is the main runtime change: execution becomes explicit through `Flow.toAsync`.
+The migrated style for `TaskFlow`:
+
+```fsharp
+greet 42
+|> TaskFlow.toTask env cancellationToken
+|> Async.AwaitTask
+|> Async.RunSynchronously
+```
+
+That is the main runtime change: execution becomes explicit through the workflow family rather than being hidden in the helper shape.
 
 ## Step 5. Migrate One Use Case At A Time
 
 You do not need a flag day migration.
 
-- Keep existing `Async<Result<_,_>>` helpers and lift them with `Flow.fromAsyncResult`.
-- Keep pure `Result` helpers unchanged.
-- Move one application workflow at a time to `Flow`.
-- Only switch environment passing once a workflow genuinely benefits from `Flow.read`, `Flow.env`, or `Flow.localEnv`.
+- Keep existing `Async<Result<_,_>>` helpers unchanged until a use case gets clearer as `AsyncFlow`
+- Keep pure `Result` helpers unchanged
+- Use `TaskFlow` only where `.NET Task` is the honest workflow boundary
+- Switch environment passing only when the workflow genuinely benefits from `read`, `env`, or `localEnv`
 
-If you already use FsToolkit computation expressions, treat the existing workflow as an honest wrapper shape first.
-The most important question is not which CE you used before.
-The important question is whether this particular workflow gets clearer once dependencies, typed errors, and async or task boundaries live in one place.
+If you already use FsToolkit computation expressions, the important question is not which CE you used before.
+The important question is whether this particular use case gets clearer once dependencies, typed errors, and the real runtime shape live in one place.
 
 ## Next
 
-Read [`docs/TINY_EXAMPLES.md`](./TINY_EXAMPLES.md) for the smallest `Flow` shapes,
-[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for hot versus cold task boundaries,
-and [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for a fuller application-shaped walkthrough.
+Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the workflow-family overview,
+[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for the direct binding surface,
+and [`docs/TINY_EXAMPLES.md`](./TINY_EXAMPLES.md) for the smallest complete examples.

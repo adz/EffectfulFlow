@@ -1,6 +1,6 @@
 # Why FsFlow
 
-Read this page when you want to decide whether `Flow` is a better fit than manual environment threading, `Async<Result<_,_>>`, or `Task<Result<_,_>>` for ordinary F# application code.
+Read this page when you want to decide whether the FsFlow workflow family is a better fit than manual environment threading, `Async<Result<_,_>>`, or `Task<Result<_,_>>` for ordinary F# application code.
 
 FsFlow is aimed at a specific F# problem:
 
@@ -14,7 +14,7 @@ At that point, many codebases end up with one of these shapes:
 ```fsharp
 AppEnv -> Result<'value, 'error>
 AppEnv -> Async<Result<'value, 'error>>
-Task<Result<'value, 'error>>
+AppEnv -> CancellationToken -> Task<Result<'value, 'error>>
 ```
 
 Those shapes work, but they tend to spread the same concerns across several layers:
@@ -24,10 +24,12 @@ Those shapes work, but they tend to spread the same concerns across several laye
 - helper modules for mapping and binding
 - extra noise around the happy path
 
-FsFlow gives that combined shape one explicit representation:
+FsFlow gives those combined shapes one aligned family:
 
 ```fsharp
 Flow<'env, 'error, 'value>
+AsyncFlow<'env, 'error, 'value>
+TaskFlow<'env, 'error, 'value>
 ```
 
 This is a DX layer over the primitives F# and .NET already provide.
@@ -62,8 +64,10 @@ let greet env name =
 
 This is still the right shape when the code is small and mostly pure.
 
-Once the same workflow also needs async work or more dependencies, `Flow` keeps the same
-success-path style without introducing a second workflow for environment access:
+Once the same workflow also needs environment access or async work, pick the workflow family that
+matches the honest runtime.
+
+For a synchronous use case:
 
 ```fsharp
 let greet name : Flow<AppEnv, AppError, string> =
@@ -74,8 +78,8 @@ let greet name : Flow<AppEnv, AppError, string> =
     }
 ```
 
-The important part is that `validateName` still returns a plain `Result`. You do not have
-to wrap it in a separate result-specific abstraction first.
+The important part is that `validateName` still returns a plain `Result`.
+You do not have to wrap it in a separate result-specific abstraction first.
 
 ### `Async<Result<_,_>>` Plus Helpers
 
@@ -94,28 +98,24 @@ let fetchUser userId : AppEnv -> Async<Result<User, AppError>> =
 This works, but the shape gets harder to read as retries, timeout, cancellation, cleanup,
 and additional environment access show up.
 
-The same workflow in `Flow` keeps the happy path in one CE:
+The same workflow in `TaskFlow` keeps the happy path in one CE when the boundary is task-oriented:
 
 ```fsharp
-let fetchUser userId : Flow<AppEnv, AppError, User> =
-    flow {
+let fetchUser userId : TaskFlow<AppEnv, AppError, User> =
+    taskFlow {
+        let! loadUser = TaskFlow.read _.LoadUser
         let! validId = validateUserId userId
-        let! loadUser = Flow.read _.LoadUser
-        let! user =
-            loadUser validId
-            |> Flow.Task.fromHotResult
-            |> Flow.mapError GatewayFailed
+        let! user = loadUser validId
         return user
     }
 ```
 
-That is the core pitch of the library: one computation expression for dependencies, typed
-failures, and the common application wrapper shapes without pushing the code into a full
-Reader-style stack.
+That is the core pitch of the library: keep dependencies, typed failures, and the real runtime
+shape in one explicit workflow family without pushing the code into a larger framework.
 
 ## Adoption Rule
 
-Use `Flow` by default in the effectful application layer:
+Use FsFlow by default in the effectful application layer:
 
 - handlers
 - use cases
@@ -133,21 +133,19 @@ Keep the domain plain F# by default:
 
 The design stays explicit in the places that matter for teams:
 
-- env access is visible through `Flow.read`, `Flow.env`, and `Flow.localEnv`
-- execution is visible through `Flow.toAsync`
+- env access is visible through `Flow.read`, `AsyncFlow.read`, or `TaskFlow.read`
+- execution is visible through `Flow.run`, `AsyncFlow.toAsync`, or `TaskFlow.toTask`
 - expected failures stay in the type
-- `flow {}` binds the common shapes already present in app code, including `Result`, `Async`, `Task`, and selected mixed wrappers
-- task and runtime boundaries stay named under `Flow.Task` and `Flow.Runtime`
+- the workflow family tells you whether the use case is sync, `Async`, or `.NET Task`
 
 This is the difference from more imported-feeling Reader encodings: the code still reads
 like ordinary F# application code rather than a general FP framework.
 
 ## Why This Is Low Risk
 
-Adopting `Flow` does not mean betting on a replacement runtime.
+Adopting FsFlow does not mean betting on a replacement runtime.
 
 - the underlying async and task work still runs on F# `Async` and `.NET Task`
-- cancellation still comes from the `CancellationToken` you pass to `Flow.toAsync`
 - execution is still explicit
 - the library stays narrow and DX-focused rather than growing into a concurrency platform
 
@@ -156,17 +154,17 @@ The goal is to make mixed application workflows easier to write and easier to re
 
 ## When Not To Use It
 
-Do not introduce `Flow` early just because a dependency might appear later.
+Do not introduce FsFlow early just because a dependency might appear later.
 
 Stay with plain F# when:
 
 - the code is mostly pure
 - a direct function parameter is clearer
 - plain `Result` already says everything
-- a single `Task<'T>` boundary is the simplest honest shape
+- a single `Task<'T>` or `Async<'T>` boundary is the simplest honest shape
 
 ## Next
 
-Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the smallest useful workflow,
-[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for wrapper-shape interop, and
-[`examples/README.md`](../examples/README.md) for runnable application-shaped flows.
+Read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the workflow-family overview,
+[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for boundary-shape interop, and
+[`examples/README.md`](../examples/README.md) for runnable application-shaped workflows.
