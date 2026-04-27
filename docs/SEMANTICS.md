@@ -82,6 +82,11 @@ Rerun behavior is different:
 - rerunning a flow that lifted a hot `Task` or `ValueTask` re-awaits the same started work
 - rerunning a flow that lifted a `ColdTask<'value>` invokes the factory again
 
+`ValueTask` adds one more caveat: it is a single-consumption oriented type, which makes it a poor
+stored backbone for reusable workflows and shared combinators. If you need to keep and rerun
+already-started work safely, normalize the `ValueTask` to `Task` or `ColdTask` before you store it
+in reusable flow code.
+
 Cancellation-token propagation is also different:
 
 - hot `Task` and hot `ValueTask` lifts cannot receive the current runtime `CancellationToken`

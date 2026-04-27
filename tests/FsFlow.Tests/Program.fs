@@ -5,6 +5,7 @@ open System.Diagnostics
 open System.IO
 open System.Threading
 open System.Threading.Tasks
+open System.Threading.Tasks.Sources
 open FsFlow
 open FsFlow.Net
 open Swensen.Unquote
@@ -98,6 +99,34 @@ module Tests =
             childProcess.ExitCode, standardOutput + standardError
         finally
             File.Delete scriptPath
+
+    type private SingleConsumptionValueTaskSource<'value>(value: 'value) as this =
+        let consumptionCount = ref 0
+
+        member _.AsValueTask() =
+            ValueTask<'value>(this :> IValueTaskSource<'value>, 0s)
+
+        member _.ConsumptionCount = consumptionCount.Value
+
+        interface IValueTaskSource<'value> with
+            member _.GetStatus(_token: int16) = ValueTaskSourceStatus.Succeeded
+
+            member _.OnCompleted
+                (
+                    _continuation: Action<obj>,
+                    _state: obj,
+                    _token: int16,
+                    _flags: ValueTaskSourceOnCompletedFlags
+                ) =
+                ()
+
+            member _.GetResult(_token: int16) =
+                let consumptions = Interlocked.Increment consumptionCount
+
+                if consumptions > 1 then
+                    invalidOp "ValueTask source consumed more than once."
+
+                value
 
     [<Fact>]
     let ``Flow is sync result only`` () =
@@ -258,6 +287,26 @@ module Tests =
 
         test <@ obj.ReferenceEquals(hotValueTaskRun1, hotValueTaskRun2) @>
         test <@ hotValueTaskRun1.GetAwaiter().GetResult() = 99 @>
+
+        let oneShotValueTaskSource = SingleConsumptionValueTaskSource 123
+
+        let normalizedHotValueTask =
+            oneShotValueTaskSource.AsValueTask()
+            |> ColdTask.fromValueTask
+
+        let normalizedRun1 =
+            normalizedHotValueTask
+            |> ColdTask.run CancellationToken.None
+            |> fun task -> task.GetAwaiter().GetResult()
+
+        let normalizedRun2 =
+            normalizedHotValueTask
+            |> ColdTask.run CancellationToken.None
+            |> fun task -> task.GetAwaiter().GetResult()
+
+        test <@ normalizedRun1 = 123 @>
+        test <@ normalizedRun2 = 123 @>
+        test <@ oneShotValueTaskSource.ConsumptionCount = 1 @>
 
     [<Fact>]
     let ``ColdTask of Result is the typed failure cold task shape`` () =

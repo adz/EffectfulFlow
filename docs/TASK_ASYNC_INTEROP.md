@@ -167,6 +167,15 @@ That preserves hot semantics:
 - rerunning the flow re-awaits that same started work
 - the current flow `CancellationToken` is not pushed into the original operation
 
+That normalization step is intentional. `ValueTask` is a single-consumption oriented type, so
+awaiting the same instance multiple times, calling `AsTask()` multiple times, or mixing those
+consumption styles is not a safe backbone for a cold, restartable workflow.
+
+If you need reusable hot semantics across flow reruns, normalize to `Task` or `ColdTask` before
+the reusable flow is built. In practice, that means `started.AsTask()` or
+`ColdTask.fromValueTask started` is the safer storage boundary than keeping a raw started
+`ValueTask` around.
+
 For cold `ValueTask` factories, prefer `ColdTask.fromValueTaskFactory` or
 `ColdTask.fromValueTaskFactoryWithoutCancellation`:
 

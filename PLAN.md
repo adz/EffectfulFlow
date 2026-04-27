@@ -146,6 +146,15 @@ Important distinction:
 - returning or running as `ValueTask` is a boundary/API choice
 - being based on `ValueTask` is an internal semantic and implementation commitment
 
+Task 18 evaluation notes:
+
+- a stored `ValueTask` is not a safe reusable backbone for a cold workflow because reruns and shared combinators naturally require the same operation to be stored, passed around, and awaited more than once
+- Microsoft documents `ValueTask` as single-consumption oriented: awaiting it multiple times, calling `AsTask()` multiple times, or mixing those consumption styles is undefined
+- that makes a `ValueTask` backbone hostile to ordinary workflow composition patterns such as `bind`, delayed reruns, environment projection, retry, and any helper that needs to retain an operation for later execution
+- normalizing a started `ValueTask` to `Task` exactly once at an explicit storage boundary preserves hot-input interop while removing the single-await hazard from the stored workflow representation
+- using `ValueTask` internally would also create DX traps because apparently innocuous code refactors could turn a valid one-shot await into invalid reuse without any type-level warning
+- no evidence currently suggests that paying those correctness and ergonomics costs would be worth it for `TaskFlow`
+
 ## Option And ValueOption
 
 `Option<'value>` and `ValueOption<'value>` should be short-circuiting inputs.
