@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
     <PackageId>FsFlow</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Adam Davies</Authors>
     <Description>F# application workflows that compose with normal Result, Async, and .NET Task while keeping environment requirements and typed failures explicit.</Description>
     <PackageProjectUrl>https://adz.github.io/FsFlow/</PackageProjectUrl>
@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/adz/FsFlow</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageReleaseNotes>Initial public preview release of FsFlow with the core Flow abstraction, Async and Task interop, explicit environment requirements, typed failures, cancellation-aware execution, retry and timeout helpers, scoped cleanup, runnable examples, and GitHub Pages API documentation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Second public preview release of FsFlow with completed package rename alignment, refreshed docs and branding, updated solution and project layout, improved docs site presentation, and release pipeline cleanup after the initial 0.1.0 package.</PackageReleaseNotes>
     <PackageTags>fsharp;workflow;async;task;result;application</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <FsDocsCollectionName>FsFlow</FsDocsCollectionName>

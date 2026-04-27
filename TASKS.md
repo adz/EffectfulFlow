@@ -20,10 +20,10 @@ Tasks:
 - Review whether `Flow.value` should remain as a convenience alias or be removed in favor of the canonical `Flow.succeed` name.
 - Review whether direct `Task` bind support in `flow {}` is sufficient now that task interop has a more explicit `Flow.Task` home.
 
-## 1. Cut The First Public Release
+## 1. Cut The 0.2.0 Release
 
 Problem:
-The repo now has package metadata, release workflows, and API docs generation, but the first public release still needs the final manual publish steps.
+The repo has already shipped `v0.1.0`, and the current worktree is now positioned for a follow-up `0.2.0` release before larger rename-driven changes.
 
 Tasks:
 
@@ -31,9 +31,9 @@ Tasks:
 - In GitHub repository settings, ensure Pages is configured to deploy from GitHub Actions.
 - Verify the `CI` workflow passes on `main`, including the docs job.
 - Verify the Pages deployment succeeds and the published docs site renders correctly.
-- Create and push tag `v0.1.0`.
+- Create and push tag `v0.2.0`.
 - Check that the release workflow attaches both `.nupkg` and `.snupkg` artifacts to the GitHub Release.
-- Push the `0.1.0` package to NuGet manually.
+- Push the `0.2.0` package to NuGet manually.
 - Confirm the NuGet package page renders the packed `README.md` correctly.
 
 ## 2. Product Gaps Worth Addressing After Docs

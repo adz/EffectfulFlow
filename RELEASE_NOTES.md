@@ -1,5 +1,13 @@
 # Release Notes
 
+## 0.2.0 - 2026-04-28
+
+- Second public preview release of `FsFlow`
+- Completed the package and repository identity move to `FsFlow` across project files, examples, tests, docs, and packaging metadata
+- Refreshed the docs site presentation and bundled docs assets for the renamed package
+- Cleaned up solution and workflow references after the `v0.1.0` release
+- Kept the public `Flow` API stable while polishing the package surface before larger follow-up changes
+
 ## 0.1.0 - 2026-04-26
 
 - Initial public preview release of `FsFlow`
@@ -12,7 +20,7 @@
 
 ## Release Process
 
-Publish versions as Git tags such as `v0.1.0`.
+Publish versions as Git tags such as `v0.2.0`.
 
 The GitHub release workflow builds the package artifacts and attaches them to a GitHub Release.
 NuGet publishing stays manual.
