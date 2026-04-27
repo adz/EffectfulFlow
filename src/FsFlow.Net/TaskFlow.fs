@@ -216,6 +216,9 @@ type TaskFlowBuilder() =
         |> AsyncFlow.fromAsync
         |> TaskFlow.fromAsyncFlow
 
+    member _.ReturnFrom(operation: Task<Result<'value, 'error>>) : TaskFlow<'env, 'error, 'value> =
+        TaskFlow(fun _ _ -> operation)
+
     member _.ReturnFrom(operation: Async<Result<'value, 'error>>) : TaskFlow<'env, 'error, 'value> =
         operation
         |> AsyncFlow.fromAsyncResult
@@ -267,6 +270,14 @@ type TaskFlowBuilder() =
         operation
         |> AsyncFlow.fromAsyncResult
         |> TaskFlow.fromAsyncFlow
+        |> TaskFlow.bind binder
+
+    member _.Bind
+        (
+            operation: Task<Result<'value, 'error>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next> =
+        TaskFlow(fun _ _ -> operation)
         |> TaskFlow.bind binder
 
     member _.Bind
@@ -361,7 +372,96 @@ type TaskFlowBuilder() =
         )
 
 [<AutoOpen>]
+module TaskFlowBuilderExtensions =
+    type TaskFlowBuilder with
+        member _.ReturnFrom(operation: Task) : TaskFlow<'env, 'error, unit> =
+            TaskFlow(fun _ _ ->
+                task {
+                    do! operation
+                    return Ok()
+                })
+
+        member _.ReturnFrom(operation: Task<'value>) : TaskFlow<'env, 'error, 'value> =
+            TaskFlow(fun _ _ ->
+                task {
+                    let! value = operation
+                    return Ok value
+                })
+
+        member this.Bind
+            (
+                operation: Task,
+                binder: unit -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next> =
+            operation
+            |> this.ReturnFrom
+            |> TaskFlow.bind binder
+
+        member this.Bind
+            (
+                operation: Task<'value>,
+                binder: 'value -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next> =
+            operation
+            |> this.ReturnFrom
+            |> TaskFlow.bind binder
+
+type DotNetAsyncFlowBuilder() =
+    inherit AsyncFlowBuilder()
+
+    member _.ReturnFrom(operation: Task<Result<'value, 'error>>) : AsyncFlow<'env, 'error, 'value> =
+        operation
+        |> Async.AwaitTask
+        |> AsyncFlow.fromAsyncResult
+
+    member _.Bind
+        (
+            operation: Task<Result<'value, 'error>>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next> =
+        operation
+        |> Async.AwaitTask
+        |> AsyncFlow.fromAsyncResult
+        |> AsyncFlow.bind binder
+
+[<AutoOpen>]
+module AsyncFlowBuilderExtensions =
+    type AsyncFlowBuilder with
+        member _.ReturnFrom(operation: Task) : AsyncFlow<'env, 'error, unit> =
+            operation
+            |> Async.AwaitTask
+            |> AsyncFlow.fromAsync
+
+        member _.ReturnFrom(operation: Task<'value>) : AsyncFlow<'env, 'error, 'value> =
+            operation
+            |> Async.AwaitTask
+            |> AsyncFlow.fromAsync
+
+        member this.Bind
+            (
+                operation: Task,
+                binder: unit -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next> =
+            operation
+            |> this.ReturnFrom
+            |> AsyncFlow.bind binder
+
+        member this.Bind
+            (
+                operation: Task<'value>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next> =
+            operation
+            |> this.ReturnFrom
+            |> AsyncFlow.bind binder
+
+[<AutoOpen>]
 module Builders =
+    /// <summary>
+    /// The .NET-extended <c>asyncFlow { }</c> computation expression.
+    /// </summary>
+    let asyncFlow = DotNetAsyncFlowBuilder()
+
     /// <summary>
     /// The .NET <c>taskFlow { }</c> computation expression.
     /// </summary>
