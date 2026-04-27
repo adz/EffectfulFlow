@@ -75,9 +75,25 @@ Use cold task helpers when work should start at flow execution time.
 
 Use hot task helpers only when you already have a task value on purpose.
 
+Rerun behavior is different:
+
+- `Flow` itself is cold and reruns from scratch on each execution
+- lifting a hot `Task` or `ValueTask` does not make the underlying effect cold again
+- rerunning a flow that lifted a hot `Task` or `ValueTask` re-awaits the same started work
+- rerunning a flow that lifted a `ColdTask<'value>` invokes the factory again
+
+Cancellation-token propagation is also different:
+
+- hot `Task` and hot `ValueTask` lifts cannot receive the current runtime `CancellationToken`
+- `ColdTask<'value>` receives the current runtime token on each run
+- a cold task may still ignore that token, but the runtime token is available to it
+
 `ColdTask<'value>` binds directly in `flow {}`. `ColdTask<Result<'value, 'error>>` stays
 explicit through `Flow.Task.fromColdResult` so result-shaped cold task functions do not create
 ambiguous builder behavior.
+
+Prefer `ColdTask<'value>` for new task-based interop helpers when restartability and runtime
+token fidelity matter more than reusing one already-started operation.
 
 ## Retry Attempts
 

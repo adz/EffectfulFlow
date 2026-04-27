@@ -15,6 +15,8 @@ These shapes already have names:
 
 - `Task<'value>`
 - `Task<Result<'value, 'error>>`
+- `ValueTask<'value>`
+- `ValueTask<Result<'value, 'error>>`
 - `Async<'value>`
 - `Async<Result<'value, 'error>>`
 
@@ -59,6 +61,12 @@ CancellationToken -> Task<'value>
 
 Use it when work should start only when the flow runs and should observe the runtime
 cancellation token.
+
+That semantic difference matters more than the wrapper itself:
+
+- rerunning a flow that binds `ColdTask<'value>` calls the factory again
+- each run gets the current runtime `CancellationToken`
+- the underlying effect can restart from scratch on each run
 
 Example:
 
@@ -128,6 +136,52 @@ If you want the boundary to stay visible, use `Flow.Task.fromHot` or
 
 There is no separate `HotTask<'value>` alias because `Task<'value>` already names the shape.
 
+Rerunning a flow that binds a hot task does not restart the effect:
+
+- the flow re-awaits the same started task value
+- the original work is not created again
+- the current flow `CancellationToken` cannot be injected into that already-created task
+
+Use hot task lifting when the task already exists and reusing that exact started work is what
+you want.
+
+## `ValueTask` Shapes
+
+`ValueTask` follows the same hot-versus-cold split.
+
+For an already-created `ValueTask<'value>`, convert it through `ColdTask.fromValueTask` when you
+need a `ColdTask<'value>` boundary:
+
+```fsharp
+let started = ValueTask<int>(42)
+
+let workflow : Flow<unit, string, int> =
+    started
+    |> ColdTask.fromValueTask
+    |> Flow.Task.fromCold
+```
+
+That preserves hot semantics:
+
+- the `ValueTask` is converted once to a started `Task`
+- rerunning the flow re-awaits that same started work
+- the current flow `CancellationToken` is not pushed into the original operation
+
+For cold `ValueTask` factories, prefer `ColdTask.fromValueTaskFactory` or
+`ColdTask.fromValueTaskFactoryWithoutCancellation`:
+
+```fsharp
+let readAll path : ColdTask<string> =
+    ColdTask.fromValueTaskFactory(fun ct ->
+        ValueTask<string>(System.IO.File.ReadAllTextAsync(path, ct)))
+```
+
+That preserves cold semantics:
+
+- rerunning the flow calls the factory again
+- the factory can observe the runtime `CancellationToken`
+- the effect can start again from scratch on each run
+
 ## Async Shapes
 
 Async shapes also bind directly:
@@ -152,12 +206,18 @@ already name those shapes directly.
 
 Use:
 
-- `ColdTask<'value>` when you define a new cancellation-aware task helper and want good DX in `flow {}`
+- `ColdTask<'value>` when you define a new task helper and need restartable execution semantics
+- `ColdTask<'value>` when the operation should receive the runtime `CancellationToken`
 - `ColdTask<Result<'value, 'error>>` when the cold helper also returns typed failures
 - `Task<'value>` or `Task<Result<'value, 'error>>` when you already have a started task value
+- `ValueTask<'value>` or `ValueTask<Result<'value, 'error>>` only as interop inputs that you adapt through `ColdTask`
 - `Async<'value>` or `Async<Result<'value, 'error>>` when you are crossing an existing F# async boundary
 
-If you are unsure, prefer the more explicit helper first and simplify later.
+Do not define new reusable helpers that return already-started `Task` or `ValueTask` values unless
+sharing one started operation is the intended behavior.
+
+If you are unsure, prefer `ColdTask<'value>` for task-based interop you control and use the more
+explicit helper first.
 
 ## Next
 

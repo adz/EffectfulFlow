@@ -168,6 +168,15 @@ let started = Task.FromResult 42
 let load = Flow.Task.fromHot started
 ```
 
+That distinction affects reruns:
+
+- rerunning a flow that lifted `started` re-awaits the same task
+- the original effect does not restart
+- the current runtime cancellation token is not injected into that started task
+
+Prefer `ColdTask<'value>` when you control the helper and want each flow run to start the work
+again with the current runtime token.
+
 Read [`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) when you want the full map of
 which `Task` and `Async` shapes bind directly and which ones should stay explicit.
 
@@ -192,6 +201,9 @@ let readConfigs leftPath rightPath : Flow<unit, string, string * string> =
 `flow {}` binds `readAll leftPath` directly and passes in the same cancellation token that
 you gave to `Flow.toAsync`.
 
+If that flow runs again, `readAll` is called again and the file read starts again. That is the
+main semantic reason to prefer `ColdTask<'value>` over lifting a hot task value.
+
 ## 8. Access The Cancellation Token Only Where Needed
 
 The same BCL call can be written by reading the token explicitly inside the flow:
@@ -208,6 +220,10 @@ let readConfig path : Flow<unit, string, string> =
 
 This works, but it is more ceremony. Prefer the previous shape when you can keep the
 operation cold and let `Flow` provide the token at run time.
+
+The same rule applies to `ValueTask`-based APIs. If you already have a started `ValueTask`, treat
+it as hot and adapt it explicitly. If you control the helper, prefer a cold factory adapted through
+`ColdTask.fromValueTaskFactory` so reruns and cancellation behave predictably.
 
 ## 9. Use `ColdTask<Result<_,_>>` For Cold Task Helpers With Typed Failures
 

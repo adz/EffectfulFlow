@@ -34,7 +34,7 @@ let workflow : Flow<AppEnv, string, string> =
 
 ```fsharp
 let readText path : ColdTask<string> =
-    fun ct -> System.IO.File.ReadAllTextAsync(path, ct)
+    ColdTask(fun ct -> System.IO.File.ReadAllTextAsync(path, ct))
 
 let workflow : Flow<unit, string, string> =
     flow {
@@ -55,8 +55,8 @@ let workflow : Flow<unit, string, int> =
     |> Flow.Task.fromHot
 ```
 
-Use `fromHot*` for already-created task values.
-Use `fromCold*` for task factories that should start at run time.
+Use `fromHot*` for already-created hot `Task` values.
+Use `fromCold*` for task factories that should start at run time and receive the runtime token.
 
 ## Run The Flow Explicitly
 
