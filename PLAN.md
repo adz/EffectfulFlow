@@ -109,6 +109,20 @@ The intended bind surface is:
 
 The sync builder should no longer directly bind task-oriented shapes.
 
+### Extension-Member Confirmation
+
+Confirmed for task 4:
+
+- F# computation expression extension members are sufficient for `FsFlow.Net` to add task-oriented `Bind` members to `asyncFlow {}`
+- the core `FsFlow` package can keep `AsyncFlowBuilder` limited to `Flow`, `AsyncFlow`, and `Result` inputs
+- a second assembly can extend `AsyncFlowBuilder` and make those extra binds available only when that assembly is referenced and its namespace/module is opened
+
+The practical packaging consequence is:
+
+- `FsFlow` should continue to define the base `AsyncFlowBuilder`
+- `FsFlow.Net` can add task-oriented builder extensions in an auto-open module under the `FsFlow.Net` namespace
+- consumers that reference only `FsFlow` will continue to get compile-time rejection for task inputs in `asyncFlow {}`
+
 ## ValueTask Direction
 
 `ValueTask` should be treated as a first-class input in `.NET` builders.
