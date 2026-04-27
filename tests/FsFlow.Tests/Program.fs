@@ -1,6 +1,8 @@
 namespace FsFlow.Tests
 
 open System
+open System.Diagnostics
+open System.IO
 open System.Threading
 open System.Threading.Tasks
 open FsFlow
@@ -26,6 +28,33 @@ module Tests =
         |> Array.map (fun parameterInfo -> parameterInfo.ParameterType.Name)
         |> Array.distinct
         |> Array.sort
+
+    let private runFsiScript (scriptContents: string) =
+        let scriptPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.fsx")
+        File.WriteAllText(scriptPath, scriptContents)
+
+        try
+            use childProcess =
+                new Process(
+                    StartInfo =
+                        ProcessStartInfo(
+                            FileName = "dotnet",
+                            Arguments = $"fsi \"{scriptPath}\"",
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            UseShellExecute = false
+                        )
+                )
+
+            childProcess.Start() |> ignore
+
+            let standardOutput = childProcess.StandardOutput.ReadToEnd()
+            let standardError = childProcess.StandardError.ReadToEnd()
+            childProcess.WaitForExit()
+
+            childProcess.ExitCode, standardOutput + standardError
+        finally
+            File.Delete scriptPath
 
     [<Fact>]
     let ``Flow is sync result only`` () =
@@ -195,6 +224,48 @@ module Tests =
         test <@ publicMethods |> Array.contains "Bind" @>
         test <@ publicMethods |> Array.contains "ReturnFrom" @>
         test <@ argumentTypeNames = [| "FSharpFunc`2"; "FSharpResult`2"; "Flow`3" |] @>
+
+    [<Fact>]
+    let ``flow computation expression rejects task-oriented binds even with FsFlow.Net referenced`` () =
+        let fsFlowAssemblyPath = typeof<FlowBuilder>.Assembly.Location
+        let fsFlowNetAssemblyPath = typeof<TaskFlowBuilder>.Assembly.Location
+
+        let taskProbe =
+            $"""
+#r @"{fsFlowAssemblyPath}"
+#r @"{fsFlowNetAssemblyPath}"
+open System.Threading.Tasks
+open FsFlow
+open FsFlow.Net
+
+let probe : Flow<unit, string, int> =
+    flow {{
+        let! value = Task.FromResult 42
+        return value
+    }}
+"""
+
+        let taskFlowProbe =
+            $"""
+#r @"{fsFlowAssemblyPath}"
+#r @"{fsFlowNetAssemblyPath}"
+open FsFlow
+open FsFlow.Net
+
+let probe : Flow<unit, string, int> =
+    flow {{
+        let! value = TaskFlow.succeed 42
+        return value
+    }}
+"""
+
+        let taskExitCode, taskOutput = runFsiScript taskProbe
+        let taskFlowExitCode, taskFlowOutput = runFsiScript taskFlowProbe
+
+        test <@ taskExitCode <> 0 @>
+        test <@ taskOutput.Contains("Bind") @>
+        test <@ taskFlowExitCode <> 0 @>
+        test <@ taskFlowOutput.Contains("Bind") @>
 
     [<Fact>]
     let ``asyncFlow lives in FsFlow and composes sync flows`` () =
