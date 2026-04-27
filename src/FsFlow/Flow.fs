@@ -85,6 +85,42 @@ module private ResultFlow =
         : Result<'value, 'nextError> =
         Result.mapError mapper result
 
+module internal InternalCombinatorCore =
+    let mapWith
+        (mapOutcome: (Result<'value, 'error> -> Result<'next, 'error>) -> 'operation -> 'nextOperation)
+        (mapper: 'value -> 'next)
+        (operation: 'context -> 'operation)
+        : 'context -> 'nextOperation =
+        fun context -> operation context |> mapOutcome (Result.map mapper)
+
+    let bindWith
+        (bindOutcome: 'operation -> ('value -> 'nextOperation) -> ('error -> 'nextOperation) -> 'nextOperation)
+        (continueWith: 'context -> 'value -> 'nextOperation)
+        (failWith: 'error -> 'nextOperation)
+        (operation: 'context -> 'operation)
+        : 'context -> 'nextOperation =
+        fun context -> bindOutcome (operation context) (continueWith context) failWith
+
+    let mapErrorWith
+        (mapOutcome: (Result<'value, 'error> -> Result<'value, 'nextError>) -> 'operation -> 'nextOperation)
+        (mapper: 'error -> 'nextError)
+        (operation: 'context -> 'operation)
+        : 'context -> 'nextOperation =
+        fun context -> operation context |> mapOutcome (Result.mapError mapper)
+
+    let localEnvWith
+        (run: 'innerEnvironment -> 'flow -> 'operation)
+        (mapping: 'outerEnvironment -> 'innerEnvironment)
+        (flow: 'flow)
+        : 'outerEnvironment -> 'operation =
+        fun environment -> flow |> run (mapping environment)
+
+    let delayWith
+        (run: 'environment -> 'flow -> 'operation)
+        (factory: unit -> 'flow)
+        : 'environment -> 'operation =
+        fun environment -> factory () |> run environment
+
 /// <summary>
 /// Core functions for creating, composing, and executing synchronous flows.
 /// </summary>
@@ -116,16 +152,22 @@ module Flow =
         (mapper: 'value -> 'next)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'next> =
-        Flow(fun environment -> flow |> run environment |> ResultFlow.map mapper)
+        Flow(InternalCombinatorCore.mapWith (fun mapOutcome outcome -> mapOutcome outcome) mapper (fun environment -> run environment flow))
 
     let bind
         (binder: 'value -> Flow<'env, 'error, 'next>)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'next> =
-        Flow(fun environment ->
-            flow
-            |> run environment
-            |> ResultFlow.bind (fun value -> binder value |> run environment))
+        Flow(
+            InternalCombinatorCore.bindWith
+                (fun outcome onSuccess onError ->
+                    match outcome with
+                    | Ok value -> onSuccess value
+                    | Error error -> onError error)
+                (fun environment value -> binder value |> run environment)
+                Error
+                (fun environment -> run environment flow)
+        )
 
     let tap
         (binder: 'value -> Flow<'env, 'error, unit>)
@@ -141,7 +183,12 @@ module Flow =
         (mapper: 'error -> 'nextError)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'nextError, 'value> =
-        Flow(fun environment -> flow |> run environment |> ResultFlow.mapError mapper)
+        Flow(
+            InternalCombinatorCore.mapErrorWith
+                (fun mapOutcome outcome -> mapOutcome outcome)
+                mapper
+                (fun environment -> run environment flow)
+        )
 
     let catch
         (handler: exn -> 'error)
@@ -157,10 +204,10 @@ module Flow =
         (mapping: 'outerEnvironment -> 'innerEnvironment)
         (flow: Flow<'innerEnvironment, 'error, 'value>)
         : Flow<'outerEnvironment, 'error, 'value> =
-        Flow(fun environment -> flow |> run (mapping environment))
+        Flow(InternalCombinatorCore.localEnvWith run mapping flow)
 
     let delay (factory: unit -> Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
-        Flow(fun environment -> factory () |> run environment)
+        Flow(InternalCombinatorCore.delayWith run factory)
 
 /// <summary>
 /// Core functions for creating, composing, and executing async flows.
@@ -209,24 +256,35 @@ module AsyncFlow =
         (mapper: 'value -> 'next)
         (flow: AsyncFlow<'env, 'error, 'value>)
         : AsyncFlow<'env, 'error, 'next> =
-        AsyncFlow(fun environment ->
-            async {
-                let! result = run environment flow
-                return ResultFlow.map mapper result
-            })
+        AsyncFlow(
+            InternalCombinatorCore.mapWith
+                (fun mapOutcome operation ->
+                    async {
+                        let! result = operation
+                        return mapOutcome result
+                    })
+                mapper
+                (fun environment -> run environment flow)
+        )
 
     let bind
         (binder: 'value -> AsyncFlow<'env, 'error, 'next>)
         (flow: AsyncFlow<'env, 'error, 'value>)
         : AsyncFlow<'env, 'error, 'next> =
-        AsyncFlow(fun environment ->
-            async {
-                let! result = run environment flow
+        AsyncFlow(
+            InternalCombinatorCore.bindWith
+                (fun operation onSuccess onError ->
+                    async {
+                        let! result = operation
 
-                match result with
-                | Ok value -> return! binder value |> run environment
-                | Error error -> return Error error
-            })
+                        match result with
+                        | Ok value -> return! onSuccess value
+                        | Error error -> return! onError error
+                    })
+                (fun environment value -> binder value |> run environment)
+                (Error >> async.Return)
+                (fun environment -> run environment flow)
+        )
 
     let tap
         (binder: 'value -> AsyncFlow<'env, 'error, unit>)
@@ -242,11 +300,16 @@ module AsyncFlow =
         (mapper: 'error -> 'nextError)
         (flow: AsyncFlow<'env, 'error, 'value>)
         : AsyncFlow<'env, 'nextError, 'value> =
-        AsyncFlow(fun environment ->
-            async {
-                let! result = run environment flow
-                return ResultFlow.mapError mapper result
-            })
+        AsyncFlow(
+            InternalCombinatorCore.mapErrorWith
+                (fun mapOutcome operation ->
+                    async {
+                        let! result = operation
+                        return mapOutcome result
+                    })
+                mapper
+                (fun environment -> run environment flow)
+        )
 
     let catch
         (handler: exn -> 'error)
@@ -264,10 +327,10 @@ module AsyncFlow =
         (mapping: 'outerEnvironment -> 'innerEnvironment)
         (flow: AsyncFlow<'innerEnvironment, 'error, 'value>)
         : AsyncFlow<'outerEnvironment, 'error, 'value> =
-        AsyncFlow(fun environment -> flow |> run (mapping environment))
+        AsyncFlow(InternalCombinatorCore.localEnvWith run mapping flow)
 
     let delay (factory: unit -> AsyncFlow<'env, 'error, 'value>) : AsyncFlow<'env, 'error, 'value> =
-        AsyncFlow(fun environment -> factory () |> run environment)
+        AsyncFlow(InternalCombinatorCore.delayWith run factory)
 
 /// <summary>
 /// Computation expression builder for synchronous <see cref="T:FsFlow.Flow`3" /> workflows.

@@ -79,6 +79,36 @@ module Tests =
         test <@ result = Ok 7 @>
 
     [<Fact>]
+    let ``shared combinators preserve sync and async environment semantics`` () =
+        let syncBase : Flow<int, int, int> =
+            Flow.read (fun env -> env + 1)
+            |> Flow.map ((*) 2)
+            |> Flow.bind (fun value -> Flow.succeed(value + 3))
+            |> Flow.mapError String.length
+
+        let syncWorkflow : Flow<string, int, int> =
+            Flow.localEnv String.length syncBase
+
+        let asyncBase : AsyncFlow<int, int, int> =
+            AsyncFlow.read (fun env -> env + 1)
+            |> AsyncFlow.map ((*) 2)
+            |> AsyncFlow.bind (fun value -> AsyncFlow.succeed(value + 3))
+            |> AsyncFlow.mapError String.length
+
+        let asyncWorkflow : AsyncFlow<string, int, int> =
+            AsyncFlow.localEnv String.length asyncBase
+
+        let syncResult = Flow.run "flowkit" syncWorkflow
+
+        let asyncResult =
+            asyncWorkflow
+            |> AsyncFlow.run "flowkit"
+            |> Async.RunSynchronously
+
+        test <@ syncResult = Ok 19 @>
+        test <@ asyncResult = Ok 19 @>
+
+    [<Fact>]
     let ``TaskFlow observes the runtime cancellation token`` () =
         let seen = ref CancellationToken.None
         use cts = new CancellationTokenSource()
@@ -130,6 +160,24 @@ module Tests =
 
         test <@ runOnce () = Ok 1 @>
         test <@ runOnce () = Ok 2 @>
+
+    [<Fact>]
+    let ``shared combinators preserve task environment and error semantics`` () =
+        let baseWorkflow : TaskFlow<int, int, int> =
+            TaskFlow.read (fun env -> env + 1)
+            |> TaskFlow.map ((*) 2)
+            |> TaskFlow.bind (fun value -> TaskFlow.succeed(value + 3))
+            |> TaskFlow.mapError String.length
+
+        let workflow : TaskFlow<string, int, int> =
+            TaskFlow.localEnv String.length baseWorkflow
+
+        let result =
+            workflow
+            |> TaskFlow.run "flowkit" CancellationToken.None
+            |> fun task -> task.GetAwaiter().GetResult()
+
+        test <@ result = Ok 19 @>
 
     [<Fact>]
     let ``flow computation expression is sync only`` () =

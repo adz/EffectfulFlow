@@ -77,23 +77,34 @@ module TaskFlow =
         (flow: TaskFlow<'env, 'error, 'value>)
         : TaskFlow<'env, 'error, 'next> =
         TaskFlow(fun environment cancellationToken ->
-            task {
-                let! result = run environment cancellationToken flow
-                return Result.map mapper result
-            })
+            InternalCombinatorCore.mapWith
+                (fun mapOutcome operation ->
+                    task {
+                        let! result = operation
+                        return mapOutcome result
+                    })
+                mapper
+                (fun (environment, cancellationToken) -> run environment cancellationToken flow)
+                (environment, cancellationToken))
 
     let bind
         (binder: 'value -> TaskFlow<'env, 'error, 'next>)
         (flow: TaskFlow<'env, 'error, 'value>)
         : TaskFlow<'env, 'error, 'next> =
         TaskFlow(fun environment cancellationToken ->
-            task {
-                let! result = run environment cancellationToken flow
+            InternalCombinatorCore.bindWith
+                (fun operation onSuccess onError ->
+                    task {
+                        let! result = operation
 
-                match result with
-                | Ok value -> return! binder value |> run environment cancellationToken
-                | Error error -> return Error error
-            })
+                        match result with
+                        | Ok value -> return! onSuccess value
+                        | Error error -> return! onError error
+                    })
+                (fun (environment, cancellationToken) value -> binder value |> run environment cancellationToken)
+                (Error >> Task.FromResult)
+                (fun (environment, cancellationToken) -> run environment cancellationToken flow)
+                (environment, cancellationToken))
 
     let tap
         (binder: 'value -> TaskFlow<'env, 'error, unit>)
@@ -110,10 +121,15 @@ module TaskFlow =
         (flow: TaskFlow<'env, 'error, 'value>)
         : TaskFlow<'env, 'nextError, 'value> =
         TaskFlow(fun environment cancellationToken ->
-            task {
-                let! result = run environment cancellationToken flow
-                return Result.mapError mapper result
-            })
+            InternalCombinatorCore.mapErrorWith
+                (fun mapOutcome operation ->
+                    task {
+                        let! result = operation
+                        return mapOutcome result
+                    })
+                mapper
+                (fun (environment, cancellationToken) -> run environment cancellationToken flow)
+                (environment, cancellationToken))
 
     let catch
         (handler: exn -> 'error)
@@ -131,10 +147,19 @@ module TaskFlow =
         (mapping: 'outerEnvironment -> 'innerEnvironment)
         (flow: TaskFlow<'innerEnvironment, 'error, 'value>)
         : TaskFlow<'outerEnvironment, 'error, 'value> =
-        TaskFlow(fun environment cancellationToken -> flow |> run (mapping environment) cancellationToken)
+        TaskFlow(fun environment cancellationToken ->
+            InternalCombinatorCore.localEnvWith
+                (fun (environment, cancellationToken) innerFlow -> run environment cancellationToken innerFlow)
+                (fun (environment, cancellationToken) -> mapping environment, cancellationToken)
+                flow
+                (environment, cancellationToken))
 
     let delay (factory: unit -> TaskFlow<'env, 'error, 'value>) : TaskFlow<'env, 'error, 'value> =
-        TaskFlow(fun environment cancellationToken -> factory () |> run environment cancellationToken)
+        TaskFlow(fun environment cancellationToken ->
+            InternalCombinatorCore.delayWith
+                (fun (environment, cancellationToken) delayedFlow -> run environment cancellationToken delayedFlow)
+                factory
+                (environment, cancellationToken))
 
 /// <summary>
 /// Computation expression builder for task-based <see cref="T:FsFlow.Net.TaskFlow`3" /> workflows.
