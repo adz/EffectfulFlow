@@ -23,12 +23,17 @@ Use this builder when the runtime boundary is async-first and you need to compos
 It is the right landing point for async orchestration that still wants typed failures
 instead of exceptions.
 </para>
+<para>
+Smart binds cover native lifting from `Async&lt;Option&lt;_&gt;&gt;`,
+`Async&lt;ValueOption&lt;_&gt;&gt;`, and `Async&lt;Result&lt;_, _&gt;&gt;`
+with `orFailTo` and `orMapError`.
+</para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1483)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1667)
 
 ## Examples
 

@@ -36,6 +36,7 @@ It also supports "smart binds" using tuples for inline error mapping or failing 
 <list type="bullet">
 <item><description>`let! x = (source, error)` - Fails with `error` if `source` is None/Error.</description></item>
 <item><description>`let! x = (source, mapper)` - Maps the error of `source` using `mapper`.</description></item>
+<item><description>Use `orFailTo` for fail-fast tuple binds and `orMapError` for inline error remapping.</description></item>
 </list>
 </para>
 
@@ -43,7 +44,7 @@ It also supports "smart binds" using tuples for inline error mapping or failing 
 ## Information
 
 - **Module**: `TaskBuilders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L1286)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L1376)
 
 ## Examples
 

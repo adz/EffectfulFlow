@@ -47,6 +47,9 @@ TaskFlow<'env, 'error, 'value>
 The point is not to replace `Result`, `Async`, or `Task`.
 The point is to let one Result-based style scale into real application boundaries without changing the mental model.
 
+`AsyncFlow` is the async-native sibling. `TaskFlow` is the .NET task sibling.
+Use `AsyncFlow` by itself when you want an `Async` boundary without `Task` or `ColdTask` interop.
+
 ## The Main Claim
 
 FsFlow unifies Result-based programming across pure logic and effectful execution.

@@ -221,11 +221,14 @@ helpers from the task surface.
 
 ## 9. Compose Upward, Not Sideways
 
-The computation families are ordered from smaller to larger runtime commitments:
+The computation families are ordered by runtime commitment, but `AsyncFlow` and `TaskFlow` are sibling async boundaries:
 
 - `Flow` is the sync base
-- `AsyncFlow` can lift `Flow`
-- `TaskFlow` can lift both `Flow` and `AsyncFlow`
+- `AsyncFlow` is the async-native boundary and can lift `Flow`
+- `TaskFlow` is the .NET task-native boundary and can lift `Flow` and `AsyncFlow`
+
+`AsyncFlow` does not depend on `TaskFlow`. Use it on its own when the boundary is `Async`-first or when you want the core async surface without `.NET Task` interop.
+The task surface means the `TaskFlow` builder plus the task-aware extension members that add `Task`, `ValueTask`, and `ColdTask` binding support.
 
 That means small sync boundaries can stay sync and be reused inside async or task-oriented boundaries:
 

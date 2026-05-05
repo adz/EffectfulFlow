@@ -6,45 +6,23 @@
   --ifm-color-primary-light: #4371bc;
   --ifm-color-primary-lighter: #4d7ac4;
   --ifm-color-primary-lightest: #5f8ad0;
-  --ifm-font-family-base: "Source Sans 3", "Segoe UI", Arial, sans-serif;
-  --ifm-heading-font-family: "Source Sans 3", "Segoe UI", Arial, sans-serif;
   --ifm-font-size-base: 16px;
   --ifm-line-height-base: 1.7;
-  --ifm-navbar-height: 4.25rem;
   --ifm-code-font-size: 94%;
-  --ifm-background-color: #f7f4ee;
-  --ifm-navbar-background-color: rgba(251, 249, 245, 0.92);
   --ifm-menu-color-active: var(--ifm-color-primary);
   --fsflow-secondary-text: rgba(42, 41, 37, 0.88);
   --fsflow-border-color: rgba(42, 41, 37, 0.15);
-  --fsflow-sidebar-bg: rgba(249, 247, 242, 0.94);
   --fsflow-card-bg: rgba(255, 255, 255, 0.92);
-  --fsflow-gradient-start: #fbf9f5;
 }
 
 [data-theme='dark'] {
-  --ifm-background-color: #1e1c19;
-  --ifm-navbar-background-color: rgba(30, 28, 25, 0.92);
   --fsflow-secondary-text: rgba(235, 230, 220, 0.88);
   --fsflow-border-color: rgba(235, 230, 220, 0.15);
-  --fsflow-sidebar-bg: rgba(35, 33, 30, 0.94);
   --fsflow-card-bg: rgba(45, 43, 40, 0.92);
-  --fsflow-gradient-start: #24221f;
 }
 
 html {
-  background:
-    radial-gradient(circle at top left, rgba(55, 103, 177, 0.12), transparent 40%),
-    linear-gradient(180deg, var(--fsflow-gradient-start) 0%, var(--ifm-background-color) 100%);
-}
-
-body {
-  background: transparent;
-}
-
-.navbar {
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--fsflow-border-color);
+  background: var(--ifm-background-color);
 }
 
 .navbar__brand {
@@ -54,19 +32,6 @@ body {
 
 .navbar__title {
   font-size: 1.05rem;
-}
-
-.menu__link {
-  border-radius: 0.5rem;
-}
-
-.menu__link--active {
-  background: rgba(55, 103, 177, 0.08);
-}
-
-.theme-doc-sidebar-container {
-  border-right: 1px solid var(--fsflow-border-color);
-  background: var(--fsflow-sidebar-bg);
 }
 
 .table-of-contents {

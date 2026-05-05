@@ -22,11 +22,25 @@ FsFlow provides **Smart Binds** that allow you to unwrap values or fail with a d
 | :--- | :--- |
 | `Option<'T>` | `let! x = opt, orFailTo e` |
 | `voption<'T>` | `let! x = vopt, orFailTo e` |
+| `Async<Option<'T>>` | `let! x = aOpt, orFailTo e` |
+| `Async<voption<'T>>` | `let! x = aVOpt, orFailTo e` |
 | `bool` | `do! cond, orFailTo e` |
 | `Result<'T, unit>` | `let! x = check, orFailTo e` |
 | `Task<Option<'T>>` | `let! x = tOpt, orFailTo e` |
+| `Task<voption<'T>>` | `let! x = tVOpt, orFailTo e` |
 
-### 2. Rosetta Stone
+### 2. Mapping Errors (Idiomatic Way)
+FsFlow also supports inline error remapping with the `orMapError` label.
+
+| Source Type | Idiomatic Pattern |
+| :--- | :--- |
+| `Result<'T, 'E1>` | `let! x = result, orMapError mapper` |
+| `Flow<'Env, 'E1, 'T>` | `let! x = flow, orMapError mapper` |
+| `AsyncFlow<'Env, 'E1, 'T>` | `let! x = asyncFlow, orMapError mapper` |
+| `Async<Result<'T, 'E1>>` | `let! x = aResult, orMapError mapper` |
+| `TaskFlow<'Env, 'E1, 'T>` | `let! x = taskFlow, orMapError mapper` |
+
+### 3. Rosetta Stone
 Translate common patterns from other libraries into idiomatic FsFlow.
 
 | If you use... | Do this in FsFlow |
@@ -36,6 +50,7 @@ Translate common patterns from other libraries into idiomatic FsFlow.
 | `ZIO: getOrFail` | `let! x = opt, orFailTo e` |
 | `ZIO: serviceWith` | `let! s = Flow.read _.Service` |
 | `Manual: match x with Some v...` | `let! v = x, orFailTo e` |
+| `Manual: Result.mapError mapper` | `let! x = result, orMapError mapper` |
 
 ## Hierarchy of Effects
 

@@ -23,12 +23,16 @@ reads without introducing async or task scheduling.
 It is the simplest builder in the library and is a good default for pure composition
 and deterministic orchestration.
 </para>
+<para>
+Smart binds support `orFailTo` for `option`, `voption`, `bool`,
+and `Result&lt;_, unit&gt;`, plus `orMapError` for inline error remapping.
+</para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1458)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1637)
 
 ## Examples
 

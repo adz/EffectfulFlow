@@ -9,7 +9,7 @@ description: API reference for TaskFlow.orElseTask
 
 
 ```fsharp
-let orElseTask (errorTask: Task<'error>) (result: Result<'value, unit>) : Task<Result<'value, 'error>>
+let orElseTask (errorTask: Task<'error>) (result: Result<'value, unit>) : TaskFlow<'env, 'error, 'value>
 ```
 
 

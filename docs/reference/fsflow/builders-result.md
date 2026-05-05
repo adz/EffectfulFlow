@@ -23,12 +23,15 @@ and you want to keep the workflow in `Result` shape all the way through.
 It works well for parsing, validation, and other boundaries where failure is expected
 to stop the flow immediately instead of accumulating diagnostics.
 </para>
+<para>
+It also supports smart-bind tuples with `orMapError` for inline error remapping.
+</para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1434)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1609)
 
 ## Examples
 

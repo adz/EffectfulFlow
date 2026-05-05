@@ -9,7 +9,7 @@ This page shows the source-documented `Result` surface: the module functions and
 
 ## Builder
 
-- [`Builders.result`](./builders-result.md): The fail-fast `result { }` computation expression. [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1434)
+- [`Builders.result`](./builders-result.md): The fail-fast `result { }` computation expression. [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1609)
 
 ## Module functions
 

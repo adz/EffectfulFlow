@@ -107,8 +107,8 @@ trying to hide it inside a flow builder.
 FsFlow stays close to standard F# and .NET:
 
 - `flow { ... }` binds to `Result` and `Option`
-- `asyncFlow { ... }` also binds to `Async` and `Async<Result<_,_>>`
-- `taskFlow { ... }` binds to `Task`, `ValueTask`, `Task<_>`, `ValueTask<_>`, and `ColdTask`
+- `asyncFlow { ... }` also binds to `Async`, `Async<Option<_>>`, `Async<ValueOption<_>>`, and `Async<Result<_,_>>`
+- `taskFlow { ... }` is the .NET task sibling and binds to `Task`, `ValueTask`, `Task<_>`, `ValueTask<_>`, and `ColdTask`
 - `result {}` keeps fail-fast pure code readable
 - `validate {}` keeps sibling validation accumulation explicit
 

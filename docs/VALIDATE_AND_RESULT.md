@@ -59,7 +59,7 @@ let requireEmail email =
 ## Fail-fast with `result {}`
 
 When you want to stop at the first error, use the `result {}` builder. This works with standard
-`Result<'v, 'e>` types:
+`Result<'v, 'e>` types and supports inline error remapping with the labeled tuple syntax:
 
 ```fsharp
 let validateUser cmd =
@@ -67,6 +67,16 @@ let validateUser cmd =
         let! name = requireName cmd.Name
         let! email = requireEmail cmd.Email
         return { cmd with Name = name; Email = email }
+    }
+```
+
+You can also remap the error inline:
+
+```fsharp
+let validateUser cmd =
+    result {
+        let! name = requireName cmd.Name, orMapError AppError.Required
+        return name
     }
 ```
 
@@ -85,6 +95,10 @@ let validateUserAccumulated cmd =
 ```
 
 The `and!` syntax triggers the applicative merging of the `Diagnostics` graph.
+
+`validate {}` stays on the accumulating path. It binds `Result` inputs directly, but it does not
+use the fail-fast tuple smart binds like `orFailTo`. Those tuple forms belong to the short-circuiting
+builders such as `result {}`, `flow {}`, `asyncFlow {}`, and `taskFlow {}`.
 
 ### Example Output
 

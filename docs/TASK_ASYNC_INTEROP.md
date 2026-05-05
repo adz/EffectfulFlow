@@ -38,6 +38,9 @@ taskFlow {
 ```
 
 The builders already bind `Result`, `Flow`, `AsyncFlow`, `Task`, `Task<Result<_,_>>`, and `ColdTask` where supported.
+The "task surface" means the `TaskFlow` builder plus the `TaskFlowBuilderExtensions` and `AsyncFlowBuilderExtensions` members in the main `FsFlow` package.
+That surface is available in .NET builds, and it is what adds `Task`, `ValueTask`, and `ColdTask` binding support.
+If you are targeting `AsyncFlow` alone, or using `FsFlow` in a Fable-only async context, those task-aware members are simply not part of the surface you rely on.
 That means normal docs examples should not reach for `TaskFlow.fromFlow` or `AsyncFlow.fromResult` inside the computation expression unless the point of the example is the bridge API itself.
 
 ## Auto-Lifts At A Glance
@@ -172,6 +175,9 @@ Prefer `AsyncFlow` when:
 - `Async` is the execution model for the computation
 
 Use `AsyncFlow.toAsync` to run it.
+
+Choose `AsyncFlow` on its own when you want `Async`-native code without committing to task interop.
+That is the right choice for Fable-oriented async code paths and for codebases that intentionally avoid `.NET Task` at the boundary.
 
 ## When To Choose `TaskFlow`
 

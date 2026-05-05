@@ -9,6 +9,7 @@ This page shows the exact execution model of `Flow`, `AsyncFlow`, `TaskFlow`, an
 
 Task-oriented semantics on this page refer to the task surface that ships in the main `FsFlow` package.
 The public surface now includes sync, async, and task concepts together.
+The task surface means the `TaskFlow` builder plus its task-aware extension members for `Task`, `ValueTask`, and `ColdTask`.
 
 ## Success And Typed Failure
 

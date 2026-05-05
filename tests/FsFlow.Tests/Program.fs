@@ -12,6 +12,12 @@ open Swensen.Unquote
 open Xunit
 
 module Tests =
+    type private LoginError =
+        | InvalidUser
+        | InvalidPwd
+        | Unauthorized of string
+        | TokenErr of string
+
     type private ReaderEnv =
         { Prefix: string
           Count: int }
@@ -920,6 +926,7 @@ let probe : TaskFlow<unit, string, int> =
         let asyncBridge =
             Check.okIf false
             |> AsyncFlow.orElseAsync (async.Return "async")
+            |> AsyncFlow.run ()
             |> Async.RunSynchronously
 
         let asyncFlowBridge =
@@ -931,11 +938,13 @@ let probe : TaskFlow<unit, string, int> =
         let taskBridge =
             Check.okIf false
             |> TaskFlow.orElseTask (Task.FromResult "task")
+            |> TaskFlow.run () CancellationToken.None
             |> fun task -> task.GetAwaiter().GetResult()
 
         let taskAsyncBridge =
             Check.okIf false
             |> TaskFlow.orElseAsync (async.Return "task-async")
+            |> TaskFlow.run () CancellationToken.None
             |> fun task -> task.GetAwaiter().GetResult()
 
         let taskFlowBridge =
@@ -1978,6 +1987,51 @@ let probe : Flow<unit, string, int> =
         test <@ flowResult = Ok 52 @>
         test <@ asyncFlowResult = Ok 52 @>
         test <@ taskFlowResult = Ok 60 @>
+
+    [<Fact>]
+    let ``AsyncFlow login syntax uses native async unwrap and error mapping`` () =
+        let tryGetUser username = async { return if username = "missing" then None else Some username }
+        let isPwdValid password user = password = $"{user}-pwd"
+        let authorize user = async { return if user = "blocked" then Error "denied" else Ok () }
+        let createAuthToken user = if user = "expired" then Error "token-expired" else Ok $"token-{user}"
+
+        let login username password =
+            asyncFlow {
+                let! user = tryGetUser username, orFailTo InvalidUser
+                do! isPwdValid password user, orFailTo InvalidPwd
+                do! authorize user, orMapError Unauthorized
+                return! createAuthToken user, orMapError TokenErr
+            }
+
+        let success = AsyncFlow.run () (login "alice" "alice-pwd") |> Async.RunSynchronously
+        let authFailure = AsyncFlow.run () (login "blocked" "blocked-pwd") |> Async.RunSynchronously
+        let tokenFailure = AsyncFlow.run () (login "expired" "expired-pwd") |> Async.RunSynchronously
+
+        test <@ success = Ok "token-alice" @>
+        test <@ authFailure = Error (Unauthorized "denied") @>
+        test <@ tokenFailure = Error (TokenErr "token-expired") @>
+
+    [<Fact>]
+    let ``Native flow tuple error mapping stays symmetric`` () =
+        let asyncSource : AsyncFlow<unit, string, int> = AsyncFlow.fail "async-source"
+        let taskSource : TaskFlow<unit, string, int> = TaskFlow.fail "task-source"
+        let asyncSuccess : AsyncFlow<unit, string, int> = AsyncFlow.succeed 1
+
+        let asyncMapped =
+            asyncFlow {
+                let! value = asyncSource, orMapError (fun error -> $"mapped-{error}")
+                return value + 1
+            }
+
+        let taskMapped =
+            taskFlow {
+                let! asyncValue = asyncSuccess, orMapError (fun error -> $"mapped-{error}")
+                let! taskValue = taskSource, orMapError (fun error -> $"mapped-{error}")
+                return asyncValue + taskValue
+            }
+
+        test <@ AsyncFlow.run () asyncMapped |> Async.RunSynchronously = Error "mapped-async-source" @>
+        test <@ TaskFlow.run () CancellationToken.None taskMapped |> fun t -> t.GetAwaiter().GetResult() = Error "mapped-task-source" @>
 
     [<Fact>]
     let ``Tuple-based smart binds fail correctly with orFailTo`` () =

@@ -137,26 +137,30 @@ module TaskFlow =
     let orElseTask
         (errorTask: Task<'error>)
         (result: Result<'value, unit>)
-        : Task<Result<'value, 'error>> =
-        task {
-            match result with
-            | Ok value -> return Ok value
-            | Error () ->
-                let! error = errorTask
-                return Error error
-        }
+        : TaskFlow<'env, 'error, 'value> =
+        TaskFlow(fun _ _ ->
+            task {
+                match result with
+                | Ok value -> return Ok value
+                | Error () ->
+                    let! error = errorTask
+                    return Error error
+            })
 
+    /// <summary>Turns a pure validation result into a task flow with task-provided failure.</summary>
+    /// <returns>A <see cref="T:FsFlow.TaskFlow`3" /> that mirrors the result or produces the task error.</returns>
     let orElseAsync
         (errorAsync: Async<'error>)
         (result: Result<'value, unit>)
-        : Task<Result<'value, 'error>> =
-        task {
-            match result with
-            | Ok value -> return Ok value
-            | Error () ->
-                let! error = errorAsync |> Async.StartAsTask
-                return Error error
-        }
+        : TaskFlow<'env, 'error, 'value> =
+        TaskFlow(fun _ _ ->
+            task {
+                match result with
+                | Ok value -> return Ok value
+                | Error () ->
+                    let! error = errorAsync |> Async.StartAsTask
+                    return Error error
+            })
 
     let orElseFlow
         (errorFlow: Flow<'env, 'error, 'error>)
@@ -797,6 +801,36 @@ type TaskFlowBuilder() =
     member _.ReturnFrom(result: Result<'value, 'error>) : TaskFlow<'env, 'error, 'value> =
         TaskFlow.fromResult result
 
+    member _.ReturnFrom(tuple: TaskFlow<'env, 'error1, 'value> * ('error1 -> 'error2)) : TaskFlow<'env, 'error2, 'value> =
+        let flow, mapper = tuple
+        flow
+        |> TaskFlow.mapError mapper
+
+    member _.ReturnFrom(tuple: AsyncFlow<'env, 'error1, 'value> * ('error1 -> 'error2)) : TaskFlow<'env, 'error2, 'value> =
+        let flow, mapper = tuple
+        flow
+        |> AsyncFlow.mapError mapper
+        |> TaskFlow.fromAsyncFlow
+
+    member _.ReturnFrom(tuple: Async<Result<'value, 'error1>> * ('error1 -> 'error2)) : TaskFlow<'env, 'error2, 'value> =
+        let operation, mapper = tuple
+        operation
+        |> AsyncFlow.fromAsyncResult
+        |> AsyncFlow.mapError mapper
+        |> TaskFlow.fromAsyncFlow
+
+    member _.ReturnFrom(tuple: Flow<'env, 'error1, 'value> * ('error1 -> 'error2)) : TaskFlow<'env, 'error2, 'value> =
+        let flow, mapper = tuple
+        flow
+        |> Flow.mapError mapper
+        |> TaskFlow.fromFlow
+
+    member _.ReturnFrom(tuple: Result<'value, 'error1> * ('error1 -> 'error2)) : TaskFlow<'env, 'error2, 'value> =
+        let result, mapper = tuple
+        result
+        |> Result.mapError mapper
+        |> TaskFlow.fromResult
+
     member _.ReturnFrom(option: 'value option) : TaskFlow<'env, unit, 'value> =
         match option with
         | Some value -> TaskFlow.succeed value
@@ -819,10 +853,31 @@ type TaskFlowBuilder() =
 
     member _.Bind
         (
+            tuple: TaskFlow<'env, 'error1, 'value> * ('error1 -> 'error2),
+            binder: 'value -> TaskFlow<'env, 'error2, 'next>
+        ) : TaskFlow<'env, 'error2, 'next> =
+        let flow, mapper = tuple
+        flow
+        |> TaskFlow.mapError mapper
+        |> TaskFlow.bind binder
+
+    member _.Bind
+        (
             flow: AsyncFlow<'env, 'error, 'value>,
             binder: 'value -> TaskFlow<'env, 'error, 'next>
         ) : TaskFlow<'env, 'error, 'next> =
         flow
+        |> TaskFlow.fromAsyncFlow
+        |> TaskFlow.bind binder
+
+    member _.Bind
+        (
+            tuple: AsyncFlow<'env, 'error1, 'value> * ('error1 -> 'error2),
+            binder: 'value -> TaskFlow<'env, 'error2, 'next>
+        ) : TaskFlow<'env, 'error2, 'next> =
+        let flow, mapper = tuple
+        flow
+        |> AsyncFlow.mapError mapper
         |> TaskFlow.fromAsyncFlow
         |> TaskFlow.bind binder
 
@@ -843,6 +898,18 @@ type TaskFlowBuilder() =
         ) : TaskFlow<'env, 'error, 'next> =
         operation
         |> AsyncFlow.fromAsyncResult
+        |> TaskFlow.fromAsyncFlow
+        |> TaskFlow.bind binder
+
+    member _.Bind
+        (
+            tuple: Async<Result<'value, 'error1>> * ('error1 -> 'error2),
+            binder: 'value -> TaskFlow<'env, 'error2, 'next>
+        ) : TaskFlow<'env, 'error2, 'next> =
+        let operation, mapper = tuple
+        operation
+        |> AsyncFlow.fromAsyncResult
+        |> AsyncFlow.mapError mapper
         |> TaskFlow.fromAsyncFlow
         |> TaskFlow.bind binder
 
@@ -882,10 +949,32 @@ type TaskFlowBuilder() =
 
     member _.Bind
         (
+            tuple: Flow<'env, 'error1, 'value> * ('error1 -> 'error2),
+            binder: 'value -> TaskFlow<'env, 'error2, 'next>
+        ) : TaskFlow<'env, 'error2, 'next> =
+        let flow, mapper = tuple
+        flow
+        |> Flow.mapError mapper
+        |> TaskFlow.fromFlow
+        |> TaskFlow.bind binder
+
+    member _.Bind
+        (
             result: Result<'value, 'error>,
             binder: 'value -> TaskFlow<'env, 'error, 'next>
         ) : TaskFlow<'env, 'error, 'next> =
         result
+        |> TaskFlow.fromResult
+        |> TaskFlow.bind binder
+
+    member _.Bind
+        (
+            tuple: Result<'value, 'error1> * ('error1 -> 'error2),
+            binder: 'value -> TaskFlow<'env, 'error2, 'next>
+        ) : TaskFlow<'env, 'error2, 'next> =
+        let result, mapper = tuple
+        result
+        |> Result.mapError mapper
         |> TaskFlow.fromResult
         |> TaskFlow.bind binder
 
@@ -1270,6 +1359,7 @@ module TaskBuilders =
     /// <list type="bullet">
     /// <item><description><c>let! x = (source, error)</c> - Fails with <c>error</c> if <c>source</c> is None/Error.</description></item>
     /// <item><description><c>let! x = (source, mapper)</c> - Maps the error of <c>source</c> using <c>mapper</c>.</description></item>
+    /// <item><description>Use <c>orFailTo</c> for fail-fast tuple binds and <c>orMapError</c> for inline error remapping.</description></item>
     /// </list>
     /// </para>
     /// </remarks>
