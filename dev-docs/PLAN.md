@@ -40,6 +40,43 @@ The current focus is on finalizing the granular API reference and ensuring the d
 - narrative guides stay aligned with the granular page structure
 - legacy aliases and terminology are removed in favor of the graph-based model
 
+## Guard Direction
+
+The next API-shape iteration is replacing tuple-based smart binds with an explicit `Guard` concept that is visible in call sites and still binds cleanly in computation expressions.
+
+This direction is only about the source/code surface for the next implementation step. Documentation changes belong to the docs task, not this one.
+
+The contract is:
+
+- `Check` remains the reusable predicate algebra
+- `Guard.Of` bridges check-like or absence-like sources into a typed error result/flow
+- `Guard.MapError` remaps sources that already carry an error into the target error type
+- builders bind the resulting `Result`, `Async<Result>`, `Task<Result>`, `Flow`, `AsyncFlow`, and `TaskFlow` shapes directly
+- tuple markers such as `source, orFailTo error` and `source, orMapError mapper` are removed once the `Guard` constructors cover the same behavior
+
+The initial implementation should keep the public intention explicit, not introduce a second predicate DSL, and avoid reusing tuple syntax:
+
+- `Check.notBlank name |> Guard.Of InvalidName`
+- `isEnabled |> Guard.Of Disabled`
+- `tryGetUser username |> Guard.MapError AuthError`
+
+Implementation acceptance for task 1:
+
+- the builders accept `Guard.Of` and `Guard.MapError` directly
+- the old tuple smart-bind overloads are gone from `Flow`, `AsyncFlow`, `TaskFlow`, and `Validate`
+- tests exercise plain, async, and task sources through `Guard`
+- no user-facing docs are updated yet in this task
+- the code compiles and `dotnet test` passes before the task is committed
+
+The implementation sequence should be:
+
+1. add the `Guard` constructors and overloads in source
+2. remove the old tuple smart-bind overloads from the builders
+3. update tests to exercise `Guard` in `flow`, `asyncFlow`, and `taskFlow`
+4. update the narrative guides and API reference to explain `Guard` as the central bridge between `Check` and the flow families
+5. normalize the remaining fallback APIs so `orElse` / `orElseWith` consistently mean same-family alternates, not check bridging
+6. rename check bridging to `Check.orError` and remove the obsolete `Check.orElse` / `Check.orElseWith` bridge meaning
+
 ## Done Means
 
 - the docs read like product documentation for the user

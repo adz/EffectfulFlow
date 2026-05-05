@@ -1264,7 +1264,7 @@ let probe : TaskFlow<unit, string, int> =
         test <@ publicMethods |> Array.contains "Yield" @>
         test <@ publicMethods |> Array.contains "YieldFrom" @>
         test <@ publicMethods |> Array.contains "ReturnFrom" @>
-        test <@ argumentTypeNames = [| "FSharpFunc`2"; "FSharpOption`1"; "FSharpResult`2"; "FSharpValueOption`1"; "Flow`3"; "Tuple`2" |] @>
+        test <@ argumentTypeNames = [| "FSharpFunc`2"; "FSharpOption`1"; "FSharpResult`2"; "FSharpValueOption`1"; "Flow`3" |] @>
 
     [<Fact>]
     let ``flow builders directly bind Result and Result unit values`` () =
@@ -1950,33 +1950,46 @@ let probe : Flow<unit, string, int> =
         test <@ seen.Value = cts.Token @>
 
     [<Fact>]
-    let ``Tuple-based smart binds work in all flow families`` () =
+    let ``Guard constructors work in all flow families`` () =
+        let successOption : int option = Some 42
+        let successValueOption : int voption = ValueSome 10
+        let asyncOption : Async<int option> = async { return Some 42 }
+        let asyncValueOption : Async<int voption> = async { return ValueSome 10 }
+        let asyncBool : Async<bool> = async { return true }
+        let successTaskOption : Task<int option> = Task.FromResult(Some 5)
+        let successTaskValueOption : ValueTask<int voption> = ValueTask.FromResult(ValueSome 3)
+        let guardedSuccessOption : Result<int, string> = Guard.Of("missing-option", successOption)
+        let guardedSuccessValueOption : Result<int, string> = Guard.Of("missing-voption", successValueOption)
+        let guardedBool : Result<unit, string> = Guard.Of("bool-false", true)
+        let guardedAsyncOption : Async<Result<int, string>> = Guard.Of("missing-option", asyncOption)
+        let guardedAsyncValueOption : Async<Result<int, string>> = Guard.Of("missing-voption", asyncValueOption)
+        let guardedAsyncBool : Async<Result<unit, string>> = Guard.Of("bool-false", asyncBool)
+        let guardedTaskOption : Task<Result<int, string>> = Guard.Of("task-missing", successTaskOption)
+        let guardedTaskValueOption : ValueTask<Result<int, string>> = Guard.Of("vtask-missing", successTaskValueOption)
+
         let flowTest =
             flow {
-                let! x = Some 42, orFailTo "missing-option"
-                let! y = ValueSome 10, orFailTo "missing-voption"
-                do! true, orFailTo "bool-false"
-                do! Check.okIf true, orFailTo "check-fail"
+                let! x = guardedSuccessOption
+                let! y = guardedSuccessValueOption
+                do! guardedBool
                 return x + y
             }
 
         let asyncFlowTest =
             asyncFlow {
-                let! x = Some 42, orFailTo "missing-option"
-                let! y = ValueSome 10, orFailTo "missing-voption"
-                do! true, orFailTo "bool-false"
-                do! Check.okIf true, orFailTo "check-fail"
+                let! (x : int) = guardedAsyncOption
+                let! (y : int) = guardedAsyncValueOption
+                do! guardedAsyncBool
                 return x + y
             }
 
         let taskFlowTest =
             taskFlow {
-                let! x = Some 42, orFailTo "missing-option"
-                let! y = ValueSome 10, orFailTo "missing-voption"
-                do! true, orFailTo "bool-false"
-                do! Check.okIf true, orFailTo "check-fail"
-                let! z = Task.FromResult(Some 5), orFailTo "task-missing"
-                let! w = ValueTask.FromResult(ValueSome 3), orFailTo "vtask-missing"
+                let! x = guardedSuccessOption
+                let! y = guardedSuccessValueOption
+                do! guardedBool
+                let! z = guardedTaskOption
+                let! w = guardedTaskValueOption
                 return x + y + z + w
             }
 
@@ -1989,7 +2002,7 @@ let probe : Flow<unit, string, int> =
         test <@ taskFlowResult = Ok 60 @>
 
     [<Fact>]
-    let ``AsyncFlow login syntax uses native async unwrap and error mapping`` () =
+    let ``AsyncFlow login syntax uses Guard constructors and error mapping`` () =
         let tryGetUser username = async { return if username = "missing" then None else Some username }
         let isPwdValid password user = password = $"{user}-pwd"
         let authorize user = async { return if user = "blocked" then Error "denied" else Ok () }
@@ -1997,10 +2010,17 @@ let probe : Flow<unit, string, int> =
 
         let login username password =
             asyncFlow {
-                let! user = tryGetUser username, orFailTo InvalidUser
-                do! isPwdValid password user, orFailTo InvalidPwd
-                do! authorize user, orMapError Unauthorized
-                return! createAuthToken user, orMapError TokenErr
+                let userResult : Async<Result<string, LoginError>> = Guard.Of(InvalidUser, tryGetUser username)
+                let! (user : string) = userResult
+
+                let passwordCheck : Result<unit, LoginError> = Guard.Of(InvalidPwd, isPwdValid password user)
+                do! passwordCheck
+
+                let authorizeResult : Async<Result<unit, LoginError>> = Guard.MapError(Unauthorized, authorize user)
+                do! authorizeResult
+
+                let tokenResult : Result<string, LoginError> = Guard.MapError(TokenErr, createAuthToken user)
+                return! tokenResult
             }
 
         let success = AsyncFlow.run () (login "alice" "alice-pwd") |> Async.RunSynchronously
@@ -2012,21 +2032,30 @@ let probe : Flow<unit, string, int> =
         test <@ tokenFailure = Error (TokenErr "token-expired") @>
 
     [<Fact>]
-    let ``Native flow tuple error mapping stays symmetric`` () =
+    let ``Guard mapError stays symmetric across flow families`` () =
         let asyncSource : AsyncFlow<unit, string, int> = AsyncFlow.fail "async-source"
         let taskSource : TaskFlow<unit, string, int> = TaskFlow.fail "task-source"
         let asyncSuccess : AsyncFlow<unit, string, int> = AsyncFlow.succeed 1
 
         let asyncMapped =
+            let mappedAsyncSource : AsyncFlow<unit, string, int> =
+                Guard.MapError((fun error -> $"mapped-{error}"), asyncSource)
+
             asyncFlow {
-                let! value = asyncSource, orMapError (fun error -> $"mapped-{error}")
+                let! value = mappedAsyncSource
                 return value + 1
             }
 
         let taskMapped =
+            let mappedAsyncSuccess : AsyncFlow<unit, string, int> =
+                Guard.MapError((fun error -> $"mapped-{error}"), asyncSuccess)
+
+            let mappedTaskSource : TaskFlow<unit, string, int> =
+                Guard.MapError((fun error -> $"mapped-{error}"), taskSource)
+
             taskFlow {
-                let! asyncValue = asyncSuccess, orMapError (fun error -> $"mapped-{error}")
-                let! taskValue = taskSource, orMapError (fun error -> $"mapped-{error}")
+                let! asyncValue = mappedAsyncSuccess
+                let! taskValue = mappedTaskSource
                 return asyncValue + taskValue
             }
 
@@ -2034,18 +2063,23 @@ let probe : Flow<unit, string, int> =
         test <@ TaskFlow.run () CancellationToken.None taskMapped |> fun t -> t.GetAwaiter().GetResult() = Error "mapped-task-source" @>
 
     [<Fact>]
-    let ``Tuple-based smart binds fail correctly with orFailTo`` () =
+    let ``Guard.of fails correctly for check-like sources`` () =
+        let missingOption : int option = None
+        let guardedFlowFail : Result<int, string> = Guard.Of("failed", missingOption)
+        let guardedAsyncFlowFail : Async<Result<int, string>> = Guard.Of("failed", async { return ValueNone })
+        let guardedTaskFlowFail : Result<int, string> = Guard.Of("failed", missingOption)
+
         let flowFail = flow {
-            let! _ = None, orFailTo "failed"
-            return ()
+            let! (value : int) = guardedFlowFail
+            return value
         }
         let asyncFlowFail = asyncFlow {
-            let! _ = ValueNone, orFailTo "failed"
-            return ()
+            let! (value : int) = guardedAsyncFlowFail
+            return value
         }
         let taskFlowFail = taskFlow {
-            do! false, orFailTo "failed"
-            return ()
+            let! (value : int) = guardedTaskFlowFail
+            return value
         }
 
         test <@ Flow.run () flowFail = Error "failed" @>

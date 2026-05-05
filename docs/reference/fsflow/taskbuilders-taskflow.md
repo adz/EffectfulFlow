@@ -32,26 +32,22 @@ It supports seamless binding to many types:
 </list>
 </para>
 <para>
-It also supports "smart binds" using tuples for inline error mapping or failing options:
-<list type="bullet">
-<item><description>`let! x = (source, error)` - Fails with `error` if `source` is None/Error.</description></item>
-<item><description>`let! x = (source, mapper)` - Maps the error of `source` using `mapper`.</description></item>
-<item><description>Use `orFailTo` for fail-fast tuple binds and `orMapError` for inline error remapping.</description></item>
-</list>
+It also supports `Guard.Of` and `Guard.MapError` for inline
+check-like sources and existing-error remapping before binding into the flow.
 </para>
 
 
 ## Information
 
 - **Module**: `TaskBuilders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L1376)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L1188)
 
 ## Examples
 
 ```fsharp
 let getUser (id: int) = taskFlow {
     let! db = TaskFlow.read (fun env -> env.Db)
-    let! user = (db.FindUserAsync(id), UserNotFound id) // Smart bind to Option
+    let! user = db.FindUserAsync(id) |> Guard.Of (UserNotFound id)
     do! Task.Delay(100) // Bind to Task
     return user
 }

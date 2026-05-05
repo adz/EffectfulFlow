@@ -24,14 +24,14 @@ It works well for parsing, validation, and other boundaries where failure is exp
 to stop the flow immediately instead of accumulating diagnostics.
 </para>
 <para>
-It also supports smart-bind tuples with `orMapError` for inline error remapping.
+Use `Guard.MapError` when you need to remap an existing error before entering the CE.
 </para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1609)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1339)
 
 ## Examples
 

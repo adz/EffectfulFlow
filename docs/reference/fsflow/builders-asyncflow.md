@@ -24,16 +24,15 @@ It is the right landing point for async orchestration that still wants typed fai
 instead of exceptions.
 </para>
 <para>
-Smart binds cover native lifting from `Async&lt;Option&lt;_&gt;&gt;`,
-`Async&lt;ValueOption&lt;_&gt;&gt;`, and `Async&lt;Result&lt;_, _&gt;&gt;`
-with `orFailTo` and `orMapError`.
+Use `Guard.Of` for check-like sources and `Guard.MapError` for
+existing-error remapping before binding into the async CE.
 </para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1667)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1397)
 
 ## Examples
 

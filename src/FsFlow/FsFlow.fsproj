@@ -47,6 +47,7 @@
     <Compile Include="Flow.fs" />
     <Compile Include="Runtime.fs" />
     <Compile Include="TaskFlow.fs" />
+    <Compile Include="Guard.fs" />
   </ItemGroup>
 
 </Project>

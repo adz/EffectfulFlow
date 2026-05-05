@@ -3,32 +3,6 @@ namespace FsFlow
 open System
 open System.Threading.Tasks
 
-[<AutoOpen>]
-module FsFlowLabels =
-    /// <summary>
-    /// Semantic label for the second element of a smart-bind tuple.
-    /// </summary>
-    /// <param name="error">The error of type <c>'error</c> to return on failure.</param>
-    /// <returns>The same error value.</returns>
-    /// <example>
-    /// <code>
-    /// let! user = tryGetUser username, orFailTo InvalidUser
-    /// </code>
-    /// </example>
-    let inline orFailTo (error: 'error) : 'error = error
-
-    /// <summary>
-    /// Semantic label for the second element of a smart-bind tuple when the source error needs remapping.
-    /// </summary>
-    /// <param name="mapper">A function that maps the source error into the target error type.</param>
-    /// <returns>The same mapping function.</returns>
-    /// <example>
-    /// <code>
-    /// do! authorize user, orMapError Unauthorized
-    /// </code>
-    /// </example>
-    let inline orMapError (mapper: 'error1 -> 'error2) : 'error1 -> 'error2 = mapper
-
 /// <summary>
 /// Represents a cold synchronous workflow that reads an environment, returns a typed result,
 /// and is executed explicitly through <c>Flow.run</c>.
@@ -1009,17 +983,6 @@ type FlowBuilder() =
     member _.ReturnFrom(result: Result<'value, 'error>) : Flow<'env, 'error, 'value> =
         Flow.fromResult result
 
-    member _.ReturnFrom(tuple: Flow<'env, 'error1, 'value> * ('error1 -> 'error2)) : Flow<'env, 'error2, 'value> =
-        let flow, mapper = tuple
-        flow
-        |> Flow.mapError mapper
-
-    member _.ReturnFrom(tuple: Result<'value, 'error1> * ('error1 -> 'error2)) : Flow<'env, 'error2, 'value> =
-        let result, mapper = tuple
-        result
-        |> Result.mapError mapper
-        |> Flow.fromResult
-
     member _.ReturnFrom(option: 'value option) : Flow<'env, unit, 'value> =
         option
         |> OptionFlow.toUnitResult
@@ -1042,31 +1005,10 @@ type FlowBuilder() =
 
     member _.Bind
         (
-            tuple: Flow<'env, 'error1, 'value> * ('error1 -> 'error2),
-            binder: 'value -> Flow<'env, 'error2, 'next>
-        ) : Flow<'env, 'error2, 'next> =
-        let flow, mapper = tuple
-        flow
-        |> Flow.mapError mapper
-        |> Flow.bind binder
-
-    member _.Bind
-        (
             result: Result<'value, 'error>,
             binder: 'value -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next> =
         result
-        |> Flow.fromResult
-        |> Flow.bind binder
-
-    member _.Bind
-        (
-            tuple: Result<'value, 'error1> * ('error1 -> 'error2),
-            binder: 'value -> Flow<'env, 'error2, 'next>
-        ) : Flow<'env, 'error2, 'next> =
-        let result, mapper = tuple
-        result
-        |> Result.mapError mapper
         |> Flow.fromResult
         |> Flow.bind binder
 
@@ -1087,49 +1029,6 @@ type FlowBuilder() =
         ) : Flow<'env, unit, 'next> =
         option
         |> OptionFlow.toUnitResultValueOption
-        |> Flow.fromResult
-        |> Flow.bind binder
-
-    member _.Bind
-        (
-            tuple: 'value option * 'error,
-            binder: 'value -> Flow<'env, 'error, 'next>
-        ) : Flow<'env, 'error, 'next> =
-        let value, error = tuple
-        value
-        |> OptionFlow.toResult error
-        |> Flow.fromResult
-        |> Flow.bind binder
-
-    member _.Bind
-        (
-            tuple: 'value voption * 'error,
-            binder: 'value -> Flow<'env, 'error, 'next>
-        ) : Flow<'env, 'error, 'next> =
-        let value, error = tuple
-        value
-        |> OptionFlow.toResultValueOption error
-        |> Flow.fromResult
-        |> Flow.bind binder
-
-    member _.Bind
-        (
-            tuple: bool * 'error,
-            binder: unit -> Flow<'env, 'error, 'next>
-        ) : Flow<'env, 'error, 'next> =
-        let cond, error = tuple
-        if cond then Ok () else Error error
-        |> Flow.fromResult
-        |> Flow.bind binder
-
-    member _.Bind
-        (
-            tuple: Result<'value, unit> * 'error,
-            binder: 'value -> Flow<'env, 'error, 'next>
-        ) : Flow<'env, 'error, 'next> =
-        let result, error = tuple
-        result
-        |> Result.mapError (fun () -> error)
         |> Flow.fromResult
         |> Flow.bind binder
 
@@ -1240,29 +1139,6 @@ type AsyncFlowBuilder() =
     member _.ReturnFrom(result: Result<'value, 'error>) : AsyncFlow<'env, 'error, 'value> =
         AsyncFlow.fromResult result
 
-    member _.ReturnFrom(tuple: AsyncFlow<'env, 'error1, 'value> * ('error1 -> 'error2)) : AsyncFlow<'env, 'error2, 'value> =
-        let flow, mapper = tuple
-        flow
-        |> AsyncFlow.mapError mapper
-
-    member _.ReturnFrom(tuple: Async<Result<'value, 'error1>> * ('error1 -> 'error2)) : AsyncFlow<'env, 'error2, 'value> =
-        let operation, mapper = tuple
-        operation
-        |> AsyncFlow.fromAsyncResult
-        |> AsyncFlow.mapError mapper
-
-    member _.ReturnFrom(tuple: Flow<'env, 'error1, 'value> * ('error1 -> 'error2)) : AsyncFlow<'env, 'error2, 'value> =
-        let flow, mapper = tuple
-        flow
-        |> Flow.mapError mapper
-        |> AsyncFlow.fromFlow
-
-    member _.ReturnFrom(tuple: Result<'value, 'error1> * ('error1 -> 'error2)) : AsyncFlow<'env, 'error2, 'value> =
-        let result, mapper = tuple
-        result
-        |> Result.mapError mapper
-        |> AsyncFlow.fromResult
-
     member _.ReturnFrom(option: 'value option) : AsyncFlow<'env, unit, 'value> =
         option
         |> OptionFlow.toUnitResult
@@ -1285,31 +1161,10 @@ type AsyncFlowBuilder() =
 
     member _.Bind
         (
-            tuple: AsyncFlow<'env, 'error1, 'value> * ('error1 -> 'error2),
-            binder: 'value -> AsyncFlow<'env, 'error2, 'next>
-        ) : AsyncFlow<'env, 'error2, 'next> =
-        let flow, mapper = tuple
-        flow
-        |> AsyncFlow.mapError mapper
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
             flow: Flow<'env, 'error, 'value>,
             binder: 'value -> AsyncFlow<'env, 'error, 'next>
         ) : AsyncFlow<'env, 'error, 'next> =
         flow
-        |> AsyncFlow.fromFlow
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
-            tuple: Flow<'env, 'error1, 'value> * ('error1 -> 'error2),
-            binder: 'value -> AsyncFlow<'env, 'error2, 'next>
-        ) : AsyncFlow<'env, 'error2, 'next> =
-        let flow, mapper = tuple
-        flow
-        |> Flow.mapError mapper
         |> AsyncFlow.fromFlow
         |> AsyncFlow.bind binder
 
@@ -1329,17 +1184,6 @@ type AsyncFlowBuilder() =
         ) : AsyncFlow<'env, 'error, 'next> =
         operation
         |> AsyncFlow.fromAsyncResult
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
-            tuple: Async<Result<'value, 'error1>> * ('error1 -> 'error2),
-            binder: 'value -> AsyncFlow<'env, 'error2, 'next>
-        ) : AsyncFlow<'env, 'error2, 'next> =
-        let operation, mapper = tuple
-        operation
-        |> AsyncFlow.fromAsyncResult
-        |> AsyncFlow.mapError mapper
         |> AsyncFlow.bind binder
 
     member _.Bind
@@ -1373,17 +1217,6 @@ type AsyncFlowBuilder() =
 
     member _.Bind
         (
-            tuple: Result<'value, 'error1> * ('error1 -> 'error2),
-            binder: 'value -> AsyncFlow<'env, 'error2, 'next>
-        ) : AsyncFlow<'env, 'error2, 'next> =
-        let result, mapper = tuple
-        result
-        |> Result.mapError mapper
-        |> AsyncFlow.fromResult
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
             option: 'value option,
             binder: 'value -> AsyncFlow<'env, unit, 'next>
         ) : AsyncFlow<'env, unit, 'next> =
@@ -1399,109 +1232,6 @@ type AsyncFlowBuilder() =
         ) : AsyncFlow<'env, unit, 'next> =
         option
         |> OptionFlow.toUnitResultValueOption
-        |> AsyncFlow.fromResult
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
-            tuple: Async<'value option> * 'error,
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let operation, error = tuple
-        AsyncFlow(fun environment ->
-            async {
-                let! value = operation
-
-                match value with
-                | Some innerValue -> return! binder innerValue |> AsyncFlow.run environment
-                | None -> return Error error
-            })
-
-    member _.Bind
-        (
-            tuple: Async<'value option> * (unit -> 'error),
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let operation, error = tuple
-        AsyncFlow(fun environment ->
-            async {
-                let! value = operation
-
-                match value with
-                | Some innerValue -> return! binder innerValue |> AsyncFlow.run environment
-                | None -> return Error(error ())
-            })
-
-    member _.Bind
-        (
-            tuple: Async<'value voption> * 'error,
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let operation, error = tuple
-        AsyncFlow(fun environment ->
-            async {
-                let! value = operation
-
-                match value with
-                | ValueSome innerValue -> return! binder innerValue |> AsyncFlow.run environment
-                | ValueNone -> return Error error
-            })
-
-    member _.Bind
-        (
-            tuple: Async<'value voption> * (unit -> 'error),
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let operation, error = tuple
-        AsyncFlow(fun environment ->
-            async {
-                let! value = operation
-
-                match value with
-                | ValueSome innerValue -> return! binder innerValue |> AsyncFlow.run environment
-                | ValueNone -> return Error(error ())
-            })
-
-    member _.Bind
-        (
-            tuple: 'value option * 'error,
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let value, error = tuple
-        value
-        |> OptionFlow.toResult error
-        |> AsyncFlow.fromResult
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
-            tuple: 'value voption * 'error,
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let value, error = tuple
-        value
-        |> OptionFlow.toResultValueOption error
-        |> AsyncFlow.fromResult
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
-            tuple: bool * 'error,
-            binder: unit -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let cond, error = tuple
-        if cond then Ok () else Error error
-        |> AsyncFlow.fromResult
-        |> AsyncFlow.bind binder
-
-    member _.Bind
-        (
-            tuple: Result<'value, unit> * 'error,
-            binder: 'value -> AsyncFlow<'env, 'error, 'next>
-        ) : AsyncFlow<'env, 'error, 'next> =
-        let result, error = tuple
-        result
-        |> Result.mapError (fun () -> error)
         |> AsyncFlow.fromResult
         |> AsyncFlow.bind binder
 
@@ -1593,7 +1323,7 @@ module Builders =
     /// to stop the flow immediately instead of accumulating diagnostics.
     /// </para>
     /// <para>
-    /// It also supports smart-bind tuples with <c>orMapError</c> for inline error remapping.
+    /// Use <c>Guard.MapError</c> when you need to remap an existing error before entering the CE.
     /// </para>
     /// </remarks>
     /// <example>
@@ -1621,8 +1351,9 @@ module Builders =
     /// and deterministic orchestration.
     /// </para>
     /// <para>
-    /// Smart binds support <c>orFailTo</c> for <c>option</c>, <c>voption</c>, <c>bool</c>,
-    /// and <c>Result&lt;_, unit&gt;</c>, plus <c>orMapError</c> for inline error remapping.
+    /// Use <c>Guard.Of</c> for check-like sources such as <c>option</c>, <c>voption</c>,
+    /// <c>bool</c>, and <c>Result&lt;_, unit&gt;</c>, and <c>Guard.MapError</c> for
+    /// remapping existing errors before binding.
     /// </para>
     /// </remarks>
     /// <example>
@@ -1649,9 +1380,8 @@ module Builders =
     /// instead of exceptions.
     /// </para>
     /// <para>
-    /// Smart binds cover native lifting from <c>Async&lt;Option&lt;_&gt;&gt;</c>,
-    /// <c>Async&lt;ValueOption&lt;_&gt;&gt;</c>, and <c>Async&lt;Result&lt;_, _&gt;&gt;</c>
-    /// with <c>orFailTo</c> and <c>orMapError</c>.
+    /// Use <c>Guard.Of</c> for check-like sources and <c>Guard.MapError</c> for
+    /// existing-error remapping before binding into the async CE.
     /// </para>
     /// </remarks>
     /// <example>

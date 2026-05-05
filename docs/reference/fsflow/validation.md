@@ -13,7 +13,7 @@ This page shows the source-documented `Validation` surface: the accumulating res
 
 ## Builder
 
-- [`Builders.validate`](./builders-validate.md): The accumulating `validate { }` computation expression. [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1692)
+- [`Builders.validate`](./builders-validate.md): The accumulating `validate { }` computation expression. [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1422)
 
 ## Module functions
 

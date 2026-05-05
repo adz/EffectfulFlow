@@ -739,10 +739,6 @@ type ResultBuilder() =
     member _.ReturnFrom(result: Result<'value, 'error>) : Result<'value, 'error> =
         result
 
-    member _.ReturnFrom(tuple: Result<'value, 'error1> * ('error1 -> 'error2)) : Result<'value, 'error2> =
-        let result, mapper = tuple
-        Result.mapError mapper result
-
     member _.Zero() : Result<unit, 'error> =
         Ok ()
 
@@ -752,16 +748,6 @@ type ResultBuilder() =
             binder: 'value -> Result<'next, 'error>
         ) : Result<'next, 'error> =
         Result.bind binder result
-
-    member _.Bind
-        (
-            tuple: Result<'value, 'error1> * ('error1 -> 'error2),
-            binder: 'value -> Result<'next, 'error2>
-        ) : Result<'next, 'error2> =
-        let result, mapper = tuple
-        result
-        |> Result.mapError mapper
-        |> Result.bind binder
 
     member _.Delay(factory: unit -> Result<'value, 'error>) : Result<'value, 'error> =
         factory ()

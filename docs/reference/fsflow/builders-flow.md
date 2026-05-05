@@ -24,15 +24,16 @@ It is the simplest builder in the library and is a good default for pure composi
 and deterministic orchestration.
 </para>
 <para>
-Smart binds support `orFailTo` for `option`, `voption`, `bool`,
-and `Result&lt;_, unit&gt;`, plus `orMapError` for inline error remapping.
+Use `Guard.Of` for check-like sources such as `option`, `voption`,
+`bool`, and `Result&lt;_, unit&gt;`, and `Guard.MapError` for
+remapping existing errors before binding.
 </para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1637)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1368)
 
 ## Examples
 
