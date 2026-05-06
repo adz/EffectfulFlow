@@ -11,7 +11,7 @@ The numbered items below are intentionally linear so the ralph loop can move thr
    explain the impure/pure/impure sandwich with FsFlow idioms, show how `result {}` bridges plain
    `FSharp.Core.Result` without reinventing it, document the relationship to `Check` and `Guard`,
    and include the `<!>`, `<*>`, and `>>=` operators in the same story.
-2. [ ] Normalize `Validation`:
+2. [x] Normalize `Validation`:
    `ok` and `error` become the primary constructors; `succeed` and `fail` stay as aliases; add
    `map2`, `map3`, `apply`, `ignore`, `orElse`, and `orElseWith` here; add `<!>` and `<*>`, and only
    add `>>=` if we want an explicit monadic shortcut alongside `map2` / `apply` / `and!`; keep

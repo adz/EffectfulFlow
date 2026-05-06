@@ -407,3 +407,46 @@ module ValidationTests =
             test <@ sequentialResult = expectedSequential @>
             test <@ sequentialRuns.Value = 0 @>
             test <@ liftedResult = Ok 22 @>
+
+        [<Fact>]
+        let ``validation normalizes constructors, applicative helpers, and fallbacks`` () =
+            let okValue = Validation.ok 41
+            let okAlias = Validation.succeed 41
+            let errorValue = Validation.error (Diagnostics.singleton "missing")
+            let errorAlias = Validation.fail (Diagnostics.singleton "missing")
+
+            let mapped = Validation.(<!>) ((+) 1) okValue
+            let applied = Validation.(<*>) (Validation.ok ((+) 1)) okValue
+            let mapped3 =
+                Validation.map3 (fun left middle right -> left + middle + right) (Validation.ok 1) (Validation.ok 2) (Validation.ok 3)
+
+            let ignored = Validation.ignore okValue
+
+            let fallbackRuns = ref 0
+            let recovered =
+                Validation.orElse (Validation.ok 99) errorValue
+
+            let recoveredWith =
+                Validation.orElseWith
+                    (fun diagnostics ->
+                        fallbackRuns.Value <- fallbackRuns.Value + 1
+                        Validation.ok diagnostics.Errors.Length)
+                    errorValue
+
+            let lazyFallback =
+                Validation.orElseWith
+                    (fun _ ->
+                        fallbackRuns.Value <- fallbackRuns.Value + 1
+                        Validation.ok 0)
+                    okValue
+
+            test <@ okValue = okAlias @>
+            test <@ errorValue = errorAlias @>
+            test <@ mapped = Validation.ok 42 @>
+            test <@ applied = Validation.ok 42 @>
+            test <@ mapped3 = Validation.ok 6 @>
+            test <@ ignored = Validation.ok () @>
+            test <@ recovered = Validation.ok 99 @>
+            test <@ recoveredWith = Validation.ok 1 @>
+            test <@ lazyFallback = okValue @>
+            test <@ fallbackRuns.Value = 1 @>

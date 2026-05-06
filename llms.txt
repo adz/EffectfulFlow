@@ -61,9 +61,9 @@ equivalent, FsFlow usually expects a different boundary shape rather than a 1:1 
 
 ### Validation
 - FsFlow equivalent type: `Validation<'value, 'error>` is not `Result<'value, 'error list>`; it stores a structured `Diagnostics<'error>` graph
-- Direct equivalents: `Validation.ok` -> `Validation.succeed`, `Validation.error` -> `Validation.fail`, `Validation.map` -> `Validation.map`, `Validation.bind` -> `Validation.bind`, `Validation.mapError` -> `Validation.mapError`, `Validation.map2` -> `Validation.map2`, `Validation.apply` -> `Validation.apply`, `Validation.sequence` -> `Validation.sequence`, `Validation.zip` -> `Validation.merge`, `Validation.toResult` -> `Validation.toResult`, `Validation.fromResult` -> `Validation.fromResult`
-- FsFlow-only additions: `Validation.at`, `Validation.key`, `Validation.index`, `Validation.name`, `Validation.traverseIndexed`
-- Missing as dedicated helpers: `map3`, `mapErrors`, `orElse*`, the Validation operator modules, and list-shaped error APIs
+- Direct equivalents: `Validation.ok` -> `Validation.ok`, `Validation.error` -> `Validation.error`, `Validation.succeed` -> `Validation.succeed`, `Validation.fail` -> `Validation.fail`, `Validation.map` -> `Validation.map`, `Validation.bind` -> `Validation.bind`, `Validation.mapError` -> `Validation.mapError`, `Validation.map2` -> `Validation.map2`, `Validation.map3` -> `Validation.map3`, `Validation.apply` -> `Validation.apply`, `Validation.ignore` -> `Validation.ignore`, `Validation.orElse` -> `Validation.orElse`, `Validation.orElseWith` -> `Validation.orElseWith`, `Validation.sequence` -> `Validation.sequence`, `Validation.zip` -> `Validation.merge`, `Validation.toResult` -> `Validation.toResult`, `Validation.fromResult` -> `Validation.fromResult`
+- FsFlow-only additions: `Validation.at`, `Validation.key`, `Validation.index`, `Validation.name`, `Validation.traverseIndexed`, `Validation.<!>`, `Validation.<*>`
+- Missing as dedicated helpers: `mapErrors` and list-shaped error APIs
 - `Validation.bind` is short-circuiting in FsFlow just like FsToolkit.Validation.bind; accumulation comes from applicative composition (`validate { and! }`, `map2`, `apply`, `merge`, `traverseIndexed`)
 - Important difference: `Validation.mapError` remaps the entire diagnostics tree recursively, not just a flat error list
 

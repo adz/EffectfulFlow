@@ -5,7 +5,7 @@ description: API reference for Validation.fail
 
 # fail
 
-Creates a failing validation result with the provided diagnostics.
+Alias for `error`.
 
 
 ```fsharp
@@ -26,5 +26,5 @@ A failing `Validation`.
 ## Information
 
 - **Module**: `Validation`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L281)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L293)
 

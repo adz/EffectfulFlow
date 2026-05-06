@@ -5,7 +5,7 @@ description: API reference for Validation.succeed
 
 # succeed
 
-Creates a successful validation result.
+Alias for `ok`.
 
 
 ```fsharp
@@ -26,5 +26,5 @@ A successful `Validation`.
 ## Information
 
 - **Module**: `Validation`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L275)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L281)
 

@@ -272,14 +272,26 @@ module Validation =
     /// <summary>Creates a successful validation result.</summary>
     /// <param name="value">The success value of type <c>'value</c>.</param>
     /// <returns>A successful <see cref="T:FsFlow.Validation`2" />.</returns>
-    let succeed (value: 'value) : Validation<'value, 'error> =
+    let ok (value: 'value) : Validation<'value, 'error> =
         Validation (Ok value)
+
+    /// <summary>Alias for <see cref="ok" />.</summary>
+    /// <param name="value">The success value of type <c>'value</c>.</param>
+    /// <returns>A successful <see cref="T:FsFlow.Validation`2" />.</returns>
+    let succeed (value: 'value) : Validation<'value, 'error> =
+        ok value
 
     /// <summary>Creates a failing validation result with the provided diagnostics.</summary>
     /// <param name="diagnostics">The <see cref="T:FsFlow.Diagnostics`1" /> graph.</param>
     /// <returns>A failing <see cref="T:FsFlow.Validation`2" />.</returns>
-    let fail (diagnostics: Diagnostics<'error>) : Validation<'value, 'error> =
+    let error (diagnostics: Diagnostics<'error>) : Validation<'value, 'error> =
         Validation (Error diagnostics)
+
+    /// <summary>Alias for <see cref="error" />.</summary>
+    /// <param name="diagnostics">The <see cref="T:FsFlow.Diagnostics`1" /> graph.</param>
+    /// <returns>A failing <see cref="T:FsFlow.Validation`2" />.</returns>
+    let fail (diagnostics: Diagnostics<'error>) : Validation<'value, 'error> =
+        error diagnostics
 
     /// <summary>Lifts a standard <see cref="T:System.Result`2" /> into the <see cref="T:FsFlow.Validation`2" /> context.</summary>
     /// <remarks>
@@ -289,8 +301,8 @@ module Validation =
     /// <returns>A <see cref="T:FsFlow.Validation`2" /> mirroring the result.</returns>
     let fromResult (result: Result<'value, 'error>) : Validation<'value, 'error> =
         match result with
-        | Ok value -> succeed value
-        | Error error -> fail (Diagnostics.singleton error)
+        | Ok value -> ok value
+        | Error failure -> error (Diagnostics.singleton failure)
 
     /// <summary>Maps the successful value of a validation.</summary>
     /// <param name="mapper">A function of type <c>'value -> 'next</c>.</param>
@@ -317,7 +329,7 @@ module Validation =
         : Validation<'next, 'error> =
         match unwrap validation with
         | Ok value -> binder value
-        | Error diagnostics -> fail diagnostics
+        | Error diagnostics -> error diagnostics
 
     /// <summary>Maps the error type of a validation graph.</summary>
     /// <param name="mapper">A function of type <c>'error -> 'nextError</c>.</param>
@@ -371,6 +383,74 @@ module Validation =
         : Validation<'next, 'error> =
         map2 (fun mapper input -> mapper input) validation value
 
+    /// <summary>Maps a successful validation value to <c>unit</c> while preserving the diagnostics.</summary>
+    /// <param name="validation">The source validation.</param>
+    /// <returns>A validation that keeps the original diagnostics and discards the success value.</returns>
+    let ignore (validation: Validation<'value, 'error>) : Validation<unit, 'error> =
+        map (fun _ -> ()) validation
+
+    /// <summary>Combines three validations, accumulating errors when any input fails.</summary>
+    /// <param name="mapper">A function of type <c>'left -> 'middle -> 'right -> 'value</c>.</param>
+    /// <param name="left">The first validation.</param>
+    /// <param name="middle">The second validation.</param>
+    /// <param name="right">The third validation.</param>
+    /// <returns>A validation with the combined result.</returns>
+    let map3
+        (mapper: 'left -> 'middle -> 'right -> 'value)
+        (left: Validation<'left, 'error>)
+        (middle: Validation<'middle, 'error>)
+        (right: Validation<'right, 'error>)
+        : Validation<'value, 'error> =
+        apply
+            (map2 (fun leftValue middleValue -> fun rightValue -> mapper leftValue middleValue rightValue) left middle)
+            right
+
+    /// <summary>Falls back to another validation when the source validation fails.</summary>
+    /// <remarks>
+    /// This is a left-biased choice operator. If the source succeeds, the fallback is not used.
+    /// If the source fails, the fallback validation is returned as-is.
+    /// </remarks>
+    /// <param name="fallback">The validation to use when the source fails.</param>
+    /// <param name="validation">The source validation.</param>
+    /// <returns>The source validation when it succeeds, otherwise the fallback validation.</returns>
+    let orElse
+        (fallback: Validation<'value, 'error>)
+        (validation: Validation<'value, 'error>)
+        : Validation<'value, 'error> =
+        match unwrap validation with
+        | Ok value -> ok value
+        | Error _ -> fallback
+
+    /// <summary>Computes a fallback validation from the source diagnostics when validation fails.</summary>
+    /// <remarks>
+    /// This is the lazy counterpart to <see cref="orElse" /> and is useful when the alternate
+    /// branch depends on the accumulated diagnostics.
+    /// </remarks>
+    /// <param name="fallback">A function that turns the diagnostics into an alternate validation.</param>
+    /// <param name="validation">The source validation.</param>
+    /// <returns>The source validation when it succeeds, otherwise the computed fallback validation.</returns>
+    let orElseWith
+        (fallback: Diagnostics<'error> -> Validation<'value, 'error>)
+        (validation: Validation<'value, 'error>)
+        : Validation<'value, 'error> =
+        match unwrap validation with
+        | Ok value -> ok value
+        | Error diagnostics -> fallback diagnostics
+
+    /// <summary>Maps the successful value of a validation.</summary>
+    /// <param name="mapper">A function of type <c>'value -> 'next</c>.</param>
+    /// <param name="validation">The source <see cref="T:FsFlow.Validation`2" />.</param>
+    /// <returns>A validation with the transformed success value.</returns>
+    let inline (<!>) (mapper: 'value -> 'next) (validation: Validation<'value, 'error>) : Validation<'next, 'error> =
+        map mapper validation
+
+    /// <summary>Applies a validation-wrapped function to a validation-wrapped value.</summary>
+    /// <param name="validation">The validation containing the function.</param>
+    /// <param name="value">The validation containing the value.</param>
+    /// <returns>The result of applying the function to the value, with accumulated errors.</returns>
+    let inline (<*>) (validation: Validation<'value -> 'next, 'error>) (value: Validation<'value, 'error>) : Validation<'next, 'error> =
+        apply validation value
+
     /// <summary>Collects a sequence of validations into a single validation of a list.</summary>
     /// <remarks>
     /// This operation is applicative: it will collect errors from ALL items in the sequence.
@@ -383,7 +463,7 @@ module Validation =
             (validation: Validation<'value, 'error>) =
             map2 (fun values value -> values @ [ value ]) state validation
 
-        Seq.fold folder (succeed []) validations
+        Seq.fold folder (ok []) validations
 
     /// <summary>Transforms a sequence of validations into a validation of a list.</summary>
     /// <param name="validations">The input sequence.</param>
@@ -833,7 +913,7 @@ module Check =
 /// <exclude/>
 type ValidationScopeBuilder(scopePath: PathSegment list) =
     member _.Return(value: 'value) : Validation<'value, 'error> =
-        Validation.succeed value
+        Validation.ok value
 
     member _.ReturnFrom(validation: Validation<'value, 'error>) : Validation<'value, 'error> =
         validation
@@ -842,7 +922,7 @@ type ValidationScopeBuilder(scopePath: PathSegment list) =
         Validation.fromResult result
 
     member _.Zero() : Validation<unit, 'error> =
-        Validation.succeed ()
+        Validation.ok ()
 
     member _.Bind
         (
@@ -1038,7 +1118,7 @@ type ResultBuilder() =
 /// <exclude/>
 type ValidateBuilder() =
     member _.Return(value: 'value) : Validation<'value, 'error> =
-        Validation.succeed value
+        Validation.ok value
 
     member _.ReturnFrom(validation: Validation<'value, 'error>) : Validation<'value, 'error> =
         validation
@@ -1047,7 +1127,7 @@ type ValidateBuilder() =
         Validation.fromResult result
 
     member _.Zero() : Validation<unit, 'error> =
-        Validation.succeed ()
+        Validation.ok ()
 
     member _.Bind
         (

@@ -112,7 +112,7 @@ const pageSpecs = [
       },
       {
         title: 'Module functions',
-        symbols: ['module:Validation', 'Validation.toResult', 'Validation.succeed', 'Validation.fail', 'Validation.fromResult', 'Validation.map', 'Validation.bind', 'Validation.mapError', 'Validation.map2', 'Validation.apply', 'Validation.collect', 'Validation.sequence', 'Validation.traverseIndexed', 'Validation.merge'],
+        symbols: ['module:Validation', 'Validation.toResult', 'Validation.ok', 'Validation.error', 'Validation.succeed', 'Validation.fail', 'Validation.fromResult', 'Validation.map', 'Validation.bind', 'Validation.mapError', 'Validation.map2', 'Validation.map3', 'Validation.apply', 'Validation.ignore', 'Validation.orElse', 'Validation.orElseWith', 'Validation.collect', 'Validation.sequence', 'Validation.traverseIndexed', 'Validation.merge'],
       },
       {
         title: 'Path scoping',
