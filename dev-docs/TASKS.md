@@ -22,6 +22,6 @@ The numbered items below are intentionally linear so the ralph loop can move thr
    `map2`, `map3`, `apply`, `ignore`, `orElse`, and `orElseWith` on each family; add `<!>` for
    `map`, `>>=` for `bind`, and `<*>` only where it reads naturally beside `map2`; keep the family
    builders and modules aligned with the same operator story.
-4. [ ] Keep `FSharp.Core.Result` as the default result surface:
+4. [x] Keep `FSharp.Core.Result` as the default result surface:
    do not introduce a parallel FsFlow `Result` helper module; keep the docs and examples pointed at
    standard `Ok` / `Error` usage plus `result {}` for CE-based orchestration.

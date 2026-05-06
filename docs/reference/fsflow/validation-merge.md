@@ -27,5 +27,5 @@ A validation containing a tuple of the results.
 ## Information
 
 - **Module**: `Validation`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L478)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L385)
 

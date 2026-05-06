@@ -19,8 +19,8 @@ This package groups the synchronous, async, and task workflow families plus the 
 - `ColdTask<'value>` and the `ColdTask` module
 - `Check` for pure `Result<'value, unit>` predicates
 - `Guard` for bindable check-like sources and error remapping
-- `Result` for fail-fast helpers
 - `Validation` for accumulated diagnostics
+- the `result {}` builder for fail-fast orchestration over standard `Result` values
 - support types that shape runtime logging and retry behavior
 - the `flow {}`, `asyncFlow {}`, `taskFlow {}`, `result {}`, and `validate {}` entry points
 
@@ -169,9 +169,9 @@ The builder types themselves stay below the surface. The families and their modu
 </section>
 
 <section class="docs-card">
-<span class="label">Result</span>
-<h3><a href="./result.md">Fail-fast results</a></h3>
-<p>The `Result` module and `result {}` builder for short-circuiting workflows.</p>
+<span class="label">result { }</span>
+<h3><a href="./builders-result.md">Fail-fast orchestration</a></h3>
+<p>The `result {}` builder for short-circuiting workflows over standard `Result` values.</p>
 </section>
 
 <section class="docs-card">

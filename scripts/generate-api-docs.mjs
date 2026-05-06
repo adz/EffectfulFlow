@@ -121,25 +121,6 @@ const pageSpecs = [
     ],
   },
   {
-    outPath: ['fsflow', 'result.md'],
-    title: 'Result',
-    description: 'Source-documented fail-fast result helpers for FsFlow.',
-    intro:
-      'This page shows the source-documented `Result` surface: the module functions and the `result { }` builder.',
-    sourceFiles: ['src/FsFlow/Validate.fs', 'src/FsFlow/Builders.fs'],
-    sections: [
-      {
-        title: 'Builder',
-        symbols: ['src/FsFlow/Builders.fs::Builders.result'],
-      },
-      
-      {
-        title: 'Module functions',
-        symbols: ['module:Result', 'Result.map', 'Result.bind', 'Result.mapError', 'Result.mapErrorTo', 'Result.sequence', 'Result.traverse'],
-      },
-    ],
-  },
-  {
     outPath: ['fsflow', 'runtime.md'],
     title: 'AsyncFlow.Runtime',
     description: 'Source-documented async runtime support and helpers for FsFlow.',

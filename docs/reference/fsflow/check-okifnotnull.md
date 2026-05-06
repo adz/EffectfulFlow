@@ -26,5 +26,5 @@ A `Check` containing the non-null value.
 ## Information
 
 - **Module**: `Check`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L730)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L637)
 

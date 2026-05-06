@@ -8,7 +8,7 @@ open System.Threading.Tasks
 /// </summary>
 type Guard private () =
     static member Of(error: 'error, result: Result<'value, unit>) : Result<'value, 'error> =
-        Result.mapErrorTo error result
+        Check.orError error result
 
     static member Of(error: 'error, validation: Validation<'value, unit>) : Validation<'value, 'error> =
         Validation.mapError (fun () -> error) validation
@@ -25,7 +25,7 @@ type Guard private () =
     static member Of(error: 'error, result: Async<Result<'value, unit>>) : Async<Result<'value, 'error>> =
         async {
             let! outcome = result
-            return Result.mapErrorTo error outcome
+            return Check.orError error outcome
         }
 
     static member Of(error: 'error, value: Async<bool>) : Async<Result<unit, 'error>> =
@@ -49,7 +49,7 @@ type Guard private () =
     static member Of(error: 'error, result: Task<Result<'value, unit>>) : Task<Result<'value, 'error>> =
         task {
             let! outcome = result
-            return Result.mapErrorTo error outcome
+            return Check.orError error outcome
         }
 
     static member Of(error: 'error, value: Task<bool>) : Task<Result<unit, 'error>> =
@@ -74,7 +74,7 @@ type Guard private () =
         ValueTask<Result<'value, 'error>>(
             task {
                 let! outcome = result
-                return Result.mapErrorTo error outcome
+                return Check.orError error outcome
             }
         )
 

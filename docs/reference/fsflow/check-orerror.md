@@ -30,5 +30,5 @@ A `Result` with the provided error value.
 ## Information
 
 - **Module**: `Check`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L896)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L803)
 

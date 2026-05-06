@@ -10,7 +10,7 @@
 </picture>
 
 FsFlow is a single model for Result-based programs in F#.
-Write small predicate checks with `Check`, keep fail-fast logic in `Result`, accumulate sibling
+Write small predicate checks with `Check`, keep fail-fast logic in standard `Result`, accumulate sibling
 validation with `Validation` and `validate {}`, then lift the same logic into `Flow`,
 `AsyncFlow`, or `TaskFlow` when the boundary needs environment access, async work, task interop,
 or runtime policy.
@@ -30,7 +30,7 @@ Check -> Result -> Validation -> Flow -> AsyncFlow -> TaskFlow
 The same validation vocabulary stays the same while the execution context grows.
 
 - Start with `Check` for reusable predicates.
-- Use `Result` and `result {}` for fail-fast pure code.
+- Use standard `Result` values and `result {}` for fail-fast pure code.
 - Use `Validation` and `validate {}` when sibling failures should accumulate.
 - Use `flow {}` when the boundary needs typed failure and environment, but not async runtime.
 - Use `asyncFlow {}` when the boundary is naturally `Async`.
@@ -59,7 +59,7 @@ type RegistrationError =
 let validateEmail (email: string) : Result<string, RegistrationError> =
     email
     |> Check.notBlank
-    |> Result.mapErrorTo EmailMissing
+    |> Check.orError EmailMissing
 ```
 
 Use the same validation logic directly inside a task-oriented workflow:

@@ -31,5 +31,5 @@ The source validation when it succeeds, otherwise the computed fallback validati
 ## Information
 
 - **Module**: `Validation`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L432)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L339)
 

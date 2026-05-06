@@ -27,5 +27,5 @@ A validation nested under the given path.
 ## Information
 
 - **Module**: `Validation`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L485)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L392)
 

@@ -46,10 +46,9 @@ Use this when translating FsToolkit-style code into FsFlow. If a function is not
 equivalent, FsFlow usually expects a different boundary shape rather than a 1:1 helper.
 
 ### Result<'T, 'E>
-- Direct equivalents: `Result.map` -> `Result.map`, `Result.bind` -> `Result.bind`, `Result.mapError` -> `Result.mapError`, `Result.mapErrorTo` -> `Result.mapErrorTo`, `Result.sequence` -> `Result.sequence`, `Result.traverse` -> `Result.traverse`
-- Missing as dedicated `Result` helpers: `map2`, `map3`, `apply`, `fold`, `defaultValue`, `defaultError`, `defaultWith`, `valueOr`, `ignore`, `ignoreError`, `setError`, `withError`, `isOk`, `isError`, `orElse`, `orElseWith`, `orElseError`, `require*`
+- FsFlow uses the standard FSharp.Core `Result<'T, 'E>` directly; there is no parallel FsFlow `Result` helper module
 - FsFlow replacements: use `result {}` for fail-fast sequencing, `Validation` for accumulation, `Check` for unit-error predicates, and `Guard` when the source should bind directly inside a flow
-- Important difference: `Result.mapErrorTo` in FsFlow only bridges `Result<'T, unit>` into a typed error; it is not a general-purpose error translator
+- For predicate checks, use `Check.orError` or `Check.orErrorWith` to attach a typed error to `Result<'T, unit>` values
 
 ### AsyncResult<'T, 'E>
 - Closest FsFlow shape: `AsyncFlow<'env, 'error, 'value>`

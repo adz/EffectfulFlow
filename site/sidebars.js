@@ -218,20 +218,7 @@ module.exports = {
                     { type: 'doc', id: 'reference/fsflow/guard', label: 'Module Overview' },
                   ],
                 },
-                {
-                  type: 'category',
-                  label: 'Result',
-                  items: [
-                    { type: 'doc', id: 'reference/fsflow/result', label: 'Module Overview' },
-                    { type: 'doc', id: 'reference/fsflow/builders-result', label: 'result { }' },
-                    { type: 'doc', id: 'reference/fsflow/result-map', label: 'map' },
-                    { type: 'doc', id: 'reference/fsflow/result-bind', label: 'bind' },
-                    { type: 'doc', id: 'reference/fsflow/result-maperror', label: 'mapError' },
-                    { type: 'doc', id: 'reference/fsflow/result-maperrorto', label: 'mapErrorTo' },
-                    { type: 'doc', id: 'reference/fsflow/result-sequence', label: 'sequence' },
-                    { type: 'doc', id: 'reference/fsflow/result-traverse', label: 'traverse' },
-                  ],
-                },
+                { type: 'doc', id: 'reference/fsflow/builders-result', label: 'result { }' },
                 {
                   type: 'category',
                   label: 'Validation',

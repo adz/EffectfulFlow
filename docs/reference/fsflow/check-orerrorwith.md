@@ -27,5 +27,5 @@ A `Result` with the produced error value.
 ## Information
 
 - **Module**: `Check`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L905)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L812)
 

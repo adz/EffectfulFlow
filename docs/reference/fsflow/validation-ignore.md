@@ -26,5 +26,5 @@ A validation that keeps the original diagnostics and discards the success value.
 ## Information
 
 - **Module**: `Validation`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L389)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L296)
 
