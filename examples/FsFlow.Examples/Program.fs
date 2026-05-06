@@ -18,7 +18,7 @@ type RequestEnv =
 
 let validateName (name: string) : Result<string, string> =
     Check.notBlank name
-    |> Result.mapErrorTo "name is required"
+    |> Check.orError "name is required"
 
 let loadUser : Flow<RequestEnv, string, User> =
     flow {

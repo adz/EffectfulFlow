@@ -1,15 +1,15 @@
 ---
-title: orElseWith
-description: API reference for Check.orElseWith
+title: orErrorWith
+description: API reference for Check.orErrorWith
 ---
 
-# orElseWith
+# orErrorWith
 
 Maps a unit error into an application error produced on demand.
 
 
 ```fsharp
-let orElseWith (errorFn: unit -> 'error) (result: Check<'value>) : Result<'value, 'error>
+let orErrorWith (errorFn: unit -> 'error) (result: Check<'value>) : Result<'value, 'error>
 ```
 
 
@@ -27,5 +27,5 @@ A `Result` with the produced error value.
 ## Information
 
 - **Module**: `Check`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L726)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L787)
 

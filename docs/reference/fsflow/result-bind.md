@@ -27,5 +27,5 @@ The result of the binder or the original error.
 ## Information
 
 - **Module**: `Result`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L139)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L145)
 

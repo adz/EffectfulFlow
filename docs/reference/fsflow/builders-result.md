@@ -24,14 +24,15 @@ It works well for parsing, validation, and other boundaries where failure is exp
 to stop the flow immediately instead of accumulating diagnostics.
 </para>
 <para>
-Use `Guard.MapError` when you need to remap an existing error before entering the CE.
+Use `Check.orError` when a pure check needs a domain error, and `Guard.MapError` when
+you need to remap an existing error before entering the CE.
 </para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1339)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L379)
 
 ## Examples
 

@@ -27,7 +27,7 @@ The graph type is explicit and path-aware:
 The canonical combinators are:
 
 - `Check.not`, `Check.and`, `Check.or`, `Check.all`, and `Check.any`
-- `Result.mapErrorTo` for bridging `Check` into typed errors
+- `Check.orError` for bridging `Check` into typed errors
 - `Validation.fromResult`, `Validation.map2`, `Validation.apply`, `Validation.collect`, and `Validation.sequence`
 - `validate {}` as the applicative accumulation entry point
 

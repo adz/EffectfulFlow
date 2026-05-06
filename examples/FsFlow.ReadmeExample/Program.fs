@@ -13,7 +13,7 @@ let readTextFile (path: string) : TaskFlow<ReadmeEnv, FileReadError, string> =
     taskFlow {
         // In production, map access and path exceptions separately at the boundary.
         do! Check.okIf (File.Exists path)
-            |> Result.mapErrorTo (NotFound path)
+            |> Check.orError (NotFound path)
 
         return! ColdTask(fun ct -> File.ReadAllTextAsync(path, ct)) // ColdTask<string>
     }

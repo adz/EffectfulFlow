@@ -33,10 +33,23 @@ type ValidationError =
 let requireName (name: string) : Result<string, ValidationError> =
     name
     |> Check.notBlank
-    |> Result.mapErrorTo MissingName
+    |> Check.orError MissingName
 ```
 
 That keeps the pure validation surface small and easy to reuse.
+
+When the same source needs to cross into `flow {}`, `asyncFlow {}`, or `taskFlow {}`,
+use `Guard.Of` or `Guard.MapError`. `Guard` keeps the source value visible to the computation
+expression and carries the failure value alongside it:
+
+```fsharp
+let login username password =
+    asyncFlow {
+        let! user = tryGetUser username |> Guard.MapError MissingName
+        do! Check.notBlank password |> Guard.Of InvalidPassword
+        return user
+    }
+```
 
 ## 3. Add Validation When Siblings Are Independent
 
@@ -52,10 +65,10 @@ type RegistrationError =
     | EmailRequired
 
 let validateName name =
-    name |> Check.notBlank |> Result.mapErrorTo NameRequired
+    name |> Check.notBlank |> Check.orError NameRequired
 
 let validateEmail email =
-    email |> Check.notBlank |> Result.mapErrorTo EmailRequired
+    email |> Check.notBlank |> Check.orError EmailRequired
 
 let validateRegistration (input: Registration) : Validation<Registration, RegistrationError> =
     validate {

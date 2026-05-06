@@ -80,7 +80,7 @@ type RegistrationError =
 let validateEmail (email: string) : Result<string, RegistrationError> =
     email
     |> Check.notBlank
-    |> Result.mapErrorTo EmailMissing
+    |> Check.orError EmailMissing
 ```
 
 That pure `Result` can be used directly in a task-oriented application boundary:
@@ -105,7 +105,7 @@ type RegistrationEnv =
 let readTextFile (path: string) : TaskFlow<RegistrationEnv, RegistrationError, string> =
     taskFlow {
         do! Check.okIf (File.Exists path)
-            |> Result.mapErrorTo (SaveFailed $"Missing file: {path}")
+            |> Check.orError (SaveFailed $"Missing file: {path}")
 
         return! ColdTask(fun ct -> File.ReadAllTextAsync(path, ct))
     }

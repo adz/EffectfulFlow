@@ -173,7 +173,12 @@ require operational runtime support like cancellation or timeouts.
 `FsFlow.Check` provides pure `Result<'value, unit>` checks for booleans, options, value options,
 nulls, collections, equality, and strings.
 
-Use `Result.mapErrorTo` to attach a typed error after the pure validation step.
+Use `Check.orError` to attach a typed error after the pure validation step.
+
+When the same source should bind directly in `flow {}`, `asyncFlow {}`, or `taskFlow {}`,
+use `Guard.Of` for `bool`, `option`, `voption`, `Result<'value, unit>`, and
+`Validation<'value, unit>` sources, or `Guard.MapError` when the source already carries an
+error value.
 
 When the error value itself needs environment or effectful evaluation, use the bridge helpers on
 `Flow`, `AsyncFlow`, or `TaskFlow`.

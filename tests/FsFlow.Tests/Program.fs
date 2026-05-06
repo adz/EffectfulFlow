@@ -12,6 +12,14 @@ open Swensen.Unquote
 open Xunit
 
 module Tests =
+    type private Address =
+        { City: string }
+
+    type private Customer =
+        { Name: string
+          Address: Address
+          Lines: string list }
+
     type private LoginError =
         | InvalidUser
         | InvalidPwd
@@ -856,6 +864,78 @@ let probe : TaskFlow<unit, string, int> =
             ]
 
         test <@ Diagnostics.flatten merged = expectedMerged @>
+
+    [<Fact>]
+    let ``scoped validation prefixes nested field and list paths`` () =
+        let validateAddress address =
+            validate.key "address" {
+                let! city =
+                    validate.name "City" {
+                        return! address.City |> Check.notBlank |> Check.orError "City required"
+                    }
+
+                return { address with City = city }
+            }
+
+        let validateCustomer customer =
+            validate.key "customer" {
+                let! name =
+                    validate.name "Name" {
+                        return! customer.Name |> Check.notBlank |> Check.orError "Name required"
+                    }
+
+                and! address = validateAddress customer.Address
+
+                and! lines =
+                    Validation.key "lines" (
+                        customer.Lines
+                        |> Validation.traverseIndexed (fun index line ->
+                            validate.name "Name" {
+                                return! line |> Check.notBlank |> Check.orError $"Line {index} name required"
+                            }
+                        )
+                    )
+
+                return
+                    { customer with
+                        Name = name
+                        Address = address
+                        Lines = lines }
+            }
+
+        let result =
+            validateCustomer
+                { Name = ""
+                  Address = { City = "" }
+                  Lines = [ "" ] }
+            |> Validation.toResult
+
+        match result with
+        | Ok _ -> failwith "expected scoped validation to fail"
+        | Error diagnostics ->
+            let flattened = Diagnostics.flatten diagnostics
+            let expected =
+                [
+                    { Path = [ PathSegment.Key "customer"; PathSegment.Name "Name" ]
+                      Error = "Name required" }
+                    { Path =
+                        [
+                            PathSegment.Key "customer"
+                            PathSegment.Key "address"
+                            PathSegment.Name "City"
+                        ]
+                      Error = "City required" }
+                    { Path =
+                        [
+                            PathSegment.Key "customer"
+                            PathSegment.Key "lines"
+                            PathSegment.Index 0
+                            PathSegment.Name "Name"
+                        ]
+                      Error = "Line 0 name required" }
+                ]
+
+            Assert.Equal<Diagnostic<string> list>(expected, flattened)
 
     [<Fact>]
     let ``validate computation expression accumulates sibling failures and short-circuits sequentially`` () =

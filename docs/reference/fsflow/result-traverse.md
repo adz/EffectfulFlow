@@ -27,5 +27,5 @@ A result containing the list of successful mapped values.
 ## Information
 
 - **Module**: `Result`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L191)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L197)
 

@@ -27,5 +27,5 @@ A new `Result` with the mapped value.
 ## Information
 
 - **Module**: `Result`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L127)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L133)
 

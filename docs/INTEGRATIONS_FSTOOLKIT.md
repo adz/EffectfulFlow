@@ -30,8 +30,8 @@ If you use these FsToolkit patterns, here is how they correspond to FsFlow:
 
 | FsToolkit.ErrorHandling | FsFlow |
 | --- | --- |
-| `Result.requireTrue` | `Check.okIf |> Result.mapErrorTo` |
-| `Result.requireSome` | `Check.okIfSome |> Result.mapErrorTo` |
+| `Result.requireTrue` | `Check.okIf condition |> Check.orError` |
+| `Result.requireSome` | `Check.okIfSome opt |> Check.orError` |
 | `asyncResult { }` | `asyncFlow { }` |
 | `taskResult { }` | `taskFlow { }` |
 | `Validation` helpers | `Validation` and `validate { }` |

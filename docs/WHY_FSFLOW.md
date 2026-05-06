@@ -15,7 +15,7 @@ Check -> Result -> Validation -> Flow -> AsyncFlow -> TaskFlow
 
 The validation vocabulary stays the same while the execution context grows.
 
-- start with reusable predicate checks
+- start with reusable predicate checks, whether they preserve a value on success or act as a gate
 - keep fail-fast logic in plain `Result`
 - accumulate sibling failures with `Validation` and `validate {}`
 - lift into `Flow` when you need explicit environment access
@@ -49,12 +49,14 @@ The point is to let one Result-based style scale into real application boundarie
 
 `AsyncFlow` is the async-native sibling. `TaskFlow` is the .NET task sibling.
 Use `AsyncFlow` by itself when you want an `Async` boundary without `Task` or `ColdTask` interop.
+`Guard` is the explicit bridge that keeps check-like sources and existing error-bearing sources readable
+when they need to enter `flow {}`, `asyncFlow {}`, or `taskFlow {}`.
 
 ## The Main Claim
 
 FsFlow unifies Result-based programming across pure logic and effectful execution.
 
-- write predicate logic once with `Check`
+- write predicate logic once with `Check`, using value-preserving checks when you need the input again and gate checks when you only need yes/no
 - keep fail-fast domain logic in `Result`
 - accumulate sibling validation with `Validation`
 - lift the same logic directly into flows when you need environment, async, task, cancellation, logging, or resource handling
@@ -74,7 +76,7 @@ type RegistrationError =
 let validateEmail (email: string) : Result<string, RegistrationError> =
     email
     |> Check.notBlank
-    |> Result.mapErrorTo EmailMissing
+    |> Check.orError EmailMissing
 ```
 
 This is already enough for pure code and should stay plain when the surrounding logic is still plain.
@@ -85,7 +87,7 @@ If sibling checks should accumulate, move to `Validation` instead of forcing eve
 let validateRegistration (email: string) (name: string) : Validation<string * string, RegistrationError> =
     validate {
         let! validEmail = validateEmail email
-        and! validName = Check.notBlank name |> Result.mapErrorTo NameMissing
+        and! validName = Check.notBlank name |> Check.orError NameMissing
         return validEmail, validName
     }
 ```

@@ -17,7 +17,7 @@ const pageSpecs = [
     description: 'Source-documented synchronous workflow surface in FsFlow.',
     intro:
       "This page shows the source-documented `Flow` surface: the core type, the module functions, and the `flow { }` builder.",
-    sourceFiles: ['src/FsFlow/Flow.fs'],
+    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/Flow.fs', 'src/FsFlow/Builders.fs'],
     sections: [
       
       {
@@ -40,7 +40,7 @@ const pageSpecs = [
     description: 'Source-documented async workflow surface in FsFlow.',
     intro:
       "This page shows the source-documented `AsyncFlow` surface: the core type, the module functions, and the `asyncFlow { }` builder.",
-    sourceFiles: ['src/FsFlow/Flow.fs'],
+    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/AsyncFlow.fs', 'src/FsFlow/Builders.fs'],
     sections: [
       
       {
@@ -71,7 +71,7 @@ const pageSpecs = [
       },
       {
         title: 'Module functions',
-        symbols: ['module:Check', 'Check.fromPredicate', 'Check.not', 'Check.and', 'Check.or', 'Check.all', 'Check.any', 'Check.okIf', 'Check.failIf', 'Check.okIfSome', 'Check.okIfNone', 'Check.failIfSome', 'Check.failIfNone', 'Check.okIfValueSome', 'Check.okIfValueNone', 'Check.failIfValueSome', 'Check.failIfValueNone', 'Check.okIfNotNull', 'Check.okIfNull', 'Check.failIfNotNull', 'Check.failIfNull', 'Check.okIfNotEmpty', 'Check.okIfEmpty', 'Check.failIfNotEmpty', 'Check.failIfEmpty', 'Check.okIfEqual', 'Check.okIfNotEqual', 'Check.failIfEqual', 'Check.failIfNotEqual', 'Check.okIfNonEmptyStr', 'Check.okIfEmptyStr', 'Check.failIfNonEmptyStr', 'Check.failIfEmptyStr', 'Check.okIfNotBlank', 'Check.notBlank', 'Check.okIfBlank', 'Check.blank', 'Check.failIfNotBlank', 'Check.failIfBlank', 'Check.orElse', 'Check.orElseWith', 'Check.notNull', 'Check.notEmpty', 'Check.equal', 'Check.notEqual'],
+        symbols: ['module:Check', 'Check.fromPredicate', 'Check.not', 'Check.and', 'Check.or', 'Check.all', 'Check.any', 'Check.okIf', 'Check.failIf', 'Check.okIfSome', 'Check.okIfNone', 'Check.failIfSome', 'Check.failIfNone', 'Check.okIfValueSome', 'Check.okIfValueNone', 'Check.failIfValueSome', 'Check.failIfValueNone', 'Check.okIfNotNull', 'Check.okIfNull', 'Check.failIfNotNull', 'Check.failIfNull', 'Check.okIfNotEmpty', 'Check.okIfEmpty', 'Check.failIfNotEmpty', 'Check.failIfEmpty', 'Check.okIfEqual', 'Check.okIfNotEqual', 'Check.failIfEqual', 'Check.failIfNotEqual', 'Check.okIfNonEmptyStr', 'Check.okIfEmptyStr', 'Check.failIfNonEmptyStr', 'Check.failIfEmptyStr', 'Check.okIfNotBlank', 'Check.notBlank', 'Check.okIfBlank', 'Check.blank', 'Check.failIfNotBlank', 'Check.failIfBlank', 'Check.orError', 'Check.orErrorWith', 'Check.notNull', 'Check.notEmpty', 'Check.equal', 'Check.notEqual'],
       },
     ],
   },
@@ -80,7 +80,7 @@ const pageSpecs = [
     title: 'Diagnostics',
     description: 'Source-documented validation diagnostics graph for FsFlow.',
     intro:
-      'This page shows the source-documented `Diagnostics` surface: the path-aware graph types and the merge/flatten helpers.',
+      'This page shows the source-documented `Diagnostics` surface: a tree with `Local` node errors, `Children` branches, and merge/flatten helpers for reporting.',
     sourceFiles: ['src/FsFlow/Validate.fs'],
     sections: [
       {
@@ -98,8 +98,8 @@ const pageSpecs = [
     title: 'Validation',
     description: 'Source-documented accumulating validation for FsFlow.',
     intro:
-      'This page shows the source-documented `Validation` surface: the accumulating result type, the module functions, and the `validate { }` builder.',
-    sourceFiles: ['src/FsFlow/Validate.fs'],
+      'This page shows the source-documented `Validation` surface: the accumulating result type, the module functions, the path-scoping helpers, and the `validate { }` builder.',
+    sourceFiles: ['src/FsFlow/Validate.fs', 'src/FsFlow/Builders.fs'],
     sections: [
       
       {
@@ -108,11 +108,15 @@ const pageSpecs = [
       },
       {
         title: 'Builder',
-        symbols: ['src/FsFlow/Flow.fs::Builders.validate'],
+        symbols: ['src/FsFlow/Builders.fs::Builders.validate'],
       },
       {
         title: 'Module functions',
-        symbols: ['module:Validation', 'Validation.toResult', 'Validation.succeed', 'Validation.fail', 'Validation.fromResult', 'Validation.map', 'Validation.bind', 'Validation.mapError', 'Validation.map2', 'Validation.apply', 'Validation.collect', 'Validation.sequence', 'Validation.merge'],
+        symbols: ['module:Validation', 'Validation.toResult', 'Validation.succeed', 'Validation.fail', 'Validation.fromResult', 'Validation.map', 'Validation.bind', 'Validation.mapError', 'Validation.map2', 'Validation.apply', 'Validation.collect', 'Validation.sequence', 'Validation.traverseIndexed', 'Validation.merge'],
+      },
+      {
+        title: 'Path scoping',
+        symbols: ['Validation.at', 'Validation.key', 'Validation.index', 'Validation.name'],
       },
     ],
   },
@@ -122,11 +126,11 @@ const pageSpecs = [
     description: 'Source-documented fail-fast result helpers for FsFlow.',
     intro:
       'This page shows the source-documented `Result` surface: the module functions and the `result { }` builder.',
-    sourceFiles: ['src/FsFlow/Validate.fs'],
+    sourceFiles: ['src/FsFlow/Validate.fs', 'src/FsFlow/Builders.fs'],
     sections: [
       {
         title: 'Builder',
-        symbols: ['src/FsFlow/Flow.fs::Builders.result'],
+        symbols: ['src/FsFlow/Builders.fs::Builders.result'],
       },
       
       {
@@ -141,7 +145,7 @@ const pageSpecs = [
     description: 'Source-documented async runtime support and helpers for FsFlow.',
     intro:
       'This page shows the source-documented `AsyncFlow.Runtime` surface: logging, retry policies, and async operational helpers.',
-    sourceFiles: ['src/FsFlow/Flow.fs'],
+    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/AsyncFlow.fs'],
     sections: [
       {
         title: 'Logging',

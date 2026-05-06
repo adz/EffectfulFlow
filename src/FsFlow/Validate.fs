@@ -28,8 +28,14 @@ type Diagnostic<'error> =
 /// A mergeable validation graph that carries local diagnostics and nested child branches.
 /// </summary>
 /// <remarks>
-/// This structure allows for representing errors in hierarchical data models. 
+/// <para>
+/// <c>Local</c> holds the diagnostics attached exactly to the current node, while
+/// <c>Children</c> holds nested branches keyed by <see cref="T:FsFlow.PathSegment" />.
+/// </para>
+/// <para>
+/// This structure allows hierarchical validation to stay navigable before flattening.
 /// Use <see cref="T:FsFlow.Diagnostics.flatten" /> to convert it into a linear list.
+/// </para>
 /// </remarks>
 type Diagnostics<'error> =
     {
@@ -353,9 +359,65 @@ module Validation =
     let merge (left: Validation<'value, 'error>) (right: Validation<'next, 'error>) : Validation<'value * 'next, 'error> =
         map2 (fun leftValue rightValue -> leftValue, rightValue) left right
 
+    /// <summary>Prefixes every diagnostic in a validation with the supplied path segments.</summary>
+    /// <param name="path">The path segments to prepend.</param>
+    /// <param name="validation">The validation to scope.</param>
+    /// <returns>A validation with all diagnostics shifted under the given path.</returns>
+    let at (path: PathSegment list) (validation: Validation<'value, 'error>) : Validation<'value, 'error> =
+        let rec prefixDiagnostics (graph: Diagnostics<'error>) : Diagnostics<'error> =
+            {
+                Local =
+                    graph.Local
+                    |> List.map (fun diagnostic -> { diagnostic with Path = path @ diagnostic.Path })
+                Children =
+                    graph.Children
+                    |> Map.map (fun _ child -> prefixDiagnostics child)
+            }
+
+        validation |> unwrap |> Result.mapError prefixDiagnostics |> Validation
+
+    /// <summary>Prefixes a validation with a keyed branch.</summary>
+    /// <param name="key">The branch key.</param>
+    /// <param name="validation">The validation to scope.</param>
+    /// <returns>A validation whose diagnostics are prefixed with <c>Key key</c>.</returns>
+    let key (key: string) (validation: Validation<'value, 'error>) : Validation<'value, 'error> =
+        at [ PathSegment.Key key ] validation
+
+    /// <summary>Prefixes a validation with an indexed branch.</summary>
+    /// <param name="index">The branch index.</param>
+    /// <param name="validation">The validation to scope.</param>
+    /// <returns>A validation whose diagnostics are prefixed with <c>Index index</c>.</returns>
+    let index (index: int) (validation: Validation<'value, 'error>) : Validation<'value, 'error> =
+        at [ PathSegment.Index index ] validation
+
+    /// <summary>Prefixes a validation with a named branch.</summary>
+    /// <param name="name">The branch name.</param>
+    /// <param name="validation">The validation to scope.</param>
+    /// <returns>A validation whose diagnostics are prefixed with <c>Name name</c>.</returns>
+    let name (name: string) (validation: Validation<'value, 'error>) : Validation<'value, 'error> =
+        at [ PathSegment.Name name ] validation
+
+    /// <summary>Maps a sequence into validations while prefixing each item with its index.</summary>
+    /// <remarks>
+    /// This is the indexed version of <see cref="sequence" />. It is useful for list and array
+    /// validation because each item can keep its own <see cref="T:FsFlow.PathSegment.Index" />
+    /// branch without the caller manually wrapping every item.
+    /// </remarks>
+    /// <param name="binder">A function of type <c>int -> 'source -> Validation&lt;'value, 'error&gt;</c>.</param>
+    /// <param name="values">The input sequence.</param>
+    /// <returns>A validation containing the list of values or accumulated diagnostics.</returns>
+    let traverseIndexed
+        (binder: int -> 'source -> Validation<'value, 'error>)
+        (values: seq<'source>)
+        : Validation<'value list, 'error> =
+        values
+        |> Seq.mapi (fun i value -> binder i value |> index i)
+        |> collect
+
 /// <summary>
-/// A reusable predicate result that carries a unit failure placeholder until the caller
-/// maps it into a domain-specific error.
+/// A reusable predicate result that either preserves a value on success or acts as a gate with
+/// <c>unit</c> on success, while carrying a unit failure placeholder until the caller maps it into
+/// a domain-specific error.
 /// </summary>
 /// <remarks>
 /// Use the <see cref="T:FsFlow.Check" /> module helpers to create and compose checks.
@@ -363,8 +425,9 @@ module Validation =
 type Check<'value> = Result<'value, unit>
 
 /// <summary>
-/// Pure predicate helpers that return <see cref="T:System.Result`2" /> values with a unit error,
-/// plus the bridge functions that turn those checks into application errors.
+/// Predicate helpers that return <see cref="T:System.Result`2" /> values with a unit error,
+/// plus the bridge functions that turn those checks into application errors. Some helpers preserve
+/// the source value; others are gates and return <c>unit</c> on success.
 /// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
@@ -707,13 +770,12 @@ module Check =
 
     /// <summary>Maps a unit error into the supplied application error value.</summary>
     /// <remarks>
-    /// This is the primary bridge from pure checks to domain-specific results.
+    /// This is the primary bridge from checks to domain-specific results.
     /// </remarks>
     /// <param name="error">The domain error of type <c>'error</c> to return on failure.</param>
     /// <param name="result">The source <see cref="T:FsFlow.Check`1" />.</param>
     /// <returns>A <see cref="T:System.Result`2" /> with the provided error value.</returns>
-    [<Obsolete("Use Result.mapErrorTo instead.")>]
-    let orElse (error: 'error) (result: Check<'value>) : Result<'value, 'error> =
+    let orError (error: 'error) (result: Check<'value>) : Result<'value, 'error> =
         match result with
         | Ok value -> Ok value
         | Error () -> Error error
@@ -722,11 +784,132 @@ module Check =
     /// <param name="errorFn">A function of type <c>unit -> 'error</c> to produce the error.</param>
     /// <param name="result">The source <see cref="T:FsFlow.Check`1" />.</param>
     /// <returns>A <see cref="T:System.Result`2" /> with the produced error value.</returns>
-    [<Obsolete("Use Result.mapError instead.")>]
-    let orElseWith (errorFn: unit -> 'error) (result: Check<'value>) : Result<'value, 'error> =
+    let orErrorWith (errorFn: unit -> 'error) (result: Check<'value>) : Result<'value, 'error> =
         match result with
         | Ok value -> Ok value
         | Error () -> Error(errorFn ())
+
+/// <summary>
+/// Computation expression builder for a validation block scoped to a path segment or path prefix.
+/// </summary>
+/// <exclude/>
+type ValidationScopeBuilder(scopePath: PathSegment list) =
+    member _.Return(value: 'value) : Validation<'value, 'error> =
+        Validation.succeed value
+
+    member _.ReturnFrom(validation: Validation<'value, 'error>) : Validation<'value, 'error> =
+        validation
+
+    member _.ReturnFrom(result: Result<'value, 'error>) : Validation<'value, 'error> =
+        Validation.fromResult result
+
+    member _.Zero() : Validation<unit, 'error> =
+        Validation.succeed ()
+
+    member _.Bind
+        (
+            validation: Validation<'value, 'error>,
+            binder: 'value -> Validation<'next, 'error>
+        ) : Validation<'next, 'error> =
+        Validation.bind binder validation
+
+    member _.Bind
+        (
+            result: Result<'value, 'error>,
+            binder: 'value -> Validation<'next, 'error>
+        ) : Validation<'next, 'error> =
+        result
+        |> Validation.fromResult
+        |> Validation.bind binder
+
+    member _.Delay(factory: unit -> Validation<'value, 'error>) : Validation<'value, 'error> =
+        factory ()
+
+    member _.Run(validation: Validation<'value, 'error>) : Validation<'value, 'error> =
+        Validation.at scopePath validation
+
+    member _.Combine
+        (
+            first: Validation<unit, 'error>,
+            second: Validation<'value, 'error>
+        ) : Validation<'value, 'error> =
+        Validation.bind (fun () -> second) first
+
+    member _.MergeSources
+        (
+            left: Validation<'left, 'error>,
+            right: Validation<'right, 'error>
+        ) : Validation<'left * 'right, 'error> =
+        Validation.map2 (fun leftValue rightValue -> leftValue, rightValue) left right
+
+    /// <summary>Scopes a nested validation block under the supplied path prefix.</summary>
+    /// <param name="path">The path prefix to append.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member _.at(path: PathSegment list) = ValidationScopeBuilder(scopePath @ path)
+
+    /// <summary>Scopes a nested validation block under a keyed branch.</summary>
+    /// <param name="key">The branch key.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member this.key(key: string) = this.at [ PathSegment.Key key ]
+
+    /// <summary>Scopes a nested validation block under an indexed branch.</summary>
+    /// <param name="index">The branch index.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member this.index(index: int) = this.at [ PathSegment.Index index ]
+
+    /// <summary>Scopes a nested validation block under a named branch.</summary>
+    /// <param name="name">The branch name.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member this.name(name: string) = this.at [ PathSegment.Name name ]
+
+    member _.TryWith
+        (
+            validation: Validation<'value, 'error>,
+            handler: exn -> Validation<'value, 'error>
+        ) : Validation<'value, 'error> =
+        try
+            validation
+        with error ->
+            handler error
+
+    member _.TryFinally(validation: Validation<'value, 'error>, compensation: unit -> unit) : Validation<'value, 'error> =
+        try
+            validation
+        finally
+            compensation ()
+
+    member this.Using
+        (
+            resource: 'resource,
+            binder: 'resource -> Validation<'value, 'error>
+        ) : Validation<'value, 'error>
+        when 'resource :> IDisposable =
+        this.TryFinally(
+            binder resource,
+            fun () ->
+                if not (isNull (box resource)) then
+                    resource.Dispose()
+        )
+
+    member this.While
+        (
+            guard: unit -> bool,
+            body: Validation<unit, 'error>
+        ) : Validation<unit, 'error> =
+        if guard () then
+            this.Bind(body, fun () -> this.While(guard, body))
+        else
+            this.Zero()
+
+    member this.For
+        (
+            sequence: seq<'value>,
+            binder: 'value -> Validation<unit, 'error>
+        ) : Validation<unit, 'error> =
+        this.Using(
+            sequence.GetEnumerator(),
+            fun enumerator -> this.While(enumerator.MoveNext, this.Delay(fun () -> binder enumerator.Current))
+        )
 
 /// <summary>
 /// Computation expression builder for fail-fast <see cref="T:System.Result`2" /> workflows.
@@ -863,6 +1046,26 @@ type ValidateBuilder() =
             right: Validation<'right, 'error>
         ) : Validation<'left * 'right, 'error> =
         Validation.map2 (fun leftValue rightValue -> leftValue, rightValue) left right
+
+    /// <summary>Scopes a validation block under the supplied path prefix.</summary>
+    /// <param name="path">The path prefix to apply to the block.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member _.at(path: PathSegment list) = ValidationScopeBuilder(path)
+
+    /// <summary>Scopes a validation block under a keyed branch.</summary>
+    /// <param name="key">The branch key.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member this.key(key: string) = this.at [ PathSegment.Key key ]
+
+    /// <summary>Scopes a validation block under an indexed branch.</summary>
+    /// <param name="index">The branch index.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member this.index(index: int) = this.at [ PathSegment.Index index ]
+
+    /// <summary>Scopes a validation block under a named branch.</summary>
+    /// <param name="name">The branch name.</param>
+    /// <returns>A scoped validation builder.</returns>
+    member this.name(name: string) = this.at [ PathSegment.Name name ]
 
     member _.TryWith
         (

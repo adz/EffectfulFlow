@@ -25,14 +25,15 @@ instead of exceptions.
 </para>
 <para>
 Use `Guard.Of` for check-like sources and `Guard.MapError` for
-existing-error remapping before binding into the async CE.
+existing-error remapping before binding into the async CE. `Guard` keeps the source
+visible to the CE and only packages the failure value.
 </para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1397)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L442)
 
 ## Examples
 

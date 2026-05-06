@@ -9,31 +9,37 @@ Data flows from left to right. Later stages can bind earlier stages directly.
 `Check` (unit error) -> `Result` (typed error) -> `Flow` (sync + env) -> `AsyncFlow` (async + env) -> `TaskFlow` (task + env)
 
 ## Core Patterns (Idiomatic Way)
-The preferred way to handle "unwrap or fail" is via **Smart Binds** (tuple syntax):
+Use `Check` for reusable predicates and `Check.orError` for pure bridge-to-error cases:
 
-- `Option<'T>` -> `let! x = opt, orFailTo error`
-- `voption<'T>` -> `let! x = vopt, orFailTo error`
-- `Async<Option<'T>>` -> `let! x = aOpt, orFailTo error`
-- `Async<voption<'T>>` -> `let! x = aVOpt, orFailTo error`
-- `bool` -> `do! cond, orFailTo error`
-- `Result<'T, unit>` -> `let! x = check, orFailTo error`
-- `Task<Option<'T>>` -> `let! x = tOpt, orFailTo error`
-- `Task<voption<'T>>` -> `let! x = tVOpt, orFailTo error`
+- `Check.notBlank name |> Check.orError InvalidName`
+- `Check.okIf condition |> Check.orError Disabled`
 
-### Error Mapping
-Use `orMapError` to remap an error inline without manually calling `mapError`:
+Use `Guard.Of` when the source itself should bind directly inside a flow or validation boundary:
 
-- `Result<'T, 'E1>` -> `let! x = result, orMapError mapper`
-- `Flow<'Env, 'E1, 'T>` -> `let! x = flow, orMapError mapper`
-- `AsyncFlow<'Env, 'E1, 'T>` -> `let! x = asyncFlow, orMapError mapper`
-- `Async<Result<'T, 'E1>>` -> `let! x = aResult, orMapError mapper`
-- `TaskFlow<'Env, 'E1, 'T>` -> `let! x = taskFlow, orMapError mapper`
+- `Option<'T>` -> `let! x = opt |> Guard.Of error`
+- `voption<'T>` -> `let! x = vopt |> Guard.Of error`
+- `Async<Option<'T>>` -> `let! x = aOpt |> Guard.Of error`
+- `Async<voption<'T>>` -> `let! x = aVOpt |> Guard.Of error`
+- `bool` -> `do! cond |> Guard.Of error`
+- `Result<'T, unit>` -> `let! x = check |> Guard.Of error`
+- `Validation<'T, unit>` -> `let! x = validation |> Guard.Of error`
+- `Task<Option<'T>>` -> `let! x = tOpt |> Guard.Of error`
+- `Task<voption<'T>>` -> `let! x = tVOpt |> Guard.Of error`
+
+Use `Guard.MapError` when the source already carries a meaningful error:
+
+- `Result<'T, 'E1>` -> `let! x = result |> Guard.MapError mapper`
+- `Validation<'T, 'E1>` -> `let! x = validation |> Guard.MapError mapper`
+- `Flow<'Env, 'E1, 'T>` -> `let! x = flow |> Guard.MapError mapper`
+- `AsyncFlow<'Env, 'E1, 'T>` -> `let! x = asyncFlow |> Guard.MapError mapper`
+- `Async<Result<'T, 'E1>>` -> `let! x = aResult |> Guard.MapError mapper`
+- `TaskFlow<'Env, 'E1, 'T>` -> `let! x = taskFlow |> Guard.MapError mapper`
 
 ## Rosetta Stone (Mappings)
-- **FsToolkit**: `AsyncResult.requireSome e` -> `let! x = opt, orFailTo e`
-- **ZIO**: `option.getOrFail(e)` -> `let! x = opt, orFailTo e`
-- **Manual**: `match x with Some v -> Ok v | None -> Error e` -> `let! v = x, orFailTo e`
-- **Manual**: `Result.mapError mapper` -> `let! x = result, orMapError mapper`
+- **FsToolkit**: `AsyncResult.requireSome e` -> `let! x = opt |> Guard.Of e`
+- **ZIO**: `option.getOrFail(e)` -> `let! x = opt |> Guard.Of e`
+- **Manual**: `match x with Some v -> Ok v | None -> Error e` -> `let! v = x |> Guard.Of e`
+- **Manual**: `Result.mapError mapper` -> `let! x = result |> Guard.MapError mapper`
 
 ## Golden Path API
 - `run env flow`: Execute a flow.

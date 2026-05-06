@@ -27,5 +27,5 @@ A result with the new error type.
 ## Information
 
 - **Module**: `Result`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L163)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L169)
 

@@ -18,6 +18,7 @@ This package groups the synchronous, async, and task workflow families plus the 
 - `TaskFlow<'env, 'error, 'value>` and the `TaskFlow` module
 - `ColdTask<'value>` and the `ColdTask` module
 - `Check` for pure `Result<'value, unit>` predicates
+- `Guard` for bindable check-like sources and error remapping
 - `Result` for fail-fast helpers
 - `Validation` for accumulated diagnostics
 - support types that shape runtime logging and retry behavior
@@ -71,9 +72,19 @@ The builder types themselves stay below the surface. The families and their modu
 <span class="label">Check</span>
 <h2>Pure validation</h2>
 <p>`FsFlow.Check` gives pure `Result&lt;_, unit&gt;` checks for booleans, options, value options, nulls, collections, equality, and strings.</p>
-<p>The `Check` page expands the full member map and the bridges that turn unit failures into application errors.</p>
+<p>The `Check` page expands the full member map and the bridge that turns unit failures into application errors.</p>
 <div class="docs-card-links">
 <a href="./check.md">Open the check page</a>
+</div>
+</section>
+
+<section class="docs-card">
+<span class="label">Guard</span>
+<h2>Bindable guard sources</h2>
+<p>`FsFlow.Guard` keeps the source visible to the computation expression and packages the failure value alongside it so the CE can bind the source directly.</p>
+<p>The `Guard` page expands the constructors for check-like, effectful, and error-bearing sources across `flow`, `asyncFlow`, `taskFlow`, `result`, and `validate`.</p>
+<div class="docs-card-links">
+<a href="./guard.md">Open the Guard page</a>
 </div>
 </section>
 
@@ -143,6 +154,12 @@ The builder types themselves stay below the surface. The families and their modu
 <span class="label">Check</span>
 <h3><a href="./check.md">Pure checks</a></h3>
 <p>Pure predicates and the bridge to effectful error creation.</p>
+</section>
+
+<section class="docs-card">
+<span class="label">Guard</span>
+<h3><a href="./guard.md">Bindable guard sources</a></h3>
+<p>Direct binding for check-like values and existing-error remapping.</p>
 </section>
 
 <section class="docs-card">

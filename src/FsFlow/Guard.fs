@@ -3,11 +3,15 @@ namespace FsFlow
 open System.Threading.Tasks
 
 /// <summary>
-/// Constructors for turning predicate-like and error-bearing sources into bindable results and flows.
+/// Constructors for turning predicate-like and error-bearing sources into bindable results,
+/// validations, and flows.
 /// </summary>
 type Guard private () =
     static member Of(error: 'error, result: Result<'value, unit>) : Result<'value, 'error> =
         Result.mapErrorTo error result
+
+    static member Of(error: 'error, validation: Validation<'value, unit>) : Validation<'value, 'error> =
+        Validation.mapError (fun () -> error) validation
 
     static member Of(error: 'error, value: bool) : Result<unit, 'error> =
         if value then Ok () else Error error
@@ -126,6 +130,9 @@ type Guard private () =
 
     static member MapError(mapper: 'error1 -> 'error2, result: Result<'value, 'error1>) : Result<'value, 'error2> =
         Result.mapError mapper result
+
+    static member MapError(mapper: 'error1 -> 'error2, validation: Validation<'value, 'error1>) : Validation<'value, 'error2> =
+        Validation.mapError mapper validation
 
     static member MapError(mapper: 'error1 -> 'error2, result: Async<Result<'value, 'error1>>) : Async<Result<'value, 'error2>> =
         async {

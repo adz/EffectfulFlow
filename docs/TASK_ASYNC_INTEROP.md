@@ -21,8 +21,10 @@ Choose the family that matches the runtime shape of the boundary itself:
 Use interop to cross boundaries.
 Avoid keeping a task-oriented boundary in `Flow` just because a helper can be adapted.
 
-Use `Check` for reusable predicates, `Result` for fail-fast validation, and `Validation` plus
-`validate {}` when sibling failures should accumulate.
+Use `Check` for reusable predicates, `Check.orError` for pure failure-to-error bridging,
+`Guard.Of` / `Guard.MapError` when the source is already effect-shaped and you want the CE to
+bind the source while preserving its attached error,
+`Result` for fail-fast validation, and `Validation` plus `validate {}` when sibling failures should accumulate.
 
 ## Preferred Style Inside Computation Expressions
 
@@ -156,12 +158,12 @@ let typedError : Flow<unit, string, string> =
     }
 ```
 
-Another approach to the same type is to user `orElse`
+Another approach to the same shape is to use `Check.orError` directly:
 
 ```fsharp
 let typedError : Flow<unit, string, string> =
     flow {
-        let! name = maybeName |> okIfSome |> orElse "name is required"
+        let! name = maybeName |> Check.okIfSome |> Check.orError "name is required"
         return name
     }
 ```
@@ -195,10 +197,13 @@ Use `AsyncFlow.Runtime` for shared operational helpers like `sleep`, `timeout`, 
 Use `TaskFlow.Runtime` when you want the same helpers in a task-native shape.
 
 Use `FsFlow.Check` for pure `Result<'value, unit>` validation.
-Use `Result.mapErrorTo` when you want to turn a unit failure into a domain error.
+Use `Check.orError` when you want to turn a unit failure into a domain error.
 Use `Validation` and `validate {}` when the checks should accumulate.
 
 The builders bind `Result` directly, so extra bridge calls are only needed when the error value itself needs a different conversion shape.
+When the source itself should bind directly in `flow`, `asyncFlow`, or `taskFlow`, wrap it with
+`Guard.Of` or remap the existing error with `Guard.MapError`. The source stays visible to the CE;
+`Guard` only packages the failure value.
 
 ## `ColdTask<'value>`
 

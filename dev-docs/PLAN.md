@@ -30,52 +30,19 @@ These items are no longer live design questions and are tracked in the decision 
 - [Reader-env `yield`](decisions/reader-env-yield.md): `yield _.Field` as shorthand while keeping `Flow.read`
 - [Option and ValueOption binding](decisions/option-valueoption-binding.md): keep implicit binding only for `unit` error workflows and use explicit conversion helpers for typed errors
 - [Logging ergonomics](decisions/logging-ergonomics.md): keep the core logging abstraction generic and treat `ILogger` as an adapter
+- [Validation path scoping](decisions/validation-path-scoping.md): `validate {}` stays root-local while scoped helpers produce `Key` / `Index` / `Name` branches for nested diagnostics
 
 ## Live Direction
 
-The current focus is on finalizing the granular API reference and ensuring the docs site navigation mirrors the public surface exactly.
+The current focus is making the validation graph usable in real user code.
 
-- every public API has its own dedicated page
-- side-menu entries are visible for every page
-- narrative guides stay aligned with the granular page structure
-- legacy aliases and terminology are removed in favor of the graph-based model
-
-## Guard Direction
-
-The next API-shape iteration is replacing tuple-based smart binds with an explicit `Guard` concept that is visible in call sites and still binds cleanly in computation expressions.
-
-This direction is only about the source/code surface for the next implementation step. Documentation changes belong to the docs task, not this one.
-
-The contract is:
-
-- `Check` remains the reusable predicate algebra
-- `Guard.Of` bridges check-like or absence-like sources into a typed error result/flow
-- `Guard.MapError` remaps sources that already carry an error into the target error type
-- builders bind the resulting `Result`, `Async<Result>`, `Task<Result>`, `Flow`, `AsyncFlow`, and `TaskFlow` shapes directly
-- tuple markers such as `source, orFailTo error` and `source, orMapError mapper` are removed once the `Guard` constructors cover the same behavior
-
-The initial implementation should keep the public intention explicit, not introduce a second predicate DSL, and avoid reusing tuple syntax:
-
-- `Check.notBlank name |> Guard.Of InvalidName`
-- `isEnabled |> Guard.Of Disabled`
-- `tryGetUser username |> Guard.MapError AuthError`
-
-Implementation acceptance for task 1:
-
-- the builders accept `Guard.Of` and `Guard.MapError` directly
-- the old tuple smart-bind overloads are gone from `Flow`, `AsyncFlow`, `TaskFlow`, and `Validate`
-- tests exercise plain, async, and task sources through `Guard`
-- no user-facing docs are updated yet in this task
-- the code compiles and `dotnet test` passes before the task is committed
-
-The implementation sequence should be:
-
-1. add the `Guard` constructors and overloads in source
-2. remove the old tuple smart-bind overloads from the builders
-3. update tests to exercise `Guard` in `flow`, `asyncFlow`, and `taskFlow`
-4. update the narrative guides and API reference to explain `Guard` as the central bridge between `Check` and the flow families
-5. normalize the remaining fallback APIs so `orElse` / `orElseWith` consistently mean same-family alternates, not check bridging
-6. rename check bridging to `Check.orError` and remove the obsolete `Check.orElse` / `Check.orElseWith` bridge meaning
+- keep `Diagnostics<'error>` as the explicit tree-shaped graph type
+- keep `Local` as diagnostics attached to the current node and `Children` as nested branches
+- add scoped validation helpers so users can write branch-aware validation without manually constructing `Diagnostics`
+- prefer a surface like `validate.key`, `validate.index`, and `validate.name` (or equivalent scoped helpers) that prefixes diagnostics produced by a sub-validation block
+- keep `validate {}` itself root-local so sibling failures accumulate at the current node
+- update the narrative guides and API reference to explain how branch scopes produce `Key` / `Index` / `Name` paths and how `Diagnostics.flatten` reports them
+- avoid using hand-built `Diagnostics` trees in user-facing examples except when the tree type itself is the point being documented
 
 ## Done Means
 
