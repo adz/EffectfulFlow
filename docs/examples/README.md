@@ -19,16 +19,18 @@ This example shows a request boundary that pulls a user from a database-like env
 Run it:
 
 ```bash
-dotnet run --project examples/FsFlow.Examples/FsFlow.Examples.fsproj --nologo
+FSFLOW_EXAMPLE=request-boundary dotnet run --project examples/FsFlow.Examples/FsFlow.Examples.fsproj --nologo
 ```
 
 Source:
 
-- [Program.fs](https://github.com/adz/FsFlow/blob/main/examples/FsFlow.Examples/Program.fs)
+- [RequestBoundaryExample.fs](https://github.com/adz/FsFlow/blob/main/examples/FsFlow.Examples/RequestBoundaryExample.fs)
 
 Source code:
 
 ```fsharp
+module RequestBoundaryExample
+
 open System
 open System.Threading
 open System.Threading.Tasks
@@ -74,8 +76,7 @@ let publishResponse : TaskFlow<RequestEnv, string, string> =
         return $"{env.Prefix} [{env.TraceId}] {user.Name}{suffix}"
     }
 
-[<EntryPoint>]
-let main _ =
+let run () =
     let environment =
         { TraceId = Guid.Parse "11111111-1111-1111-1111-111111111111"
           Prefix = "Hello"
@@ -103,17 +104,188 @@ let main _ =
     printfn "Flow result: %A" syncResult
     printfn "AsyncFlow result: %A" asyncResult
     printfn "TaskFlow result: %A" taskResult
-    0
+    // Flow result: Ok { Id = 42; Name = "Ada" }
+    // AsyncFlow result: Ok "Hello [11111111-1111-1111-1111-111111111111] Ada"
+    // TaskFlow result: Ok "Hello [11111111-1111-1111-1111-111111111111] Ada!"
 
 ```
 
-Observed output:
+## Diagnostics Example
 
-```text
-Flow result: Ok { Id = 42
-     Name = "Ada" }
-AsyncFlow result: Ok "Hello [11111111-1111-1111-1111-111111111111] Ada"
-TaskFlow result: Ok "Hello [11111111-1111-1111-1111-111111111111] Ada!"
+This example shows a JSON-shaped request boundary with a root-level error, nested child branches, and a display-friendly diagnostics tree.
+
+Run it:
+
+```bash
+FSFLOW_EXAMPLE=diagnostics dotnet run --project examples/FsFlow.Examples/FsFlow.Examples.fsproj --nologo
+```
+
+Source:
+
+- [DiagnosticsExample.fs](https://github.com/adz/FsFlow/blob/main/examples/FsFlow.Examples/DiagnosticsExample.fs)
+
+Source code:
+
+```fsharp
+module DiagnosticsExample
+
+open System.Text.Json
+open FsFlow
+
+type CustomerLine =
+    { Name: string }
+
+type CustomerAddress =
+    { City: string }
+
+type Customer =
+    { Name: string
+      Address: CustomerAddress
+      Lines: CustomerLine list }
+
+type CreateCustomerRequest =
+    { RequestId: string
+      Customer: Customer }
+
+type ApiError =
+    { path: string
+      message: string }
+
+type ApiErrorResponse =
+    { errors: ApiError list }
+
+let jsonOptions = JsonSerializerOptions(WriteIndented = true)
+
+let validateAddress address =
+    validate.key "address" {
+        let! city =
+            validate.name "City" {
+                return! address.City |> Check.notBlank |> Check.orError "City required"
+            }
+
+        return { address with City = city }
+    }
+
+let validateCustomer customer =
+    validate {
+        let! name =
+            validate.name "Name" {
+                return! customer.Name |> Check.notBlank |> Check.orError "Name required"
+            }
+
+        and! address = validateAddress customer.Address
+
+        and! lines =
+            validate.key "lines" {
+                return!
+                    customer.Lines
+                    |> Validation.traverseIndexed (fun index line ->
+                        validate.name "Name" {
+                            let! name =
+                                line.Name |> Check.notBlank |> Check.orError $"Line {index} name required"
+
+                            return { Name = name }
+                        }
+                    )
+            }
+
+        return
+            { customer with
+                Name = name
+                Address = address
+                Lines = lines }
+    }
+
+let renderPath (path: PathSegment list) =
+    path
+    |> List.map (function
+        | PathSegment.Key value
+        | PathSegment.Name value -> value
+        | PathSegment.Index index -> $"[{index}]")
+    |> String.concat "."
+
+let toApiErrors (graph: Diagnostics<'error>) =
+    { errors =
+        graph
+        |> Diagnostics.flatten
+        |> List.map (fun diagnostic ->
+            { path = renderPath diagnostic.Path
+              message = string diagnostic.Error }) }
+
+let validateCreateCustomerRequest request =
+    validate {
+        let! requestId =
+            validate.name "RequestId" {
+                return! request.RequestId |> Check.notBlank |> Check.orError "RequestId required"
+            }
+
+        and! customer =
+            validate.key "customer" {
+                return! validateCustomer request.Customer
+            }
+
+        return { request with RequestId = requestId; Customer = customer }
+    }
+
+let run () =
+    let requestJson =
+        """{
+  "requestId": "",
+  "customer": {
+    "name": "",
+    "address": { "city": "" },
+    "lines": [ { "name": "" } ]
+  }
+}"""
+
+    let badRequest =
+        { RequestId = ""
+          Customer =
+            { Name = ""
+              Address = { City = "" }
+              Lines = [ { Name = "" } ] } }
+
+    let diagnosticsText =
+        validateCreateCustomerRequest badRequest
+        |> Validation.toResult
+        |> Result.mapError (toApiErrors >> fun payload -> JsonSerializer.Serialize(payload, jsonOptions))
+        |> function
+            | Ok _ -> "Ok"
+            | Error text -> text
+
+    printfn "Request JSON:\n%s" requestJson
+    printfn "API error JSON:\n%s" diagnosticsText
+    // Request JSON:
+    // {
+    //   "requestId": "",
+    //   "customer": {
+    //     "name": "",
+    //     "address": { "city": "" },
+    //     "lines": [ { "name": "" } ]
+    //   }
+    // }
+    // API error JSON:
+    // {
+    //   "errors": [
+    //     {
+    //       "path": "customer.address.City",
+    //       "message": "City required"
+    //     },
+    //     {
+    //       "path": "customer.lines.[0].Name",
+    //       "message": "Line 0 name required"
+    //     },
+    //     {
+    //       "path": "customer.Name",
+    //       "message": "Name required"
+    //     },
+    //     {
+    //       "path": "RequestId",
+    //       "message": "RequestId required"
+    //     }
+    //   ]
+    // }
+
 ```
 
 ## Playground Example
@@ -184,16 +356,11 @@ let main _ =
     printfn "Flow: %A" syncResult
     printfn "AsyncFlow: %A" asyncResult
     printfn "TaskFlow: %A" taskResult
+    // Flow: Ok "Hello Ada"
+    // AsyncFlow: Ok "HELLO ADA"
+    // TaskFlow: Ok "Hello Ada!"
     0
 
-```
-
-Observed output:
-
-```text
-Flow: Ok "Hello Ada"
-AsyncFlow: Ok "HELLO ADA"
-TaskFlow: Ok "Hello Ada!"
 ```
 
 ## Maintenance Example
@@ -260,15 +427,10 @@ let main _ =
     runFlow "Flow" 20 syncExample
     runAsyncFlow "AsyncFlow" 20 asyncExample
     runTaskFlow "TaskFlow" 20 taskExample
+    // Flow: Ok 21
+    // AsyncFlow: Ok 42
+    // TaskFlow: Ok 25
     0
 
-```
-
-Observed output:
-
-```text
-Flow: Ok 21
-AsyncFlow: Ok 42
-TaskFlow: Ok 25
 ```
 

@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="RequestBoundaryExample.fs" />
+    <Compile Include="DiagnosticsExample.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

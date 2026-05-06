@@ -450,6 +450,11 @@ module Builders =
     /// at the first one.
     /// </para>
     /// <para>
+    /// Use <c>and!</c> when sibling validations should accumulate into the same diagnostics graph.
+    /// Plain <c>let!</c> and <c>do!</c> are sequential: if the left side fails, the later step is
+    /// not evaluated.
+    /// </para>
+    /// <para>
     /// `Check<'value>` covers both value-preserving checks and gate checks.
     /// Use <c>Check.orError</c> to attach an application error, and <c>Guard.Of</c> /
     /// <c>Guard.MapError</c> when you want the same error-bound source shape to participate

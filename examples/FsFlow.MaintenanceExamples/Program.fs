@@ -45,4 +45,7 @@ let main _ =
     runFlow "Flow" 20 syncExample
     runAsyncFlow "AsyncFlow" 20 asyncExample
     runTaskFlow "TaskFlow" 20 taskExample
+    // Flow: Ok 21
+    // AsyncFlow: Ok 42
+    // TaskFlow: Ok 25
     0

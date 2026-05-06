@@ -25,11 +25,11 @@ type Diagnostic<'error> =
     }
 
 /// <summary>
-/// A mergeable validation graph that carries local diagnostics and nested child branches.
+/// A mergeable validation graph that carries local errors and nested child branches.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>Local</c> holds the diagnostics attached exactly to the current node, while
+/// <c>Errors</c> holds the application errors attached exactly to the current node, while
 /// <c>Children</c> holds nested branches keyed by <see cref="T:FsFlow.PathSegment" />.
 /// </para>
 /// <para>
@@ -39,8 +39,8 @@ type Diagnostic<'error> =
 /// </remarks>
 type Diagnostics<'error> =
     {
-        /// <summary>Diagnostics that occurred exactly at this node in the graph.</summary>
-        Local: Diagnostic<'error> list
+        /// <summary>Errors that occurred exactly at this node in the graph.</summary>
+        Errors: 'error list
         /// <summary>Nested diagnostic branches, keyed by <see cref="T:FsFlow.PathSegment" />.</summary>
         Children: Map<PathSegment, Diagnostics<'error>>
     }
@@ -65,16 +65,16 @@ module Diagnostics =
     /// <returns>An empty <see cref="T:FsFlow.Diagnostics`1" />.</returns>
     let empty<'error> : Diagnostics<'error> =
         {
-            Local = []
+            Errors = []
             Children = Map.empty
         }
 
-    /// <summary>Creates a diagnostics graph containing exactly one diagnostic item at the root.</summary>
-    /// <param name="diagnostic">The <see cref="T:FsFlow.Diagnostic`1" /> to wrap.</param>
+    /// <summary>Creates a diagnostics graph containing exactly one error at the root.</summary>
+    /// <param name="error">The application error to store at the root.</param>
     /// <returns>A <see cref="T:FsFlow.Diagnostics`1" /> with a single error.</returns>
-    let singleton (diagnostic: Diagnostic<'error>) : Diagnostics<'error> =
+    let singleton (error: 'error) : Diagnostics<'error> =
         {
-            Local = [ diagnostic ]
+            Errors = [ error ]
             Children = Map.empty
         }
 
@@ -93,22 +93,65 @@ module Diagnostics =
             | None -> Map.add key branch children
 
         {
-            Local = left.Local @ right.Local
+            Errors = left.Errors @ right.Errors
             Children = Map.fold addBranch left.Children right.Children
         }
 
+    /// <summary>Renders a diagnostics graph in a YAML-like layout for display.</summary>
+    /// <remarks>
+    /// This is intended for human-readable output. Empty sections are omitted, and children are
+    /// shown directly under their branch labels at the same indentation level as errors. Errors
+    /// render as YAML-style bullet items without an `Errors:` key. Use
+    /// <see cref="T:FsFlow.Diagnostics.flatten" /> when you need path-bearing diagnostics for
+    /// reporting or assertions.
+    /// </remarks>
+    /// <param name="graph">The diagnostics graph to render.</param>
+    /// <returns>A formatted string representation of the graph.</returns>
+    let toString (graph: Diagnostics<'error>) : string =
+        let indent level = String.replicate (level * 2) " "
+
+        let segmentText = function
+            | PathSegment.Key key -> key
+            | PathSegment.Index index -> $"[{index}]"
+            | PathSegment.Name name -> name
+
+        let rec renderNode level (node: Diagnostics<'error>) =
+            let lines = ResizeArray<string>()
+
+            match node.Errors with
+            | [] -> ()
+            | errors ->
+                errors
+                |> List.iter (fun error -> lines.Add($"{indent level}- {string error}"))
+
+            match node.Children |> Map.toList with
+            | [] -> ()
+            | children ->
+                children
+                |> List.iter (fun (segment, child) ->
+                    lines.Add($"{indent level}{segmentText segment}:")
+                    lines.Add(renderNode (level + 1) child))
+
+            if lines.Count = 0 then
+                $"{indent level}[]"
+            else
+                String.concat Environment.NewLine lines
+
+        renderNode 0 graph
+
     /// <summary>Flattens the structured diagnostics graph into a linear list of diagnostics.</summary>
     /// <remarks>
-    /// During flattening, child paths are correctly prefixed with their parent segments,
-    /// ensuring each <see cref="T:FsFlow.Diagnostic`1" /> in the resulting list has a full absolute path.
+    /// During flattening, child paths are accumulated from the root down into each emitted diagnostic.
+    /// The tree itself stores only local errors and child branches, while <see cref="T:FsFlow.Diagnostic`1" />
+    /// is reserved for reporting output.
     /// </remarks>
     /// <param name="graph">The <see cref="T:FsFlow.Diagnostics`1" /> to flatten.</param>
     /// <returns>A list of type <see cref="T:FsFlow.Diagnostic`1" /> list.</returns>
     let flatten (graph: Diagnostics<'error>) : Diagnostic<'error> list =
         let rec flattenWithPrefix (prefix: Path) (node: Diagnostics<'error>) =
             let local =
-                node.Local
-                |> List.map (fun diagnostic -> { diagnostic with Path = prefix @ diagnostic.Path })
+                node.Errors
+                |> List.map (fun error -> { Path = prefix; Error = error })
 
             let children =
                 node.Children
@@ -247,7 +290,7 @@ module Validation =
     let fromResult (result: Result<'value, 'error>) : Validation<'value, 'error> =
         match result with
         | Ok value -> succeed value
-        | Error error -> fail (Diagnostics.singleton { Path = []; Error = error })
+        | Error error -> fail (Diagnostics.singleton error)
 
     /// <summary>Maps the successful value of a validation.</summary>
     /// <param name="mapper">A function of type <c>'value -> 'next</c>.</param>
@@ -286,13 +329,9 @@ module Validation =
         : Validation<'value, 'nextError> =
         let rec mapDiagnostics (graph: Diagnostics<'error>) : Diagnostics<'nextError> =
             {
-                Local =
-                    graph.Local
-                    |> List.map (fun diagnostic ->
-                        {
-                            Path = diagnostic.Path
-                            Error = mapper diagnostic.Error
-                        })
+                Errors =
+                    graph.Errors
+                    |> List.map mapper
                 Children =
                     graph.Children
                     |> Map.map (fun _ child -> mapDiagnostics child)
@@ -359,22 +398,21 @@ module Validation =
     let merge (left: Validation<'value, 'error>) (right: Validation<'next, 'error>) : Validation<'value * 'next, 'error> =
         map2 (fun leftValue rightValue -> leftValue, rightValue) left right
 
-    /// <summary>Prefixes every diagnostic in a validation with the supplied path segments.</summary>
-    /// <param name="path">The path segments to prepend.</param>
+    /// <summary>Scopes a validation under the supplied path segments.</summary>
+    /// <param name="path">The path segments to apply to the validation.</param>
     /// <param name="validation">The validation to scope.</param>
-    /// <returns>A validation with all diagnostics shifted under the given path.</returns>
+    /// <returns>A validation nested under the given path.</returns>
     let at (path: PathSegment list) (validation: Validation<'value, 'error>) : Validation<'value, 'error> =
-        let rec prefixDiagnostics (graph: Diagnostics<'error>) : Diagnostics<'error> =
-            {
-                Local =
-                    graph.Local
-                    |> List.map (fun diagnostic -> { diagnostic with Path = path @ diagnostic.Path })
-                Children =
-                    graph.Children
-                    |> Map.map (fun _ child -> prefixDiagnostics child)
-            }
+        let rec attach path graph =
+            match path with
+            | [] -> graph
+            | segment :: rest ->
+                {
+                    Errors = []
+                    Children = Map.add segment (attach rest graph) Map.empty
+                }
 
-        validation |> unwrap |> Result.mapError prefixDiagnostics |> Validation
+        validation |> unwrap |> Result.mapError (attach path) |> Validation
 
     /// <summary>Prefixes a validation with a keyed branch.</summary>
     /// <param name="key">The branch key.</param>

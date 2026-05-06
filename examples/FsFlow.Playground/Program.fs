@@ -49,4 +49,7 @@ let main _ =
     printfn "Flow: %A" syncResult
     printfn "AsyncFlow: %A" asyncResult
     printfn "TaskFlow: %A" taskResult
+    // Flow: Ok "Hello Ada"
+    // AsyncFlow: Ok "HELLO ADA"
+    // TaskFlow: Ok "Hello Ada!"
     0

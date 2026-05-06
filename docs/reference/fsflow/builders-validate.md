@@ -20,6 +20,11 @@ Use this builder when you want to collect all validation failures instead of sto
 at the first one.
 </para>
 <para>
+Use `and!` when sibling validations should accumulate into the same diagnostics graph.
+Plain `let!` and `do!` are sequential: if the left side fails, the later step is
+not evaluated.
+</para>
+<para>
 `Check<'value>` covers both value-preserving checks and gate checks.
 Use `Check.orError` to attach an application error, and `Guard.Of` /
 `Guard.MapError` when you want the same error-bound source shape to participate
@@ -41,7 +46,7 @@ the user benefits from seeing every problem at once.
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L492)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L497)
 
 ## Examples
 

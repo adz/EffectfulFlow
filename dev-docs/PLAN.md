@@ -37,7 +37,7 @@ These items are no longer live design questions and are tracked in the decision 
 The current focus is making the validation graph usable in real user code.
 
 - keep `Diagnostics<'error>` as the explicit tree-shaped graph type
-- keep `Local` as diagnostics attached to the current node and `Children` as nested branches
+- keep `Errors` as diagnostics attached to the current node and `Children` as nested branches
 - add scoped validation helpers so users can write branch-aware validation without manually constructing `Diagnostics`
 - prefer a surface like `validate.key`, `validate.index`, and `validate.name` (or equivalent scoped helpers) that prefixes diagnostics produced by a sub-validation block
 - keep `validate {}` itself root-local so sibling failures accumulate at the current node

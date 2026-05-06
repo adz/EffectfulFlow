@@ -156,6 +156,8 @@ validateInput "Ada" ""                 // Error MissingEmail
 ## 4. Accumulating Validation
 
 Use `Validation` and `validate {}` when sibling checks are independent and you want every failure collected into a `Validation<'value, RegistrationError>` graph.
+Use `and!` for the sibling checks you want merged together. Plain `let!` and `do!` are
+sequential: if one step fails, later steps in that chain are not evaluated.
 
 ```fsharp
 type Registration =
@@ -182,7 +184,7 @@ validateRegistration { Name = "Ada"; Email = "ada@example.com" }
 
 validateRegistration { Name = ""; Email = "" }
 // Error {
-//   Local = [ { Path = []; Error = NameRequired }; { Path = []; Error = EmailRequired } ]
+//   Errors = [ NameRequired; EmailRequired ]
 //   Children = Map []
 // }
 ```
@@ -190,7 +192,8 @@ validateRegistration { Name = ""; Email = "" }
 That last line is the key difference from `result {}`:
 
 - `result {}` stops at the first error
-- `validate {}` keeps going and merges sibling failures at the current node
+- `validate {}` keeps going and merges sibling failures when you use `and!`
+- plain `let!` and `do!` still short-circuit on the first failure in their sequence
 
 The current builder emits root-level diagnostics for direct `Check.orError` results unless you
 wrap the work in a scoped helper like `validate.key`, `validate.index`, or `validate.name`.
@@ -225,7 +228,7 @@ type Diagnostic<'error> =
       Error: 'error }
 
 type Diagnostics<'error> =
-    { Local: Diagnostic<'error> list
+    { Errors: 'error list
       Children: Map<PathSegment, Diagnostics<'error>> }
 ```
 
@@ -234,14 +237,14 @@ For a simple validation, the graph may have only root-level items:
 ```fsharp
 validateRegistration { Name = ""; Email = "" }
 // Error {
-//   Local = [ { Path = []; Error = NameRequired }; { Path = []; Error = EmailRequired } ]
+//   Errors = [ NameRequired; EmailRequired ]
 //   Children = Map []
 // }
 ```
 
-That is a root-local validation node, not a keyed tree branch.
+That is a root-level validation node, not a keyed tree branch.
 
-For nested API responses, the root `validate { }` block stays local. To point failures back
+For nested API responses, the root `validate { }` block stays at the current node. To point failures back
 to a specific field or list item, use the builder-scoped helpers `validate.key`, `validate.index`,
 and `validate.name` inside the computation expression. Those wrappers prefix the diagnostics
 produced inside the block.
@@ -294,63 +297,52 @@ let validateCustomer customer =
     }
 ```
 
-Example outcomes:
+The runnable version of the JSON-shaped example below lives in
+`examples/FsFlow.Examples/DiagnosticsExample.fs`.
 
-```fsharp
-let good =
-    { Name = "Ada"
-      Address = { City = "Darwin" }
-      Lines = [ "Line 1" ] }
+Example request payload:
 
-validateCustomer good |> Validation.toResult
-// Ok { Name = "Ada"; Address = { City = "Darwin" }; Lines = [ "Line 1" ] }
-
-let bad =
-    { Name = ""
-      Address = { City = "" }
-      Lines = [ "" ] }
-
-validateCustomer bad |> Validation.toResult
-// Error {
-//   Local = []
-//   Children = Map [
-//     Key "customer", {
-//       Local = []
-//       Children = Map [
-//         Name "Name", { Local = [ { Path = []; Error = "Name required" } ]; Children = Map [] }
-//         Key "address", {
-//           Local = []
-//           Children = Map [
-//             Name "City", { Local = [ { Path = []; Error = "City required" } ]; Children = Map [] }
-//           ]
-//         }
-//         Key "lines", {
-//           Local = []
-//           Children = Map [
-//             Index 0, {
-//               Local = []
-//               Children = Map [
-//                 Name "Name", { Local = [ { Path = []; Error = "Line 0 name required" } ]; Children = Map [] }
-//               ]
-//             }
-//           ]
-//         }
-//       ]
-//     }
-//   ]
-// }
-
-validateCustomer bad
-|> Validation.toResult
-|> Result.mapError Diagnostics.flatten
-// Error [
-//   { Path = [ Key "customer"; Name "Name" ]; Error = "Name required" }
-//   { Path = [ Key "customer"; Key "address"; Name "City" ]; Error = "City required" }
-//   { Path = [ Key "customer"; Key "lines"; Index 0; Name "Name" ]; Error = "Line 0 name required" }
-// ]
+```json
+{
+  "requestId": "",
+  "customer": {
+    "name": "",
+    "address": { "city": "" },
+    "lines": [ { "name": "" } ]
+  }
+}
 ```
 
-If you need a flat list for reporting, `Diagnostics.flatten` walks the graph and reconstructs the full paths. The tree shape is still useful when you want to navigate the structure before flattening it.
+Example outcome:
+
+```fsharp
+validateCreateCustomerRequest badRequest
+|> Validation.toResult
+|> Result.mapError (toApiErrors >> fun payload -> JsonSerializer.Serialize(payload, JsonSerializerOptions(WriteIndented = true)))
+// Error
+// {
+//   "errors": [
+//     { "path": "customer.address.City", "message": "City required" },
+//     { "path": "customer.lines.[0].Name", "message": "Line 0 name required" },
+//     { "path": "customer.Name", "message": "Name required" },
+//     { "path": "RequestId", "message": "RequestId required" }
+//   ]
+// }
+```
+
+That shape mirrors the JSON request:
+
+- `requestId` becomes a top-level field error when it is missing or blank
+- `customer.name` is a child field error under the request body
+- `customer.address.city` is a nested field error under `customer`
+- `customer.lines.[0].name` is a list item field error under `customer`
+
+If you need a flat list for reporting, `Diagnostics.flatten` walks the graph and reconstructs the full paths.
+That is the common JSON API pattern: a single `errors` array with a `path` and `message` per item.
+
+If you want a terminal-friendly view instead of JSON, `Diagnostics.toString` renders the same graph as a compact YAML-like tree.
+
+The runnable example uses `System.Text.Json` in `examples/FsFlow.Examples/DiagnosticsExample.fs` to shape the API response.
 
 ### Scoping An Existing Validation
 

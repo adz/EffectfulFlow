@@ -265,6 +265,7 @@ module.exports = {
                     { type: 'doc', id: 'reference/fsflow/diagnostics-empty', label: 'empty' },
                     { type: 'doc', id: 'reference/fsflow/diagnostics-singleton', label: 'singleton' },
                     { type: 'doc', id: 'reference/fsflow/diagnostics-merge', label: 'merge' },
+                    { type: 'doc', id: 'reference/fsflow/diagnostics-tostring', label: 'toString' },
                     { type: 'doc', id: 'reference/fsflow/diagnostics-flatten', label: 'flatten' },
                   ],
                 },

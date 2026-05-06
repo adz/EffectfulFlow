@@ -50,4 +50,5 @@ let main _ =
         |> fun task -> task.GetAwaiter().GetResult()
 
     printfn "Config pair result: %A" readPairResult
+    // Config pair result: Ok ("{\"name\":\"Ada\"}", "{\"darkMode\":true}")
     0

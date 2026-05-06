@@ -5,11 +5,11 @@ description: API reference for Diagnostics.singleton
 
 # singleton
 
-Creates a diagnostics graph containing exactly one diagnostic item at the root.
+Creates a diagnostics graph containing exactly one error at the root.
 
 
 ```fsharp
-let singleton (diagnostic: Diagnostic<'error>) : Diagnostics<'error>
+let singleton (error: 'error) : Diagnostics<'error>
 ```
 
 
@@ -17,7 +17,7 @@ let singleton (diagnostic: Diagnostic<'error>) : Diagnostics<'error>
 
 ## Parameters
 
-- `diagnostic`: The `Diagnostic` to wrap.
+- `error`: The application error to store at the root.
 
 ## Returns
 

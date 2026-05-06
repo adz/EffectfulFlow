@@ -80,7 +80,7 @@ const pageSpecs = [
     title: 'Diagnostics',
     description: 'Source-documented validation diagnostics graph for FsFlow.',
     intro:
-      'This page shows the source-documented `Diagnostics` surface: a tree with `Local` node errors, `Children` branches, and merge/flatten helpers for reporting.',
+      'This page shows the source-documented `Diagnostics` surface: a tree with local error lists, `Children` branches, and merge/flatten/display helpers for reporting.',
     sourceFiles: ['src/FsFlow/Validate.fs'],
     sections: [
       {
@@ -89,7 +89,7 @@ const pageSpecs = [
       },
       {
         title: 'Module functions',
-        symbols: ['module:Diagnostics', 'Diagnostics.empty', 'Diagnostics.singleton', 'Diagnostics.merge', 'Diagnostics.flatten'],
+        symbols: ['module:Diagnostics', 'Diagnostics.empty', 'Diagnostics.singleton', 'Diagnostics.merge', 'Diagnostics.toString', 'Diagnostics.flatten'],
       },
     ],
   },

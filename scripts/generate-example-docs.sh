@@ -16,17 +16,16 @@ render_code_block() {
   printf '\n```\n'
 }
 
-render_output_block() {
-  local output="$1"
-
-  printf '```text\n%s\n```\n' "$output"
-}
-
 run_example() {
   local project_path="$1"
+  local example_filter="${2:-}"
 
-  dotnet build "$project_path" --nologo --verbosity quiet >/dev/null
-  dotnet run --project "$project_path" --no-build --no-restore --nologo 2>&1
+  dotnet build "$project_path" --nologo --verbosity quiet
+  if [[ -n "$example_filter" ]]; then
+    FSFLOW_EXAMPLE="$example_filter" dotnet run --project "$project_path" --no-build --no-restore --nologo 2>&1
+  else
+    dotnet run --project "$project_path" --no-build --no-restore --nologo 2>&1
+  fi
 }
 
 render_example_section() {
@@ -36,9 +35,10 @@ render_example_section() {
   local source_file="$4"
   local source_link="$5"
   local run_command="$6"
+  local example_filter="${7:-}"
 
   local example_output
-  example_output="$(run_example "$project_path")"
+  example_output="$(run_example "$project_path" "$example_filter")"
 
   {
     printf '## %s\n\n' "$title"
@@ -49,9 +49,6 @@ render_example_section() {
     printf -- '- [%s](%s)\n\n' "$(basename "$source_file")" "$source_link"
     printf 'Source code:\n\n'
     render_code_block fsharp "$source_file"
-    printf '\n'
-    printf 'Observed output:\n\n'
-    render_output_block "$example_output"
     printf '\n'
   } >> "$output_file"
 }
@@ -77,9 +74,19 @@ render_example_section \
   "Request Boundary Example" \
   "This example shows a request boundary that pulls a user from a database-like environment, threads a trace id through the request context, and reuses the same validation shape across Flow, AsyncFlow, and TaskFlow." \
   "$root_dir/examples/FsFlow.Examples/FsFlow.Examples.fsproj" \
-  "$root_dir/examples/FsFlow.Examples/Program.fs" \
-  "https://github.com/adz/FsFlow/blob/main/examples/FsFlow.Examples/Program.fs" \
-  "dotnet run --project examples/FsFlow.Examples/FsFlow.Examples.fsproj --nologo"
+  "$root_dir/examples/FsFlow.Examples/RequestBoundaryExample.fs" \
+  "https://github.com/adz/FsFlow/blob/main/examples/FsFlow.Examples/RequestBoundaryExample.fs" \
+  "FSFLOW_EXAMPLE=request-boundary dotnet run --project examples/FsFlow.Examples/FsFlow.Examples.fsproj --nologo" \
+  "request-boundary"
+
+render_example_section \
+  "Diagnostics Example" \
+  "This example shows a JSON-shaped request boundary with a root-level error, nested child branches, and a display-friendly diagnostics tree." \
+  "$root_dir/examples/FsFlow.Examples/FsFlow.Examples.fsproj" \
+  "$root_dir/examples/FsFlow.Examples/DiagnosticsExample.fs" \
+  "https://github.com/adz/FsFlow/blob/main/examples/FsFlow.Examples/DiagnosticsExample.fs" \
+  "FSFLOW_EXAMPLE=diagnostics dotnet run --project examples/FsFlow.Examples/FsFlow.Examples.fsproj --nologo" \
+  "diagnostics"
 
 render_example_section \
   "Playground Example" \

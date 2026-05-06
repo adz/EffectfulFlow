@@ -26,5 +26,5 @@ A result containing the list of values or the first error encountered.
 ## Information
 
 - **Module**: `Result`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L178)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L221)
 

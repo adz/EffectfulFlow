@@ -15,8 +15,9 @@ let flatten (graph: Diagnostics<'error>) : Diagnostic<'error> list
 
 ## Remarks
 
-During flattening, child paths are correctly prefixed with their parent segments,
-ensuring each `Diagnostic` in the resulting list has a full absolute path.
+During flattening, child paths are accumulated from the root down into each emitted diagnostic.
+The tree itself stores only local errors and child branches, while `Diagnostic`
+is reserved for reporting output.
 
 
 ## Parameters
@@ -30,5 +31,5 @@ A list of type `Diagnostic` list.
 ## Information
 
 - **Module**: `Diagnostics`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L107)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Validate.fs#L150)
 

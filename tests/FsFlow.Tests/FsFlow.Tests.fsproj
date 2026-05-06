@@ -4,10 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Program.fs" />
+    <Compile Include="TestSupport.fs" />
+    <Compile Include="WorkflowTests.fs" />
+    <Compile Include="ValidationTests.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,13 +13,13 @@
 
 FsFlow keeps `Diagnostics<'error>` as the explicit tree-shaped validation graph, with:
 
-- `Local` holding diagnostics attached to the current node
+- `Errors` holding diagnostics attached to the current node
 - `Children` holding nested branches keyed by `PathSegment`
 - `Diagnostics.flatten` converting the tree into a linear list for reporting or tests
 
 The current `validate {}` builder remains root-local:
 
-- sibling failures accumulate in the current node’s `Local` list
+- sibling failures accumulate in the current node’s `Errors` list
 - the builder does not invent `Key`, `Index`, or `Name` branches on its own
 
 To make the graph useful, FsFlow should expose scoped validation helpers that prefix a sub-validation with a path segment.
@@ -45,6 +45,6 @@ These scoped helpers should:
 ## Consequences
 
 - Narrative docs should distinguish root-local accumulation from path-scoped validation branches.
-- Examples should show `validate {}` for root-level `Local` accumulation and scoped helpers for nested branches.
+- Examples should show `validate {}` for root-level `Errors` accumulation and scoped helpers for nested branches.
 - `Diagnostics` remains a public tree type, but it should not be the primary construction surface.
 - If later APIs are added for branch scoping, they should build on this model rather than replacing the graph.
