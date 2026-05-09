@@ -67,6 +67,59 @@ module RetryPolicy =
           Delay = fun _ -> TimeSpan.Zero
           ShouldRetry = fun _ -> true }
 
+/// <summary>
+/// Describes a fine-grained capability contract for a single dependency.
+/// </summary>
+/// <remarks>
+/// Cap-set interfaces implement this contract once and expose the dependency through a named
+/// member. Workflow builders can then read the dependency from any environment that implements
+/// the relevant <c>Needs&lt;'dep&gt;</c> interface.
+/// </remarks>
+/// <typeparam name="dep">The dependency type exposed by the environment.</typeparam>
+type Needs<'dep> =
+    abstract Dep : 'dep
+
+/// <summary>
+/// Request token for binding a whole dependency inside a workflow.
+/// </summary>
+/// <remarks>
+/// Use this token when a workflow needs the dependency itself rather than a value projected from
+/// that dependency.
+/// </remarks>
+/// <typeparam name="dep">The dependency type to read from the environment.</typeparam>
+/// <example>
+/// <code lang="fsharp">
+/// let chooseClock : Flow&lt;ClockCaps, string, IClock&gt; =
+///     flow {
+///         let! clock = Env&lt;IClock&gt;
+///         return clock
+///     }
+/// </code>
+/// </example>
+type Env<'dep> =
+    | Env of unit
+
+/// <summary>
+/// Request token for projecting a value from a dependency.
+/// </summary>
+/// <remarks>
+/// Builders read the dependency from the environment, apply the projection, and then reuse the
+/// existing lift/bind behavior for the projected value.
+/// </remarks>
+/// <typeparam name="dep">The dependency type to read from the environment.</typeparam>
+/// <typeparam name="value">The projected value type.</typeparam>
+/// <example>
+/// <code lang="fsharp">
+/// let chooseTodo : TaskFlow&lt;ChooseTodoCaps, string, int&gt; =
+///     taskFlow {
+///         let! index = Env&lt;IRandom&gt; (fun random -&gt; random.NextInt 0 10)
+///         return index
+///     }
+/// </code>
+/// </example>
+type Env<'dep, 'value> =
+    | Env of ('dep -> 'value)
+
 module private ResultFlow =
     let map
         (mapper: 'value -> 'next)

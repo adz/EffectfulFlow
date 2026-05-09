@@ -7,7 +7,7 @@ Keep live product and architecture direction in `dev-docs/PLAN.md`.
 
 The numbered items below are intentionally linear so the ralph loop can move through them one at a time.
 
-1. [ ] Add the core CAPS primitives:
+1. [x] Add the core CAPS primitives:
    introduce public `Needs<'dep>`, `Env<'dep>`, and `Env<'dep, 'value>` types in the FsFlow package,
    with XML doc comments and examples that match `dev-docs/CAPS_PLAN.md`; keep the names available
    from the normal `open FsFlow` surface; add focused tests for the primitive shapes and public type
