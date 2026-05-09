@@ -1,6 +1,6 @@
 ---
 title: Using FsFlow CAPS
-description: This page shows how to model explicit capability boundaries in FsFlow with `Needs<'dep>` and `Env<'dep>`.
+description: This page shows how to model explicit capability boundaries in FsFlow with `Needs<'dep>`, `Env<'dep>`, and `Env<'dep, 'value>`.
 ---
 
 # Using FsFlow CAPS
@@ -8,6 +8,8 @@ description: This page shows how to model explicit capability boundaries in FsFl
 This page shows how to keep a flow honest about the dependencies it needs, without passing a full application runtime everywhere.
 
 FsFlow CAPS are named capability sets built on `Needs<'dep>`. They let a workflow say "I need a store and a clock" instead of "I take whatever the whole app happens to provide."
+
+Use `Env<'dep>` when the workflow needs the dependency itself, and `Env<'dep, 'value>` when it needs a projected value from that dependency.
 
 The code snippets below are illustrative. `IUserStore`, `IClock`, `ILogger`, and the cap-set interfaces are application-specific types that show the intended shape of the API.
 

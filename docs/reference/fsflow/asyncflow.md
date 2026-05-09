@@ -16,9 +16,15 @@ type AsyncFlow<'env, 'error, 'value>
 
 
 
-## Constructors
+## Definitions
 
-- `AsyncFlow of ('env -> Async<Result<'value, 'error>>)` [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L26)
+### `type AsyncFlow<'env, 'error, 'value>`
+
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L24)
+
+### `type AsyncFlow<'env, 'error, 'value> with static member CapabilityService (projection: 'env -> 'service) : AsyncFlow<'env, 'error, 'service>`
+
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L260)
 
 ## Information
 

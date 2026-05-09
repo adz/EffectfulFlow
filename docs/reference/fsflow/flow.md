@@ -16,9 +16,15 @@ type Flow<'env, 'error, 'value>
 
 
 
-## Constructors
+## Definitions
 
-- `Flow of ('env -> Result<'value, 'error>)` [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L15)
+### `type Flow<'env, 'error, 'value>`
+
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L13)
+
+### `type Flow<'env, 'error, 'value> with static member CapabilityService (projection: 'env -> 'service) : Flow<'env, 'error, 'service>`
+
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L229)
 
 ## Information
 

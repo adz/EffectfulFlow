@@ -80,85 +80,71 @@ let fetchResponse : TaskFlow<RuntimeContext<RuntimeServices, AppEnv>, AppError, 
 
 Use this shape when operational concerns and app dependencies deserve different lifetimes or ownership.
 
-## Interface-Based Capability Environments
+## Named Cap Sets (CAPS)
 
-Another option is to describe capabilities through interfaces. This is particularly 
-useful when the environment needs to satisfy multiple contracts simultaneously.
-
-In F#, when an argument must implement multiple interfaces, you use **explicit generic 
-constraints** on the type parameter list. Accessing members from these interfaces 
-often requires an explicit upcast or a small inline helper.
+When the boundary itself should name the capability contract, use CAPS instead of ad hoc
+interface constraints.
 
 ```fsharp
-type IHasGateway =
-    abstract Gateway: IPingGateway
+open System
+open FsFlow
 
-type IHasAttempts =
-    abstract AttemptCount: int ref
+type IClock =
+    abstract UtcNow: unit -> DateTimeOffset
 
-type IHasLog =
+type ILogger =
     abstract Log: string -> unit
 
-// Use explicit constraints on the 'env type parameter
-let fetchResponse<'env
-    when 'env :> IHasGateway
-     and 'env :> IHasAttempts
-     and 'env :> IHasLog>
-    (plan: RequestPlan)
-    (env: 'env)
-    =
-    task {
-        // Upcast to access specific interface members
-        let gateway = (env :> IHasGateway).Gateway
-        let attempts = (env :> IHasAttempts).AttemptCount
-        let log = (env :> IHasLog).Log
+type LoginCaps =
+    inherit Needs<IClock>
+    inherit Needs<ILogger>
+    abstract Clock : IClock
+    abstract Logger : ILogger
 
-        log (sprintf "gateway call attempt=%d url=%s" (attempts.Value + 1) plan.Url)
-        return! gateway.Ping(plan, CancellationToken.None)
+type LoginRuntime =
+    { ClockService: IClock
+      LoggerService: ILogger }
+
+    interface LoginCaps with
+        member x.Clock = x.ClockService
+        member x.Logger = x.LoggerService
+
+    interface Needs<IClock> with
+        member x.Dep = x.ClockService
+
+    interface Needs<ILogger> with
+        member x.Dep = x.LoggerService
+
+let login : TaskFlow<#LoginCaps, AppError, unit> =
+    taskFlow {
+        let! clock = Env<IClock>
+        let! now = Env<IClock> _.UtcNow
+        do! Env<ILogger> (fun log -> log.Log $"Starting login at {now}")
+        return ()
     }
 ```
 
-Or, more concisely, you can use **inline helpers** to project the capabilities:
-
-```fsharp
-let inline gateway (env: #IHasGateway) = env.Gateway
-let inline attempts (env: #IHasAttempts) = env.AttemptCount
-let inline log (env: #IHasLog) = env.Log
-
-let fetchResponse plan env =
-    task {
-        let g = gateway env
-        let a = attempts env
-        let l = log env
-        // ...
-    }
-```
-
-This style allows you to pass any object (including a custom record or a class) 
-that implements all required interfaces.
-
-## Where Interface Slicing Helps
-
-Interface-based slicing is useful when:
+This style works when:
 
 - several application environments should satisfy the same capability contract
-- you already have infrastructure dependencies expressed as interfaces
-- you want module boundaries to talk in terms of capabilities rather than record fields
+- you want public boundaries to accept larger runtimes without exact type matches
+- the workflow should read like a named use case, not a raw environment shim
+
+For record-shaped projections or a small local seam, `localEnv` is still the simplest option.
 
 ## Where Record Slicing Helps
 
 Record-based slicing is useful when:
 
 - you want straightforward code and predictable compiler errors
-- you want to teach the library without SRTP or flexible-type syntax
 - most flows live inside one application and only need projection from a larger env
 - `localEnv` already gives you the composition step cleanly
 
 ## Capabilities and Service Discovery
 
-For complex applications, FsFlow provides a structured way to manage dependencies through
-the `Capability` module. This lets you keep the projection logic separate from the workflow
-body while still staying explicit about the environment shape.
+For complex applications, FsFlow provides a structured way to manage record projections and
+service-provider interop through the `Capability` module. Keep this as an edge helper; use
+named cap sets for the primary public dependency boundary.
 
 ```fsharp
 type ILogger = abstract Log : string -> unit

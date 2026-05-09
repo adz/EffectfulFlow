@@ -21,6 +21,8 @@ This package groups the synchronous, async, and task workflow families plus the 
 - `Guard` for bindable check-like sources and error remapping
 - `Validation` for accumulated diagnostics
 - the `result {}` builder for fail-fast orchestration over standard `Result` values
+- the CAPS request tokens `Needs<'dep>` and `Env<'dep>` / `Env<'dep, 'value>` for named
+  capability boundaries
 - support types that shape runtime logging and retry behavior
 - the `flow {}`, `asyncFlow {}`, `taskFlow {}`, `result {}`, and `validate {}` entry points
 

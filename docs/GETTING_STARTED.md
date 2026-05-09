@@ -232,6 +232,11 @@ When task work has separate runtime services from application capabilities, use
 `RuntimeContext<'runtime, 'env>` and the `TaskFlow.readRuntime`, `TaskFlow.read`, or `Capability`
 helpers from the task surface.
 
+When the application capability boundary itself deserves a name, define a cap set with
+`Needs<'dep>` and read it with `Env<'dep>` or `Env<'dep, 'value>`. Public task boundaries can
+stay flexible with shapes like `TaskFlow<#LoginCaps, _, _>` so a larger runtime still satisfies
+the smaller workflow contract.
+
 ## 9. Compose Upward, Not Sideways
 
 The computation families are ordered by runtime commitment, but `AsyncFlow` and `TaskFlow` are sibling async boundaries:

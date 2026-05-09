@@ -206,9 +206,13 @@ const pageSpecs = [
     title: 'Capability',
     description: 'Source-documented capabilities and layers for FsFlow.',
     intro:
-      'This page shows the source-documented capability and layer surface, used for dependency injection and environment management in task workflows.',
+      'This page shows the source-documented capability and layer surface, including the CAPS request tokens, named capability helpers, and layer composition used for environment management in task workflows.',
     sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/TaskFlow.fs'],
     sections: [
+      {
+        title: 'CAPS tokens',
+        symbols: ['type:Needs', 'type:Env'],
+      },
       {
         title: 'Capabilities',
         symbols: ['module:Capability', 'MissingCapability', 'Capability.service', 'Capability.runtime', 'Capability.environment', 'Capability.serviceFromProvider'],
@@ -550,21 +554,25 @@ function makeSourceLink(filePath, line) {
   return `${githubBase}/${relPath}#L${line}`;
 }
 
-function resolveSymbolDoc(symbols, qualifiedName, kindHint) {
+function resolveSymbolDocs(symbols, qualifiedName, kindHint) {
   const docs = symbols.get(qualifiedName);
   if (!docs || docs.length === 0) {
-    return null;
+    return [];
   }
 
   if (kindHint) {
-    return docs.find((doc) => doc.kind === kindHint) ?? null;
+    return docs.filter((doc) => doc.kind === kindHint);
   }
 
   if (docs.length === 1) {
-    return docs[0];
+    return docs;
   }
 
-  return docs.find((doc) => doc.kind === 'module') ?? docs.find((doc) => doc.kind === 'type') ?? docs[0];
+  return [docs.find((doc) => doc.kind === 'module') ?? docs.find((doc) => doc.kind === 'type') ?? docs[0]];
+}
+
+function resolveSymbolDoc(symbols, qualifiedName, kindHint) {
+  return resolveSymbolDocs(symbols, qualifiedName, kindHint)[0] ?? null;
 }
 
 function renderFunctionPage(spec, symbolRef, symbolsByFile, pageIndex, currentPagePath) {
@@ -572,12 +580,14 @@ function renderFunctionPage(spec, symbolRef, symbolsByFile, pageIndex, currentPa
   const [kindHint, qualifiedName] = symbolWithKind.includes(':') ? symbolWithKind.split(':', 2) : [null, symbolWithKind];
   
   let doc = null;
+  let docs = [];
   const searchFiles = sourceAlias ? [sourceAlias] : spec.sourceFiles;
   for (const filePath of searchFiles) {
     const fullPath = path.resolve(repoRoot, filePath);
     const symbols = symbolsByFile.get(fullPath);
     if (symbols) {
-      doc = resolveSymbolDoc(symbols, qualifiedName, kindHint);
+      docs = resolveSymbolDocs(symbols, qualifiedName, kindHint);
+      doc = docs[0] ?? null;
       if (doc) break;
     }
   }
@@ -592,6 +602,7 @@ function renderFunctionPage(spec, symbolRef, symbolsByFile, pageIndex, currentPa
     ? resolveModuleOrTypePagePath(pageIndex, qualifiedName, currentPagePath, kindHint)
     : null;
   const constructors = kindHint === 'type' ? extractTypeConstructors(doc.filePath, doc.line) : [];
+  const isMultiType = kindHint === 'type' && docs.length > 1;
 
   let content = `---
 title: ${shortName}
@@ -608,7 +619,27 @@ ${doc.remarks ? `## Remarks\n\n${doc.remarks}\n` : ''}
 
 `;
 
-  if (constructors.length > 0) {
+  if (kindHint === 'type' && docs.length > 1) {
+    content += `## Definitions\n\n`;
+    for (const variant of docs) {
+      content += `### \`${variant.signature}\`\n\n`;
+      if (variant.summary && variant.summary !== doc.summary) {
+        content += `${variant.summary}\n\n`;
+      }
+      if (variant.remarks && variant.remarks !== doc.remarks) {
+        content += `${variant.remarks}\n\n`;
+      }
+      if (variant.examples && variant.examples.length > 0) {
+        content += `#### Examples\n\n`;
+        for (const example of variant.examples) {
+          content += `${example}\n\n`;
+        }
+      }
+      content += `- **Source**: [source](${makeSourceLink(variant.filePath, variant.line)})\n\n`;
+    }
+  }
+
+  if (!isMultiType && constructors.length > 0) {
     content += `## Constructors\n\n`;
     for (const ctor of constructors) {
       content += `- \`${ctor.signature}\` [source](${makeSourceLink(doc.filePath, ctor.line)})\n`;
@@ -635,7 +666,7 @@ ${doc.remarks ? `## Remarks\n\n${doc.remarks}\n` : ''}
 
 `;
 
-  if (doc.examples && doc.examples.length > 0) {
+  if (!isMultiType && doc.examples && doc.examples.length > 0) {
     content += `## Examples\n\n`;
     for (const example of doc.examples) {
       content += `${example}\n\n`;

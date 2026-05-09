@@ -807,11 +807,15 @@ module TaskFlowSpec =
         spec.Build ()
         |> TaskFlow.run context cancellationToken
 
-/// <summary>Capability helpers for record-based environments and .NET service-provider interop.</summary>
+/// <summary>Capability helpers for record projections, runtime adapters, and .NET service-provider interop.</summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module Capability =
     /// <summary>Reads a capability from a record-based environment projection.</summary>
+    /// <remarks>
+    /// Use this at the edge when a workflow already has a record-shaped environment and only
+    /// needs one field, not a full cap-set boundary.
+    /// </remarks>
     let inline service (projection: 'env -> 'service) : ^flow
         when ^flow : (static member CapabilityService : ('env -> 'service) -> ^flow) =
         (^flow : (static member CapabilityService : ('env -> 'service) -> ^flow) projection)

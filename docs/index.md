@@ -63,6 +63,7 @@ The home page should stay compact. These links cover the most common follow-ups:
 
 - `GETTING_STARTED` for the quickest path into a real app boundary.
 - `VALIDATE_AND_RESULT` for the validation-first workflow.
+- `CAPS` for named capability boundaries with `Needs<'dep>` and `Env<'dep>`.
 - `TASK_ASYNC_INTEROP` for `Async`, `Task`, `ValueTask`, and `ColdTask` interop.
 - `examples/README` for runnable examples.
 - `INTEGRATIONS` for the library map around FsFlow.

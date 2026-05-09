@@ -67,33 +67,46 @@ module RetryPolicy =
           Delay = fun _ -> TimeSpan.Zero
           ShouldRetry = fun _ -> true }
 
-/// <summary>
-/// Describes a fine-grained capability contract for a single dependency.
-/// </summary>
+/// <summary>Describes the capability contract for a single dependency.</summary>
 /// <remarks>
-/// Cap-set interfaces implement this contract once and expose the dependency through a named
-/// member. Workflow builders can then read the dependency from any environment that implements
-/// the relevant <c>Needs&lt;'dep&gt;</c> interface.
+/// Named cap-set interfaces inherit this contract once and then expose the dependency through a
+/// member such as <c>Clock</c> or <c>Logger</c>. Workflow builders can accept any environment
+/// that implements <c>Needs&lt;'dep&gt;</c>, which lets larger runtimes satisfy smaller
+/// boundaries.
 /// </remarks>
 /// <typeparam name="dep">The dependency type exposed by the environment.</typeparam>
+/// <example>
+/// <code>
+/// type IClock =
+///     abstract UtcNow : unit -&gt; DateTimeOffset
+///
+/// type ClockCaps =
+///     inherit Needs&lt;IClock&gt;
+///     abstract Clock : IClock
+/// </code>
+/// </example>
 type Needs<'dep> =
     abstract Dep : 'dep
 
-/// <summary>
-/// Request token for binding a whole dependency inside a workflow.
-/// </summary>
+/// <summary>Request token for binding a whole dependency inside a workflow.</summary>
 /// <remarks>
 /// Use this token when a workflow needs the dependency itself rather than a value projected from
-/// that dependency.
+/// that dependency. The <c>flow {}</c>, <c>asyncFlow {}</c>, and <c>taskFlow {}</c> builders
+/// read it from any environment that implements <c>Needs&lt;'dep&gt;</c>.
 /// </remarks>
 /// <typeparam name="dep">The dependency type to read from the environment.</typeparam>
 /// <example>
-/// <code lang="fsharp">
-/// let chooseClock : Flow&lt;ClockCaps, string, IClock&gt; =
-///     let request : Env&lt;IClock&gt; = Unchecked.defaultof&lt;_&gt;
+/// <code>
+/// type IClock =
+///     abstract UtcNow : unit -&gt; DateTimeOffset
 ///
+/// type ClockCaps =
+///     inherit Needs&lt;IClock&gt;
+///     abstract Clock : IClock
+///
+/// let readClock : Flow&lt;#ClockCaps, unit, IClock&gt; =
 ///     flow {
-///         let! clock = request
+///         let! clock = Env&lt;IClock&gt;
 ///         return clock
 ///     }
 /// </code>
@@ -102,21 +115,28 @@ type Needs<'dep> =
 type Env<'dep> =
     | Env
 
-/// <summary>
-/// Request token for projecting a value from a dependency.
-/// </summary>
+/// <summary>Request token for projecting a value from a dependency.</summary>
 /// <remarks>
 /// Builders read the dependency from the environment, apply the projection, and then reuse the
-/// existing lift/bind behavior for the projected value.
+/// existing lift/bind behavior for the projected value. If the projection returns a
+/// <c>Result</c>, <c>Async</c>, <c>Task</c>, <c>ValueTask</c>, <c>ColdTask</c>, <c>option</c>, or
+/// <c>voption</c>, the existing workflow rules still apply.
 /// </remarks>
 /// <typeparam name="dep">The dependency type to read from the environment.</typeparam>
 /// <typeparam name="value">The projected value type.</typeparam>
 /// <example>
-/// <code lang="fsharp">
-/// let chooseTodo : TaskFlow&lt;ChooseTodoCaps, string, int&gt; =
+/// <code>
+/// type IClock =
+///     abstract UtcNow : unit -&gt; DateTimeOffset
+///
+/// type ClockCaps =
+///     inherit Needs&lt;IClock&gt;
+///     abstract Clock : IClock
+///
+/// let readClockNow : TaskFlow&lt;#ClockCaps, unit, DateTimeOffset&gt; =
 ///     taskFlow {
-///         let! index = Env&lt;IRandom&gt; (fun random -&gt; random.NextInt 0 10)
-///         return index
+///         let! now = Env&lt;IClock&gt; _.UtcNow
+///         return now
 ///     }
 /// </code>
 /// </example>

@@ -8,7 +8,7 @@ description: This page shows how to optimize FsFlow usage for AI assistants like
 This page is designed for both human developers and their AI assistants. It provides a high-signal reference for idiomatic FsFlow patterns.
 
 :::tip For AI Agents
-If you are an AI assistant, prioritize the patterns in the **Rosetta Stone** and **Smart Binds** sections below.
+If you are an AI assistant, prioritize the patterns in the **CAPS Boundaries** and **Rosetta Stone** sections below.
 :::
 
 ## The Golden Path
@@ -57,7 +57,20 @@ Use `Guard.MapError` when the source already carries a meaningful error value.
 ### 4. Same-Family Fallbacks
 Use `orElse` and `orElseWith` for alternate computations in the same flow family.
 
-### 3. Rosetta Stone
+### 5. CAPS Boundaries
+
+Use CAPS when the boundary should name a capability contract instead of exposing the whole runtime.
+
+| Boundary Shape | Idiomatic Pattern |
+| :--- | :--- |
+| Named contract | `type LoginCaps = inherit Needs<IClock>` |
+| Whole dependency | `let! clock = Env<IClock>` |
+| Projected value | `let! now = Env<IClock> _.UtcNow` |
+| Flexible public API | `let login : TaskFlow<#LoginCaps, _, _> = ...` |
+
+Prefer this over raw `IServiceProvider` lookup or exact runtime types when callers may provide a larger app runtime.
+
+### 6. Rosetta Stone
 Translate common patterns from other libraries into idiomatic FsFlow.
 
 | If you use... | Do this in FsFlow |

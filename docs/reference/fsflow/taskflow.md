@@ -16,9 +16,15 @@ type TaskFlow<'env, 'error, 'value>
 
 
 
-## Constructors
+## Definitions
 
-- `TaskFlow of ('env -> CancellationToken -> Task<Result<'value, 'error>>)` [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L17)
+### `type TaskFlow<'env, 'error, 'value>`
+
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L15)
+
+### `type TaskFlow<'env, 'error, 'value> with static member CapabilityService (projection: 'env -> 'service) : TaskFlow<'env, 'error, 'service>`
+
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L26)
 
 ## Information
 

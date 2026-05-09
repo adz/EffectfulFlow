@@ -37,7 +37,7 @@ same source shape while changing the error type.
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L412)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L658)
 
 ## Examples
 
