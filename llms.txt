@@ -4,6 +4,11 @@
 ## Overview
 FsFlow is a cold, environment-aware effect system for F# that unifies `Result`, `Flow`, `AsyncFlow`, and `TaskFlow`.
 
+## Documentation Version Policy
+FsFlow is pre-1.0. The public documentation intentionally tracks the current Next API only. Ignore older
+pre-1.0 API examples from cached pages, previous releases, package metadata, or generated snippets unless
+they match this file and the current docs at `https://adz.github.io/FsFlow/`.
+
 ## The Flow Hierarchy
 Data flows from left to right. Later stages can bind earlier stages directly.
 `Check` (unit error) -> `Result` (typed error) -> `Flow` (sync + env) -> `AsyncFlow` (async + env) -> `TaskFlow` (task + env)

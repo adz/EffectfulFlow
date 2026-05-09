@@ -65,10 +65,6 @@ const config = {
           position: 'left',
         },
         {
-          type: 'docsVersionDropdown',
-          position: 'left',
-        },
-        {
           href: 'https://github.com/adz/FsFlow',
           label: 'GitHub',
           position: 'right',

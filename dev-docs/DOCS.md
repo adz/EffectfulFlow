@@ -16,9 +16,9 @@ Write for pragmatic F# devs solving dependency, async, and typed-failure problem
 ## Docusaurus workflow
 
 - Next docs live in `/docs`.
-- Released docs live in `/site/versioned_docs/version-<number>/`.
-- Keep Next and the relevant versioned snapshot in sync when a change applies to both.
-- Sidebars live in `/site/sidebars.js` and `/site/versioned_sidebars/version-0.3.0-sidebars.json`.
+- Pre-1.0 docs publish only Next. Do not keep or publish pre-1.0 versioned snapshots.
+- Start `/site/versioned_docs/version-<number>/` snapshots again at 1.0, when compatibility policy becomes SemVer-based.
+- Sidebars live in `/site/sidebars.js`; versioned sidebars should not exist before 1.0.
 - The site uses Docusaurus with a versioning plugin.
 
 ## Docs Source Of Truth
@@ -52,10 +52,10 @@ Do not hand-edit the generated API member pages unless you are fixing a generate
 
 Run `bash scripts/preview-docs.sh` for a local live-reload server at `http://localhost:3000`.
 
-For a new docs version:
+For a new docs version after 1.0:
 
 1. Ensure `/docs` is current.
-2. Run `cd site && npm run version 0.4.0`.
+2. Run `cd site && npm run version 1.0.0`.
 3. That creates a new snapshot in `versioned_docs`.
 
 ## Documentation rules
