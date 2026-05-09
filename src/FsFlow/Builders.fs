@@ -68,6 +68,80 @@ type FlowBuilder() =
 
     member _.Bind
         (
+            request: Env<'dep, 'value>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            binder (project dependency)
+            |> Flow.run environment)
+
+    member _.Bind
+        (
+            request: Env<'dep, Flow<'env, 'error, 'value>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> Flow.bind binder
+            |> Flow.run environment)
+
+    member _.Bind
+        (
+            request: Env<'dep, Result<'value, 'error>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> Flow.fromResult
+            |> Flow.bind binder
+            |> Flow.run environment)
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value option>,
+            binder: 'value -> Flow<'env, unit, 'next>
+        ) : Flow<'env, unit, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> OptionFlow.toUnitResult
+            |> Flow.fromResult
+            |> Flow.bind binder
+            |> Flow.run environment)
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value voption>,
+            binder: 'value -> Flow<'env, unit, 'next>
+        ) : Flow<'env, unit, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> OptionFlow.toUnitResultValueOption
+            |> Flow.fromResult
+            |> Flow.bind binder
+            |> Flow.run environment)
+
+    member _.Bind
+        (
             result: Result<'value, 'error>,
             binder: 'value -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next> =
@@ -246,6 +320,128 @@ type AsyncFlowBuilder() =
                 let _dependency = (environment :> Needs<'dep>).Dep
 
                 return! AsyncFlow.run environment (binder ())
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! AsyncFlow.run environment (binder (project dependency))
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Flow<'env, 'error, 'value>>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! AsyncFlow.run environment (project dependency |> AsyncFlow.fromFlow |> AsyncFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, AsyncFlow<'env, 'error, 'value>>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! AsyncFlow.run environment (project dependency |> AsyncFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Async<'value>>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! AsyncFlow.run environment (project dependency |> AsyncFlow.fromAsync |> AsyncFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Async<Result<'value, 'error>>>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! AsyncFlow.run environment (project dependency |> AsyncFlow.fromAsyncResult |> AsyncFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Result<'value, 'error>>,
+            binder: 'value -> AsyncFlow<'env, 'error, 'next>
+        ) : AsyncFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! AsyncFlow.run environment (project dependency |> AsyncFlow.fromResult |> AsyncFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value option>,
+            binder: 'value -> AsyncFlow<'env, unit, 'next>
+        ) : AsyncFlow<'env, unit, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return!
+                    AsyncFlow.run environment (
+                        project dependency
+                        |> OptionFlow.toUnitResult
+                        |> AsyncFlow.fromResult
+                        |> AsyncFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value voption>,
+            binder: 'value -> AsyncFlow<'env, unit, 'next>
+        ) : AsyncFlow<'env, unit, 'next>
+        when 'env :> Needs<'dep> =
+        AsyncFlow(fun environment ->
+            async {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return!
+                    AsyncFlow.run environment (
+                        project dependency
+                        |> OptionFlow.toUnitResultValueOption
+                        |> AsyncFlow.fromResult
+                        |> AsyncFlow.bind binder)
             })
 
     member _.Bind

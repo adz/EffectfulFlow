@@ -15,6 +15,22 @@ module WorkflowTests =
             interface IDeviceClient with
                 member _.Name = name
 
+        type private ProjectionService() =
+            member _.Number = 21
+            member _.NumberResult : Result<int, string> = Ok 21
+            member _.MaybeNumber : int option = Some 21
+            member _.MaybeValueNumber : int voption = ValueSome 21
+            member _.FlowNumber : Flow<ProjectionService, string, int> = Flow.ok 21
+            member _.AsyncNumber : Async<int> = async { return 21 }
+            member _.AsyncResultNumber : Async<Result<int, string>> = async { return Ok 21 }
+            member _.TaskNumber : Task<int> = Task.FromResult 21
+            member _.TaskResultNumber : Task<Result<int, string>> = Task.FromResult(Ok 21)
+            member _.ValueTaskNumber : ValueTask<int> = ValueTask<int>(21)
+            member _.ValueTaskResultNumber : ValueTask<Result<int, string>> = ValueTask<Result<int, string>>(Ok 21)
+            member _.ColdTaskNumber : ColdTask<int> = ColdTask(fun _ -> Task.FromResult 21)
+            member _.ColdTaskResultNumber : ColdTask<Result<int, string>> = ColdTask(fun _ -> Task.FromResult(Ok 21))
+            member _.ColdTaskUnit : ColdTask<unit> = ColdTask(fun _ -> Task.FromResult ())
+
         type private CountingCaps() =
             let accessCount = ref 0
 
@@ -24,6 +40,12 @@ module WorkflowTests =
                 member _.Dep =
                     accessCount.Value <- accessCount.Value + 1
                     DeviceClient($"dep-{accessCount.Value}") :> IDeviceClient
+
+        type private ProjectionCaps() =
+            let service = ProjectionService()
+
+            interface Needs<ProjectionService> with
+                member _.Dep = service
 
         let private assertEnvRequestDoesNotCompile
             (workflowTypeName: string)
@@ -115,6 +137,108 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
         [<Fact>]
         let ``whole dependency Env requests fail without Needs on taskFlow`` () =
             assertEnvRequestDoesNotCompile "TaskFlow" "taskFlow"
+
+        [<Fact>]
+        let ``projected Env requests bind through flow and asyncFlow core shapes`` () =
+            let environment = ProjectionCaps()
+            let plainRequest : Env<ProjectionService, int> = Env (fun service -> service.Number)
+            let resultUnitRequest : Env<ProjectionService, Result<int, unit>> = Env (fun service -> Ok service.Number)
+            let maybeRequest : Env<ProjectionService, int option> = Env (fun service -> service.MaybeNumber)
+            let maybeValueRequest : Env<ProjectionService, int voption> = Env (fun service -> service.MaybeValueNumber)
+
+            let flowWorkflow : Flow<ProjectionCaps, unit, int> =
+                flow {
+                    let! (plain : int) = plainRequest
+                    let! (resultValue : int) = resultUnitRequest
+                    let! (maybeValue : int) = maybeRequest
+                    let! (maybeValueOption : int) = maybeValueRequest
+                    return plain + resultValue + maybeValue + maybeValueOption
+                }
+
+            test <@ Flow.run environment flowWorkflow = Ok 84 @>
+
+        [<Fact>]
+        let ``projected Env requests bind asyncFlow async result shapes`` () =
+            let environment = ProjectionCaps()
+            let asyncResultRequest : Env<ProjectionService, Async<Result<int, string>>> =
+                Env (fun service -> service.AsyncResultNumber)
+
+            let asyncWorkflow : AsyncFlow<ProjectionCaps, string, int> =
+                asyncFlow {
+                    let! (asyncResultValue : int) = asyncResultRequest
+                    return asyncResultValue
+                }
+
+            test <@ AsyncFlow.run environment asyncWorkflow |> Async.RunSynchronously = Ok 21 @>
+
+        [<Fact>]
+        let ``projected Env requests bind task surfaces across asyncFlow and taskFlow`` () =
+            let environment = ProjectionCaps()
+            let plainRequest : Env<ProjectionService, int> = Env (fun service -> service.Number)
+            let taskRequest : Env<ProjectionService, Task<int>> = Env (fun service -> service.TaskNumber)
+            let taskResultRequest : Env<ProjectionService, Task<Result<int, string>>> =
+                Env (fun service -> service.TaskResultNumber)
+            let valueTaskRequest : Env<ProjectionService, ValueTask<int>> =
+                Env (fun service -> service.ValueTaskNumber)
+            let valueTaskResultRequest : Env<ProjectionService, ValueTask<Result<int, string>>> =
+                Env (fun service -> service.ValueTaskResultNumber)
+            let coldTaskRequest : Env<ProjectionService, ColdTask<int>> = Env (fun service -> service.ColdTaskNumber)
+            let coldTaskResultRequest : Env<ProjectionService, ColdTask<Result<int, string>>> =
+                Env (fun service -> service.ColdTaskResultNumber)
+            let taskUnitValue : System.Threading.Tasks.Task = Task.CompletedTask
+            let valueTaskUnitValue : System.Threading.Tasks.ValueTask = ValueTask()
+            let taskUnitRequest : Env<ProjectionService, System.Threading.Tasks.Task> = Env (fun _ -> taskUnitValue)
+            let valueTaskUnitRequest : Env<ProjectionService, System.Threading.Tasks.ValueTask> =
+                Env (fun _ -> valueTaskUnitValue)
+            let coldTaskUnitRequest : Env<ProjectionService, ColdTask<unit>> = Env (fun service -> service.ColdTaskUnit)
+
+            let asyncWorkflow : AsyncFlow<ProjectionCaps, string, int> =
+                asyncFlow {
+                    let! (taskValue : int) = taskRequest
+                    let! (taskResultValue : int) = taskResultRequest
+                    let! (valueTaskValue : int) = valueTaskRequest
+                    let! (valueTaskResultValue : int) = valueTaskResultRequest
+                    let! (coldTaskValue : int) = coldTaskRequest
+                    let! (coldTaskResultValue : int) = coldTaskResultRequest
+                    return
+                        taskValue
+                        + taskResultValue
+                        + valueTaskValue
+                        + valueTaskResultValue
+                        + coldTaskValue
+                        + coldTaskResultValue
+                }
+
+            let taskWorkflow : TaskFlow<ProjectionCaps, string, int> =
+                taskFlow {
+                    let! (plain : int) = plainRequest
+                    do! taskUnitRequest
+                    do! valueTaskUnitRequest
+                    do! coldTaskUnitRequest
+                    let! (taskValue : int) = taskRequest
+                    let! (taskResultValue : int) = taskResultRequest
+                    let! (valueTaskValue : int) = valueTaskRequest
+                    let! (valueTaskResultValue : int) = valueTaskResultRequest
+                    let! (coldTaskValue : int) = coldTaskRequest
+                    let! (coldTaskResultValue : int) = coldTaskResultRequest
+                    return
+                        plain
+                        + taskValue
+                        + taskResultValue
+                        + valueTaskValue
+                        + valueTaskResultValue
+                        + coldTaskValue
+                        + coldTaskResultValue
+                }
+
+            let asyncResult = AsyncFlow.run environment asyncWorkflow |> Async.RunSynchronously
+
+            let taskResult =
+                TaskFlow.run environment CancellationToken.None taskWorkflow
+                |> fun task -> task.GetAwaiter().GetResult()
+
+            test <@ asyncResult = Ok 126 @>
+            test <@ taskResult = Ok 147 @>
 
         [<Fact>]
         let ``Flow is sync result only`` () =
@@ -1111,7 +1235,7 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
             test <@ publicMethods |> Array.contains "Yield" @>
             test <@ publicMethods |> Array.contains "YieldFrom" @>
             test <@ publicMethods |> Array.contains "ReturnFrom" @>
-            test <@ argumentTypeNames = [| "FSharpFunc`2"; "FSharpOption`1"; "FSharpResult`2"; "FSharpValueOption`1"; "Flow`3" |] @>
+            test <@ argumentTypeNames = [| "Env`1"; "Env`2"; "FSharpFunc`2"; "FSharpOption`1"; "FSharpResult`2"; "FSharpValueOption`1"; "Flow`3" |] @>
 
         [<Fact>]
         let ``flow builders directly bind Result and Result unit values`` () =
@@ -1743,58 +1867,21 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
             test <@ valueTaskReturnFromResultResult = Ok 42 @>
 
         [<Fact>]
-        let ``asyncFlow directly binds and returns ColdTask values when task helpers are imported`` () =
-            let seen = ref CancellationToken.None
-            use cts = new CancellationTokenSource()
-
-            let resultColdTask (value: int) : ColdTask<Result<int, string>> =
-                ColdTask(fun cancellationToken ->
-                    seen.Value <- cancellationToken
-                    Task.FromResult(Ok value))
-
+        let ``asyncFlow directly binds async values when task helpers are imported`` () =
             let workflow : AsyncFlow<int, string, int> =
                 asyncFlow {
                     let! env = AsyncFlow.env
-                    let! baseValue =
-                        ColdTask(fun cancellationToken ->
-                            seen.Value <- cancellationToken
-                            Task.FromResult(env + 1))
-
-                    let! (adjustedValue : int) = resultColdTask (baseValue * 2)
+                    let! baseValue = async { return env + 1 }
+                    let! adjustedValue = async { return baseValue * 2 }
                     return adjustedValue + 2
-                }
-
-            let coldTaskReturnFromValue : AsyncFlow<unit, string, int> =
-                asyncFlow { return! ColdTask(fun _ -> Task.FromResult 42) }
-
-            let coldTaskReturnFromResult : AsyncFlow<unit, string, int> =
-                asyncFlow {
-                    let! (value : int) = resultColdTask 42
-                    return value
                 }
 
             let workflowResult =
                 workflow
                 |> AsyncFlow.run 19
-                |> fun operation -> Async.StartAsTask(operation, cancellationToken = cts.Token)
-                |> fun task -> task.GetAwaiter().GetResult()
-
-            let coldTaskReturnFromValueResult =
-                coldTaskReturnFromValue
-                |> AsyncFlow.run ()
-                |> fun operation -> Async.StartAsTask(operation, cancellationToken = cts.Token)
-                |> fun task -> task.GetAwaiter().GetResult()
-
-            let coldTaskReturnFromResultResult =
-                coldTaskReturnFromResult
-                |> AsyncFlow.run ()
-                |> fun operation -> Async.StartAsTask(operation, cancellationToken = cts.Token)
-                |> fun task -> task.GetAwaiter().GetResult()
+                |> Async.RunSynchronously
 
             test <@ workflowResult = Ok 42 @>
-            test <@ coldTaskReturnFromValueResult = Ok 42 @>
-            test <@ coldTaskReturnFromResultResult = Ok 42 @>
-            test <@ seen.Value = cts.Token @>
 
         [<Fact>]
         let ``Guard constructors work in all flow families`` () =

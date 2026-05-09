@@ -943,6 +943,184 @@ type TaskFlowBuilder() =
 
     member _.Bind
         (
+            request: Env<'dep, 'value>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (binder (project dependency))
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Result<'value, 'error>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (TaskFlow(fun _ _ -> Task.FromResult(project dependency)) |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value option>,
+            binder: 'value -> TaskFlow<'env, unit, 'next>
+        ) : TaskFlow<'env, unit, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return!
+                    TaskFlow.run environment cancellationToken (
+                        project dependency
+                        |> OptionFlow.toUnitResult
+                        |> TaskFlow.fromResult
+                        |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, 'value voption>,
+            binder: 'value -> TaskFlow<'env, unit, 'next>
+        ) : TaskFlow<'env, unit, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return!
+                    TaskFlow.run environment cancellationToken (
+                        project dependency
+                        |> OptionFlow.toUnitResultValueOption
+                        |> TaskFlow.fromResult
+                        |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Flow<'env, 'error, 'value>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (project dependency |> TaskFlow.fromFlow |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, AsyncFlow<'env, 'error, 'value>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (project dependency |> TaskFlow.fromAsyncFlow |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, TaskFlow<'env, 'error, 'value>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (project dependency |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Async<'value>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (project dependency |> AsyncFlow.fromAsync |> TaskFlow.fromAsyncFlow |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Async<Result<'value, 'error>>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (project dependency |> AsyncFlow.fromAsyncResult |> TaskFlow.fromAsyncFlow |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, Task<Result<'value, 'error>>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (TaskFlow(fun _ _ -> project dependency) |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, ValueTask<Result<'value, 'error>>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (TaskFlow(fun _ _ -> (project dependency).AsTask()) |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
+            request: Env<'dep, ColdTask<Result<'value, 'error>>>,
+            binder: 'value -> TaskFlow<'env, 'error, 'next>
+        ) : TaskFlow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        TaskFlow(fun environment cancellationToken ->
+            task {
+                let dependency = (environment :> Needs<'dep>).Dep
+                let (Env project) = request
+
+                return! TaskFlow.run environment cancellationToken (project dependency |> TaskFlow.fromTaskResult |> TaskFlow.bind binder)
+            })
+
+    member _.Bind
+        (
             flow: AsyncFlow<'env, 'error, 'value>,
             binder: 'value -> TaskFlow<'env, 'error, 'next>
         ) : TaskFlow<'env, 'error, 'next> =
@@ -1165,6 +1343,70 @@ module TaskFlowBuilderExtensions =
             |> this.ReturnFrom
             |> TaskFlow.bind binder
 
+        member this.Bind
+            (
+                request: Env<'dep, Task>,
+                binder: unit -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            TaskFlow(fun environment cancellationToken ->
+                task {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        TaskFlow.run environment cancellationToken (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, Task<'value>>,
+                binder: 'value -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            TaskFlow(fun environment cancellationToken ->
+                task {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        TaskFlow.run environment cancellationToken (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, ValueTask>,
+                binder: unit -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            TaskFlow(fun environment cancellationToken ->
+                task {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        TaskFlow.run environment cancellationToken (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, ValueTask<'value>>,
+                binder: 'value -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            TaskFlow(fun environment cancellationToken ->
+                task {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        TaskFlow.run environment cancellationToken (
+                            this.Bind(project dependency, binder))
+                })
+
         member _.ReturnFrom(operation: ColdTask<'value>) : TaskFlow<'env, 'error, 'value> =
             TaskFlow.fromTask operation
 
@@ -1176,6 +1418,22 @@ module TaskFlowBuilderExtensions =
             operation
             |> this.ReturnFrom
             |> TaskFlow.bind binder
+
+        member this.Bind
+            (
+                request: Env<'dep, ColdTask<'value>>,
+                binder: 'value -> TaskFlow<'env, 'error, 'next>
+            ) : TaskFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            TaskFlow(fun environment cancellationToken ->
+                task {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        TaskFlow.run environment cancellationToken (
+                            this.Bind(project dependency, binder))
+                })
 
 /// [omit]
 [<AutoOpen>]
@@ -1242,6 +1500,102 @@ module AsyncFlowBuilderExtensions =
             |> this.ReturnFrom
             |> AsyncFlow.bind binder
 
+        member this.Bind
+            (
+                request: Env<'dep, Task>,
+                binder: unit -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, Task<'value>>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, ValueTask>,
+                binder: unit -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, ValueTask<'value>>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, Task<Result<'value, 'error>>>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, ValueTask<Result<'value, 'error>>>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
         member _.ReturnFrom(operation: ColdTask<'value>) : AsyncFlow<'env, 'error, 'value> =
             async {
                 let! cancellationToken = Async.CancellationToken
@@ -1258,6 +1612,38 @@ module AsyncFlowBuilderExtensions =
             operation
             |> this.ReturnFrom
             |> AsyncFlow.bind binder
+
+        member this.Bind
+            (
+                request: Env<'dep, ColdTask<'value>>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
+
+        member this.Bind
+            (
+                request: Env<'dep, ColdTask<Result<'value, 'error>>>,
+                binder: 'value -> AsyncFlow<'env, 'error, 'next>
+            ) : AsyncFlow<'env, 'error, 'next>
+            when 'env :> Needs<'dep> =
+            AsyncFlow(fun environment ->
+                async {
+                    let dependency = (environment :> Needs<'dep>).Dep
+                    let (Env project) = request
+
+                    return!
+                        AsyncFlow.run environment (
+                            this.Bind(project dependency, binder))
+                })
 
         member this.Bind
             (

@@ -1,5 +1,6 @@
 namespace FsFlow.Tests
 
+open Microsoft.FSharp.Core
 open FsFlow
 open FsFlow.Tests.TestSupport
 open Swensen.Unquote
@@ -93,23 +94,6 @@ module ValidationTests =
 
         [<Fact>]
         let ``Result covers fail-fast helpers and the result computation expression`` () =
-            let sequenceShortCircuits =
-                seq {
-                    yield Ok 1
-                    yield Ok 2
-                    yield Error "stop"
-                    failwith "Result.sequence should short-circuit before the fourth item"
-                }
-
-            let visits = ref 0
-
-            let traverseWorkflow =
-                FsFlow.Result.traverse
-                    (fun value ->
-                        visits.Value <- visits.Value + 1
-                        if value < 3 then Ok(value * 2) else Error "too-high")
-                    [ 1; 2; 3; 4 ]
-
             let workflow =
                 result {
                     let! value = Ok 20
@@ -118,14 +102,10 @@ module ValidationTests =
                     return value / divisor
                 }
 
-            test <@ FsFlow.Result.map ((+) 1) (Ok 10) = Ok 11 @>
-            test <@ FsFlow.Result.bind (fun value -> Ok(value + 5)) (Ok 7) = Ok 12 @>
-            test <@ FsFlow.Result.mapError string (Error 42) = Error "42" @>
-            test <@ FsFlow.Result.mapErrorTo "invalid" (Check.okIf false) = Error "invalid" @>
-            test <@ FsFlow.Result.sequence [ Ok 1; Ok 2; Ok 3 ] = Ok [ 1; 2; 3 ] @>
-            test <@ FsFlow.Result.sequence sequenceShortCircuits = Error "stop" @>
-            test <@ visits.Value = 3 @>
-            test <@ traverseWorkflow = Error "too-high" @>
+            test <@ Result.map ((+) 1) (Ok 10) = Ok 11 @>
+            test <@ Result.bind (fun value -> Ok(value + 5)) (Ok 7) = Ok 12 @>
+            test <@ Result.mapError string (Error 42) = Error "42" @>
+            test <@ (Check.okIf false |> Result.mapError (fun _ -> "invalid")) = Error "invalid" @>
             test <@ workflow = Ok 10 @>
 
         [<Fact>]

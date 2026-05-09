@@ -17,7 +17,7 @@ The numbered items below are intentionally linear so the ralph loop can move thr
    continuation, preserve existing cold/restartable semantics, and include tests for success,
    missing/wrong environment compile failures where practical, and parity across all three flow
    families.
-3. [ ] Bind projected `Env<'dep, 'value>` requests in `flow {}`, `asyncFlow {}`, and `taskFlow {}`:
+3. [x] Bind projected `Env<'dep, 'value>` requests in `flow {}`, `asyncFlow {}`, and `taskFlow {}`:
    projection results must reuse the existing direct bind/lift behavior for plain values, `Result`,
    `Flow`, `Async`, `Async<Result<_,_>>`, `Task`, `Task<Result<_,_>>`, `ValueTask`,
    `ValueTask<Result<_,_>>`, `ColdTask`, `ColdTask<Result<_,_>>`, `option` when `error = unit`, and
