@@ -1,7 +1,68 @@
 namespace FsFlow
 
 open System
+open System.Threading
 open System.Threading.Tasks
+
+module private FlowBuilderRuntime =
+    let inline run environment cancellationToken (Flow operation) =
+        operation environment cancellationToken
+
+    let inline fromResult<'env, 'error, 'value> (result: Result<'value, 'error>) : Flow<'env, 'error, 'value> =
+        Flow(fun _ _ -> EffectFlow.ofResult result)
+
+    let inline fromAsync<'env, 'error, 'value> (operation: Async<'value>) : Flow<'env, 'error, 'value> =
+        Flow(fun _ cancellationToken ->
+            ValueTask<Result<'value, 'error>>(
+                task {
+                    let! value = Async.StartAsTask(operation, cancellationToken = cancellationToken)
+                    return Ok value
+                }))
+
+    let inline fromAsyncResult<'env, 'error, 'value>
+        (operation: Async<Result<'value, 'error>>)
+        : Flow<'env, 'error, 'value> =
+        Flow(fun _ cancellationToken ->
+            ValueTask<Result<'value, 'error>>(
+                task {
+                    let! result = Async.StartAsTask(operation, cancellationToken = cancellationToken)
+                    return result
+                }))
+
+    let inline fromTask<'env, 'error, 'value> (operation: Task<'value>) : Flow<'env, 'error, 'value> =
+        Flow(fun _ cancellationToken ->
+            ValueTask<Result<'value, 'error>>(
+                task {
+                    if cancellationToken.IsCancellationRequested then
+                        return! Task.FromCanceled<Result<'value, 'error>>(cancellationToken)
+                    else
+                        let! value = operation
+                        return Ok value
+                }))
+
+    let inline fromTaskResult<'env, 'error, 'value>
+        (operation: Task<Result<'value, 'error>>)
+        : Flow<'env, 'error, 'value> =
+        Flow(fun _ cancellationToken ->
+            ValueTask<Result<'value, 'error>>(
+                task {
+                    if cancellationToken.IsCancellationRequested then
+                        return! Task.FromCanceled<Result<'value, 'error>>(cancellationToken)
+                    else
+                        let! result = operation
+                        return result
+                }))
+
+    let inline fromTaskUnit<'env, 'error> (operation: Task) : Flow<'env, 'error, unit> =
+        Flow(fun _ cancellationToken ->
+            ValueTask<Result<unit, 'error>>(
+                task {
+                    if cancellationToken.IsCancellationRequested then
+                        return! Task.FromCanceled<Result<unit, 'error>>(cancellationToken)
+                    else
+                        do! operation
+                        return Ok ()
+                }))
 
 type FlowBuilder() =
     member _.Return(value: 'value) : Flow<'env, 'error, 'value> =
@@ -16,21 +77,51 @@ type FlowBuilder() =
     member _.YieldFrom(flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
         flow
 
+    member _.YieldFrom(operation: Async<'value>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromAsync operation
+
+    member _.YieldFrom(operation: Async<Result<'value, 'error>>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromAsyncResult operation
+
+    member _.YieldFrom(operation: Task<'value>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromTask operation
+
+    member _.YieldFrom(operation: Task<Result<'value, 'error>>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromTaskResult operation
+
+    member _.YieldFrom(operation: Task) : Flow<'env, 'error, unit> =
+        FlowBuilderRuntime.fromTaskUnit operation
+
     member _.ReturnFrom(flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
         flow
 
+    member _.ReturnFrom(operation: Async<'value>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromAsync operation
+
+    member _.ReturnFrom(operation: Async<Result<'value, 'error>>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromAsyncResult operation
+
+    member _.ReturnFrom(operation: Task<'value>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromTask operation
+
+    member _.ReturnFrom(operation: Task<Result<'value, 'error>>) : Flow<'env, 'error, 'value> =
+        FlowBuilderRuntime.fromTaskResult operation
+
+    member _.ReturnFrom(operation: Task) : Flow<'env, 'error, unit> =
+        FlowBuilderRuntime.fromTaskUnit operation
+
     member _.ReturnFrom(result: Result<'value, 'error>) : Flow<'env, 'error, 'value> =
-        Flow.fromResult result
+        FlowBuilderRuntime.fromResult result
 
     member _.ReturnFrom(option: 'value option) : Flow<'env, unit, 'value> =
         option
         |> OptionFlow.toUnitResult
-        |> Flow.fromResult
+        |> FlowBuilderRuntime.fromResult
 
     member _.ReturnFrom(option: 'value voption) : Flow<'env, unit, 'value> =
         option
         |> OptionFlow.toUnitResultValueOption
-        |> Flow.fromResult
+        |> FlowBuilderRuntime.fromResult
 
     member _.Zero() : Flow<'env, 'error, unit> =
         Flow.ok ()
@@ -44,16 +135,59 @@ type FlowBuilder() =
 
     member _.Bind
         (
+            operation: Async<'value>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next> =
+        operation
+        |> FlowBuilderRuntime.fromAsync
+        |> Flow.bind binder
+
+    member _.Bind
+        (
+            operation: Async<Result<'value, 'error>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next> =
+        operation
+        |> FlowBuilderRuntime.fromAsyncResult
+        |> Flow.bind binder
+
+    member _.Bind
+        (
+            operation: Task<'value>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next> =
+        operation
+        |> FlowBuilderRuntime.fromTask
+        |> Flow.bind binder
+
+    member _.Bind
+        (
+            operation: Task<Result<'value, 'error>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next> =
+        operation
+        |> FlowBuilderRuntime.fromTaskResult
+        |> Flow.bind binder
+
+    member _.Bind
+        (
+            operation: Task,
+            binder: unit -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next> =
+        operation
+        |> FlowBuilderRuntime.fromTaskUnit
+        |> Flow.bind binder
+
+    member _.Bind
+        (
             _request: Env<'dep>,
             binder: 'dep -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let dependency = (environment :> Needs<'dep>).Dep
-
             binder dependency
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -61,12 +195,10 @@ type FlowBuilder() =
             binder: unit -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let _dependency = (environment :> Needs<'dep>).Dep
-
             binder ()
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -74,13 +206,12 @@ type FlowBuilder() =
             binder: 'value -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let dependency = (environment :> Needs<'dep>).Dep
             let (Env project) = request
 
             binder (project dependency)
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -88,14 +219,88 @@ type FlowBuilder() =
             binder: 'value -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let dependency = (environment :> Needs<'dep>).Dep
             let (Env project) = request
 
             project dependency
             |> Flow.bind binder
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
+
+    member _.Bind
+        (
+            request: Env<'dep, Async<'value>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment cancellationToken ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> FlowBuilderRuntime.fromAsync
+            |> Flow.bind binder
+            |> FlowBuilderRuntime.run environment cancellationToken)
+
+    member _.Bind
+        (
+            request: Env<'dep, Async<Result<'value, 'error>>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment cancellationToken ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> FlowBuilderRuntime.fromAsyncResult
+            |> Flow.bind binder
+            |> FlowBuilderRuntime.run environment cancellationToken)
+
+    member _.Bind
+        (
+            request: Env<'dep, Task<'value>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment cancellationToken ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> FlowBuilderRuntime.fromTask
+            |> Flow.bind binder
+            |> FlowBuilderRuntime.run environment cancellationToken)
+
+    member _.Bind
+        (
+            request: Env<'dep, Task<Result<'value, 'error>>>,
+            binder: 'value -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment cancellationToken ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> FlowBuilderRuntime.fromTaskResult
+            |> Flow.bind binder
+            |> FlowBuilderRuntime.run environment cancellationToken)
+
+    member _.Bind
+        (
+            request: Env<'dep, Task>,
+            binder: unit -> Flow<'env, 'error, 'next>
+        ) : Flow<'env, 'error, 'next>
+        when 'env :> Needs<'dep> =
+        Flow(fun environment cancellationToken ->
+            let dependency = (environment :> Needs<'dep>).Dep
+            let (Env project) = request
+
+            project dependency
+            |> FlowBuilderRuntime.fromTaskUnit
+            |> Flow.bind binder
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -103,15 +308,14 @@ type FlowBuilder() =
             binder: 'value -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let dependency = (environment :> Needs<'dep>).Dep
             let (Env project) = request
 
             project dependency
-            |> Flow.fromResult
+            |> FlowBuilderRuntime.fromResult
             |> Flow.bind binder
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -119,16 +323,15 @@ type FlowBuilder() =
             binder: 'value -> Flow<'env, unit, 'next>
         ) : Flow<'env, unit, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let dependency = (environment :> Needs<'dep>).Dep
             let (Env project) = request
 
             project dependency
             |> OptionFlow.toUnitResult
-            |> Flow.fromResult
+            |> FlowBuilderRuntime.fromResult
             |> Flow.bind binder
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -136,16 +339,15 @@ type FlowBuilder() =
             binder: 'value -> Flow<'env, unit, 'next>
         ) : Flow<'env, unit, 'next>
         when 'env :> Needs<'dep> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             let dependency = (environment :> Needs<'dep>).Dep
             let (Env project) = request
 
             project dependency
             |> OptionFlow.toUnitResultValueOption
-            |> Flow.fromResult
+            |> FlowBuilderRuntime.fromResult
             |> Flow.bind binder
-            |> Flow.run environment
-            |> EffectFlow.ofResult)
+            |> FlowBuilderRuntime.run environment cancellationToken)
 
     member _.Bind
         (
@@ -153,7 +355,7 @@ type FlowBuilder() =
             binder: 'value -> Flow<'env, 'error, 'next>
         ) : Flow<'env, 'error, 'next> =
         result
-        |> Flow.fromResult
+        |> FlowBuilderRuntime.fromResult
         |> Flow.bind binder
 
     member _.Bind
@@ -163,7 +365,7 @@ type FlowBuilder() =
         ) : Flow<'env, unit, 'next> =
         option
         |> OptionFlow.toUnitResult
-        |> Flow.fromResult
+        |> FlowBuilderRuntime.fromResult
         |> Flow.bind binder
 
     member _.Bind
@@ -173,7 +375,7 @@ type FlowBuilder() =
         ) : Flow<'env, unit, 'next> =
         option
         |> OptionFlow.toUnitResultValueOption
-        |> Flow.fromResult
+        |> FlowBuilderRuntime.fromResult
         |> Flow.bind binder
 
     member _.Delay(factory: unit -> Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
@@ -195,19 +397,16 @@ type FlowBuilder() =
             flow: Flow<'env, 'error, 'value>,
             handler: exn -> Flow<'env, 'error, 'value>
         ) : Flow<'env, 'error, 'value> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             try
-                Flow.run environment flow
-                |> EffectFlow.ofResult
+                FlowBuilderRuntime.run environment cancellationToken flow
             with error ->
-                Flow.run environment (handler error)
-                |> EffectFlow.ofResult)
+                FlowBuilderRuntime.run environment cancellationToken (handler error))
 
     member _.TryFinally(flow: Flow<'env, 'error, 'value>, compensation: unit -> unit) : Flow<'env, 'error, 'value> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             try
-                Flow.run environment flow
-                |> EffectFlow.ofResult
+                FlowBuilderRuntime.run environment cancellationToken flow
             finally
                 compensation ())
 
@@ -635,33 +834,27 @@ module Builders =
     let result = ResultBuilder()
 
     /// <summary>
-    /// The sync-only <c>flow { }</c> computation expression.
+    /// The universal <c>flow { }</c> computation expression.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Use this builder when the boundary is synchronous and you want explicit environment
-    /// reads without introducing async or task scheduling.
+    /// Use this builder when the boundary can mix synchronous values, <c>Async</c>, <c>Task</c>,
+    /// <c>Result</c>, and environment requests while keeping typed failures and explicit
+    /// dependency access.
     /// </para>
     /// <para>
-    /// It is the simplest builder in the library and is a good default for pure composition
-    /// and deterministic orchestration.
-    /// </para>
-    /// <para>
-    /// Use <c>Guard.Of</c> for check-like sources such as <c>option</c>, <c>voption</c>,
-    /// <c>bool</c>, and <c>Result&lt;_, unit&gt;</c>. The CE then binds the resulting
-    /// source value directly while the supplied error stays attached to the failure path.
-    /// </para>
-    /// <para>
-    /// Use <c>Guard.MapError</c> when the source already carries an error and you want to keep the
-    /// same source shape while changing the error type.
+    /// It preserves the current environment model while allowing the workflow to compose
+    /// task-oriented inputs directly, so callers do not need to switch builders just to cross
+    /// an async boundary.
     /// </para>
     /// </remarks>
     /// <example>
     /// ```fsharp
     /// let greeting =
     ///     flow {
-    ///         let! name = Flow.read (fun env -> env.Name)
-    ///         return $"Hello, {name}"
+    ///         let! name = Flow.env
+    ///         let! suffix = async { return "!" }
+    ///         return $"Hello, {name}{suffix}"
     ///     }
     /// ```
     /// </example>

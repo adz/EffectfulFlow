@@ -1219,23 +1219,50 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
             test <@ withResult = Ok () @>
 
         [<Fact>]
-        let ``flow computation expression is sync only`` () =
-            let workflow : Flow<int, string, int> =
+        let ``flow computation expression mixes sync, async, task, result, and env requests`` () =
+            let service = ProjectionService()
+            let request : Env<ProjectionService> = Unchecked.defaultof<_>
+            let asyncNumberRequest : Env<ProjectionService, Async<int>> = Env(fun value -> value.AsyncNumber)
+            let asyncResultNumberRequest : Env<ProjectionService, Async<Result<int, string>>> =
+                Env(fun value -> value.AsyncResultNumber)
+            let taskNumberRequest : Env<ProjectionService, Task<int>> = Env(fun value -> value.TaskNumber)
+            let taskResultNumberRequest : Env<ProjectionService, Task<Result<int, string>>> =
+                Env(fun value -> value.TaskResultNumber)
+            let resultNumberRequest : Env<ProjectionService, Result<int, string>> =
+                Env(fun value -> value.NumberResult)
+
+            let workflow : Flow<ProjectionCaps, string, int> =
                 flow {
-                    let! env = Flow.env
-                    let! doubled = Ok(env * 2)
-                    return doubled
+                    let! (env : ProjectionService) = request
+                    do! Task.CompletedTask
+                    let! asyncValue = (async { return env.Number } : Async<int>)
+                    let! taskValue = (Task.FromResult env.Number : Task<int>)
+                    let! (resultValue : int) = (Ok env.Number : Result<int, string>)
+                    let! requestAsyncValue = asyncNumberRequest
+                    let! requestAsyncResultValue = asyncResultNumberRequest
+                    let! requestTaskValue = taskNumberRequest
+                    let! requestTaskResultValue = taskResultNumberRequest
+                    let! requestResultValue = resultNumberRequest
+                    return
+                        asyncValue
+                        + taskValue
+                        + resultValue
+                        + requestAsyncValue
+                        + requestAsyncResultValue
+                        + requestTaskValue
+                        + requestTaskResultValue
+                        + requestResultValue
                 }
 
             let publicMethods = publicInstanceMethodNames typeof<FlowBuilder>
             let argumentTypeNames = flowBuilderBindAndReturnFromArgumentNames ()
 
-            test <@ Flow.run 21 workflow = Ok 42 @>
+            test <@ Flow.run (ProjectionCaps()) workflow = Ok (service.Number * 8) @>
             test <@ publicMethods |> Array.contains "Bind" @>
             test <@ publicMethods |> Array.contains "Yield" @>
             test <@ publicMethods |> Array.contains "YieldFrom" @>
             test <@ publicMethods |> Array.contains "ReturnFrom" @>
-            test <@ argumentTypeNames = [| "Env`1"; "Env`2"; "FSharpFunc`2"; "FSharpOption`1"; "FSharpResult`2"; "FSharpValueOption`1"; "Flow`3" |] @>
+            test <@ argumentTypeNames = [| "Env`1"; "Env`2"; "FSharpAsync`1"; "FSharpFunc`2"; "FSharpOption`1"; "FSharpResult`2"; "FSharpValueOption`1"; "Flow`3"; "Task"; "Task`1" |] @>
 
         [<Fact>]
         let ``flow builders directly bind Result and Result unit values`` () =
@@ -1530,7 +1557,7 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
             test <@ taskValueNone = Error "missing value" @>
 
         [<Fact>]
-        let ``flow computation expression rejects task-oriented binds when task helpers are imported`` () =
+        let ``flow computation expression directly binds async and task values when task helpers are imported`` () =
             let fsFlowAssemblyPath = typeof<FlowBuilder>.Assembly.Location
             let fsFlowNetAssemblyPath = typeof<TaskFlowBuilder>.Assembly.Location
 
@@ -1544,8 +1571,11 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
 
     let probe : Flow<unit, string, int> =
         flow {{
-            let! value = Task.FromResult 42
-            return value
+            do! (Task.CompletedTask : Task)
+            let! asyncValue = (async {{ return 21 }} : Async<int>)
+            let! taskValue = (Task.FromResult 21 : Task<int>)
+            let! resultValue = (Ok 21 : Result<int, string>)
+            return asyncValue + taskValue + resultValue
         }}
     """
 
@@ -1566,8 +1596,7 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
             let taskExitCode, taskOutput = runFsiScript taskProbe
             let taskFlowExitCode, taskFlowOutput = runFsiScript taskFlowProbe
 
-            test <@ taskExitCode <> 0 @>
-            test <@ taskOutput.Contains("Bind") @>
+            test <@ taskExitCode = 0 @>
             test <@ taskFlowExitCode <> 0 @>
             test <@ taskFlowOutput.Contains("Bind") @>
 
