@@ -208,6 +208,46 @@ module internal EffectFlow =
     let ofError (error: 'error) : Effect<'value, 'error> =
         ofResult (Error error)
 
+    let fold
+        (onSuccess: 'value -> Effect<'next, 'nextError>)
+        (onError: 'error -> Effect<'next, 'nextError>)
+        (effect: Effect<'value, 'error>)
+        : Effect<'next, 'nextError> =
+#if FABLE_COMPILER
+        Promise.bind
+            (function
+             | Ok value -> onSuccess value
+             | Error error -> onError error)
+            effect
+#else
+        ValueTask<Result<'next, 'nextError>>(
+            task {
+                let! result = effect
+
+                match result with
+                | Ok value -> return! onSuccess value
+                | Error error -> return! onError error
+            })
+#endif
+
+    let map
+        (mapper: 'value -> 'next)
+        (effect: Effect<'value, 'error>)
+        : Effect<'next, 'error> =
+        fold (mapper >> ofValue) ofError effect
+
+    let bind
+        (binder: 'value -> Effect<'next, 'error>)
+        (effect: Effect<'value, 'error>)
+        : Effect<'next, 'error> =
+        fold binder ofError effect
+
+    let mapError
+        (mapper: 'error -> 'nextError)
+        (effect: Effect<'value, 'error>)
+        : Effect<'value, 'nextError> =
+        fold ofValue (mapper >> ofError) effect
+
 module internal InternalCombinatorCore =
     let mapWith
         (mapOutcome: (Result<'value, 'error> -> Result<'next, 'error>) -> 'operation -> 'nextOperation)

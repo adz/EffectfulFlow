@@ -5,6 +5,14 @@ open System.Threading
 open System.Threading.Tasks
 
 module Flow =
+    let inline private invoke
+        (flow: Flow<'env, 'error, 'value>)
+        (environment: 'env)
+        (cancellationToken: CancellationToken)
+        : Effect<'value, 'error> =
+        let (Flow operation) = flow
+        operation environment cancellationToken
+
     /// <summary>Executes a synchronous flow with the provided environment.</summary>
     /// <example>
     /// <code>
@@ -99,13 +107,12 @@ module Flow =
         (errorFlow: Flow<'env, 'error, 'error>)
         (result: Result<'value, unit>)
         : Flow<'env, 'error, 'value> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             match result with
             | Ok value -> EffectFlow.ofValue value
             | Error () ->
-                match run environment errorFlow with
-                | Ok error -> EffectFlow.ofError error
-                | Error error -> EffectFlow.ofError error)
+                invoke errorFlow environment cancellationToken
+                |> EffectFlow.fold EffectFlow.ofError EffectFlow.ofError)
 
     /// <summary>Reads the current environment as the flow value.</summary>
     /// <remarks>
@@ -138,10 +145,9 @@ module Flow =
         (mapper: 'value -> 'next)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'next> =
-        Flow(fun environment _ ->
-            run environment flow
-            |> Result.map mapper
-            |> EffectFlow.ofResult)
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.map mapper)
 
     /// <summary>Maps the successful value of a synchronous flow to <c>unit</c>.</summary>
     let ignore (flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, unit> =
@@ -159,10 +165,9 @@ module Flow =
         (binder: 'value -> Flow<'env, 'error, 'next>)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'next> =
-        Flow(fun environment _ ->
-            match run environment flow with
-            | Ok value -> run environment (binder value) |> EffectFlow.ofResult
-            | Error error -> EffectFlow.ofError error)
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.bind (fun value -> invoke (binder value) environment cancellationToken))
 
     /// <summary>Sequences a synchronous continuation after a successful value.</summary>
     let inline (>>=)
@@ -203,13 +208,15 @@ module Flow =
         (binder: 'error -> Flow<'env, 'error, unit>)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'value> =
-        Flow(fun environment _ ->
-            match run environment flow with
-            | Ok value -> EffectFlow.ofValue value
-            | Error error ->
-                match binder error |> run environment with
-                | Ok () -> EffectFlow.ofError error
-                | Error nextError -> EffectFlow.ofError nextError)
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.fold
+                EffectFlow.ofValue
+                (fun error ->
+                    invoke (binder error) environment cancellationToken
+                    |> EffectFlow.fold
+                        (fun () -> EffectFlow.ofError error)
+                        EffectFlow.ofError))
 
     /// <summary>Maps the error value of a synchronous flow.</summary>
     /// <remarks>
@@ -223,10 +230,9 @@ module Flow =
         (mapper: 'error -> 'nextError)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'nextError, 'value> =
-        Flow(fun environment _ ->
-            run environment flow
-            |> Result.mapError mapper
-            |> EffectFlow.ofResult)
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.mapError mapper)
 
     /// <summary>Catches exceptions raised during execution and maps them to a typed error.</summary>
     /// <remarks>
@@ -240,10 +246,9 @@ module Flow =
         (handler: exn -> 'error)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'value> =
-        Flow(fun environment _ ->
+        Flow(fun environment cancellationToken ->
             try
-                run environment flow
-                |> EffectFlow.ofResult
+                invoke flow environment cancellationToken
             with error ->
                 EffectFlow.ofError (handler error))
 
@@ -253,10 +258,9 @@ module Flow =
         (fallback: 'error -> Flow<'env, 'error, 'value>)
         (flow: Flow<'env, 'error, 'value>)
         : Flow<'env, 'error, 'value> =
-        Flow(fun environment _ ->
-            match run environment flow with
-            | Ok value -> EffectFlow.ofValue value
-            | Error error -> run environment (fallback error) |> EffectFlow.ofResult)
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.fold EffectFlow.ofValue (fun error -> invoke (fallback error) environment cancellationToken))
 
     /// <summary>Falls back to another flow when the source flow fails.</summary>
     let orElse
