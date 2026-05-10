@@ -18,6 +18,7 @@
   <Folder Name="/src/">
     <Project Path="src/FsFlow/FsFlow.fsproj" />
     <Project Path="src/FsFlow.Caps.Core/FsFlow.Caps.Core.fsproj" />
+    <Project Path="src/FsFlow.Hosting/FsFlow.Hosting.fsproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FsFlow.Tests/FsFlow.Tests.fsproj" />
