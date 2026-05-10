@@ -13,9 +13,9 @@ open Xunit
 module WorkflowTests =
         [<Fact>]
         let ``Fiber: fork and join success`` () =
-            let workflow =
+            let workflow : Flow<unit, string, int> =
                 flow {
-                    let! fiber = Flow.ok 42 |> Flow.fork
+                    let! (fiber: Fiber<string, int>) = Flow.ok 42 |> Flow.fork
                     let! result = fiber |> Flow.join
                     return result
                 }
@@ -24,9 +24,9 @@ module WorkflowTests =
 
         [<Fact>]
         let ``Fiber: fork and join failure`` () =
-            let workflow =
+            let workflow : Flow<unit, string, int> =
                 flow {
-                    let! fiber = Flow.fail "boom" |> Flow.fork
+                    let! (fiber: Fiber<string, int>) = Flow.fail "boom" |> Flow.fork
                     let! result = fiber |> Flow.join
                     return result
                 }
@@ -38,7 +38,7 @@ module WorkflowTests =
             let mutable executed = false
             let workflow =
                 flow {
-                    let! fiber = 
+                    let! (fiber: Fiber<string, int>) = 
                         flow {
                             do! Flow.Runtime.sleep (TimeSpan.FromMilliseconds 500.0)
                             executed <- true
@@ -57,6 +57,57 @@ module WorkflowTests =
             | Exit.Success (Exit.Failure Cause.Interrupt) -> 
                 test <@ executed = false @>
             | _ -> failwithf "Expected interrupted exit, got %A" outcome
+
+        [<Fact>]
+        let ``Flow: zipPar combines results concurrently`` () =
+            let workflow =
+                Flow.zipPar
+                    (flow { 
+                        do! Flow.Runtime.sleep (TimeSpan.FromMilliseconds 100.0)
+                        return 1 
+                    })
+                    (flow { 
+                        do! Flow.Runtime.sleep (TimeSpan.FromMilliseconds 100.0)
+                        return 2 
+                    })
+
+            test <@ Flow.run () workflow = Exit.Success (1, 2) @>
+
+        [<Fact>]
+        let ``Flow: zipPar interrupts on failure`` () =
+            let mutable executed = false
+            let workflow =
+                Flow.zipPar
+                    (flow { 
+                        do! Flow.Runtime.sleep (TimeSpan.FromMilliseconds 500.0)
+                        executed <- true
+                        return 1 
+                    })
+                    (Flow.fail "boom")
+
+            let outcome = Flow.run () workflow
+            test <@ outcome = Exit.Failure (Cause.Fail "boom") @>
+            test <@ executed = false @>
+
+        [<Fact>]
+        let ``Flow: race returns first result and interrupts loser`` () =
+            let mutable loserExecuted = false
+            let workflow =
+                Flow.race
+                    (flow { 
+                        do! Flow.Runtime.sleep (TimeSpan.FromMilliseconds 100.0)
+                        return 1 
+                    })
+                    (flow { 
+                        do! Flow.Runtime.sleep (TimeSpan.FromMilliseconds 500.0)
+                        loserExecuted <- true
+                        return 2 
+                    })
+
+            test <@ Flow.run () workflow = Exit.Success 1 @>
+            // Give it a bit more time to potentially execute (though it shouldn't)
+            Thread.Sleep(500)
+            test <@ loserExecuted = false @>
 
         type private DeviceClient(name: string) =
             interface IDeviceClient with

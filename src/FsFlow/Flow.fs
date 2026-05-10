@@ -194,6 +194,96 @@ module Flow =
             #endif
         )
 
+    /// <summary>Combines two flows into a tuple of their values, running them concurrently.</summary>
+    /// <remarks>
+    /// If either flow fails, the other is interrupted immediately.
+    /// </remarks>
+    let zipPar
+        (left: Flow<'env, 'error, 'left>)
+        (right: Flow<'env, 'error, 'right>)
+        : Flow<'env, 'error, 'left * 'right> =
+        Flow(fun environment cancellationToken ->
+            #if FABLE_COMPILER
+            // Simple Promise.all implementation for Fable
+            let leftOp = invoke left environment cancellationToken
+            let rightOp = invoke right environment cancellationToken
+            
+            Promise.all [| leftOp; rightOp |]
+            |> Promise.map (fun results ->
+                match results[0], results[1] with
+                | Exit.Success l, Exit.Success r -> Exit.Success (l, r)
+                | Exit.Failure c, _ -> Exit.Failure c
+                | _, Exit.Failure c -> Exit.Failure c)
+            #else
+            ValueTask<Exit<'left * 'right, 'error>>(
+                task {
+                    let cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
+                    
+                    let (Flow leftOp) = left
+                    let (Flow rightOp) = right
+                    
+                    let leftFiberTask = leftOp environment cts.Token |> _.AsTask()
+                    let rightFiberTask = rightOp environment cts.Token |> _.AsTask()
+                    
+                    let! completed = Task.WhenAny(leftFiberTask, rightFiberTask)
+                    
+                    let firstExit = 
+                        if obj.ReferenceEquals(completed, leftFiberTask) then
+                            leftFiberTask.GetAwaiter().GetResult()
+                        else
+                            rightFiberTask.GetAwaiter().GetResult()
+                    
+                    match firstExit with
+                    | Exit.Failure cause ->
+                        cts.Cancel()
+                        return Exit.Failure cause
+                    | Exit.Success _ ->
+                        let other = if obj.ReferenceEquals(completed, leftFiberTask) then rightFiberTask else leftFiberTask
+                        let! secondExit = other
+                        
+                        let leftExit = leftFiberTask.GetAwaiter().GetResult()
+                        let rightExit = rightFiberTask.GetAwaiter().GetResult()
+                        
+                        match leftExit, rightExit with
+                        | Exit.Success l, Exit.Success r -> return Exit.Success (l, r)
+                        | Exit.Failure c, _ -> return Exit.Failure c
+                        | _, Exit.Failure c -> return Exit.Failure c
+                })
+            #endif
+        )
+
+    /// <summary>Runs two flows concurrently and returns the result of the first one to complete.</summary>
+    /// <remarks>
+    /// The "loser" flow is interrupted immediately.
+    /// </remarks>
+    let race
+        (left: Flow<'env, 'error, 'value>)
+        (right: Flow<'env, 'error, 'value>)
+        : Flow<'env, 'error, 'value> =
+        Flow(fun environment cancellationToken ->
+            #if FABLE_COMPILER
+            let leftOp = invoke left environment cancellationToken
+            let rightOp = invoke right environment cancellationToken
+            Promise.race [| leftOp; rightOp |]
+            #else
+            ValueTask<Exit<'value, 'error>>(
+                task {
+                    let cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
+                    
+                    let (Flow leftOp) = left
+                    let (Flow rightOp) = right
+                    
+                    let leftFiberTask = leftOp environment cts.Token |> _.AsTask()
+                    let rightFiberTask = rightOp environment cts.Token |> _.AsTask()
+                    
+                    let! completed = Task.WhenAny(leftFiberTask, rightFiberTask)
+                    cts.Cancel()
+                    
+                    return (completed :?> Task<Exit<'value, 'error>>).GetAwaiter().GetResult()
+                })
+            #endif
+        )
+
     /// <summary>Lifts an option into a synchronous flow with the supplied error.</summary>
     /// <example>
     /// <code>
