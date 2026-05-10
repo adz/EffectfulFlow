@@ -20,6 +20,7 @@
     <FsDocsLogoSource>content/img/fsflow-inline-light.svg</FsDocsLogoSource>
     <FsDocsLogoAlt>FsFlow</FsDocsLogoAlt>
     <FsDocsLogoLink>https://adz.github.io/FsFlow/</FsDocsLogoLink>
+    <FsDocsLogoLink>https://adz.github.io/FsFlow/</FsDocsLogoLink>
     <FsDocsLicenseLink>https://github.com/adz/FsFlow/blob/main/LICENSE</FsDocsLicenseLink>
     <FsDocsReleaseNotesLink>https://github.com/adz/FsFlow/blob/main/RELEASE_NOTES.md</FsDocsReleaseNotesLink>
     <IncludeSymbols>true</IncludeSymbols>
@@ -45,13 +46,22 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Core.fs" />
-    <Compile Include="Validate.fs" />
+    <Compile Include="Foundation.fs" />
+    <Compile Include="Diagnostics.fs" />
+    <Compile Include="Validation.fs" />
+    <Compile Include="Check.fs" />
     <Compile Include="Runtime.fs" />
+    <Compile Include="AsyncFlow.fs" />
+    <Compile Include="TaskFlow.fs" />
     <Compile Include="Flow.fs" />
+    <Compile Include="Capability.fs" />
     <Compile Include="Ref.fs" />
     <Compile Include="Stm.fs" />
     <Compile Include="Stream.fs" />
     <Compile Include="Schedule.fs" />
+    <Compile Include="FlowBuilder.fs" />
+    <Compile Include="ValidateBuilder.fs" />
+    <Compile Include="ResultBuilder.fs" />
     <Compile Include="Builders.fs" />
     <Compile Include="Guard.fs" />
   </ItemGroup>

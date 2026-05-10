@@ -87,6 +87,47 @@ type Fiber<'error, 'value> =
         InterruptSource: CancellationTokenSource
     }
 
+#if !FABLE_COMPILER
+/// <summary>
+/// Represents delayed task work that can observe a runtime cancellation token when it is started.
+/// </summary>
+/// <typeparam name="value">The type of the produced task value.</typeparam>
+type internal ColdTask<'value> =
+    | ColdTask of (CancellationToken -> Task<'value>)
+
+/// <summary>
+/// Core functions for creating and executing cold tasks.
+/// </summary>
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<RequireQualifiedAccess>]
+module internal ColdTask =
+    let create (operation: CancellationToken -> Task<'value>) : ColdTask<'value> =
+        ColdTask operation
+
+    let fromTaskFactory (factory: unit -> Task<'value>) : ColdTask<'value> =
+        create (fun _ -> factory ())
+
+    let fromTask (startedTask: Task<'value>) : ColdTask<'value> =
+        fromTaskFactory (fun () -> startedTask)
+
+    let fromValueTaskFactory
+        (factory: CancellationToken -> ValueTask<'value>)
+        : ColdTask<'value> =
+        create (fun cancellationToken -> factory cancellationToken |> _.AsTask())
+
+    let fromValueTaskFactoryWithoutCancellation
+        (factory: unit -> ValueTask<'value>)
+        : ColdTask<'value> =
+        create (fun _ -> factory () |> _.AsTask())
+
+    let fromValueTask (startedValueTask: ValueTask<'value>) : ColdTask<'value> =
+        let startedTask = startedValueTask.AsTask()
+        fromTask startedTask
+
+    let run (cancellationToken: CancellationToken) (ColdTask operation: ColdTask<'value>) : Task<'value> =
+        operation cancellationToken
+#endif
+
 /// <summary>
 /// Represents the portable execution shape used by the unified <see cref="T:FsFlow.Flow`3" />.
 /// </summary>
@@ -248,261 +289,8 @@ type Env<'dep> =
 type Env<'dep, 'value> =
     | Env of ('dep -> 'value)
 
-module private ResultFlow =
-    let map
-        (mapper: 'value -> 'next)
-        (result: Result<'value, 'error>)
-        : Result<'next, 'error> =
-        Result.map mapper result
-
-    let bind
-        (binder: 'value -> Result<'next, 'error>)
-        (result: Result<'value, 'error>)
-        : Result<'next, 'error> =
-        Result.bind binder result
-
-    let mapError
-        (mapper: 'error -> 'nextError)
-        (result: Result<'value, 'error>)
-        : Result<'value, 'nextError> =
-        Result.mapError mapper result
-
-module internal OptionFlow =
-    let toUnitResult (value: 'value option) : Result<'value, unit> =
-        match value with
-        | Some innerValue -> Ok innerValue
-        | None -> Error()
-
-    let toUnitResultValueOption (value: 'value voption) : Result<'value, unit> =
-        match value with
-        | ValueSome innerValue -> Ok innerValue
-        | ValueNone -> Error()
-
-    let toResult (error: 'error) (value: 'value option) : Result<'value, 'error> =
-        match value with
-        | Some innerValue -> Ok innerValue
-        | None -> Error error
-
-    let toResultValueOption (error: 'error) (value: 'value voption) : Result<'value, 'error> =
-        match value with
-        | ValueSome innerValue -> Ok innerValue
-        | ValueNone -> Error error
-
-[<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-module EffectFlow =
-    let ofExit (exit: Exit<'value, 'error>) : Effect<'value, 'error> =
-#if FABLE_COMPILER
-        async.Return exit
-#else
-        ValueTask<Exit<'value, 'error>>(exit)
-#endif
-
-    let ofValue (value: 'value) : Effect<'value, 'error> =
-        ofExit (Exit.Success value)
-
-    let ofCause (cause: Cause<'error>) : Effect<'value, 'error> =
-        ofExit (Exit.Failure cause)
-
-    let ofError (error: 'error) : Effect<'value, 'error> =
-        ofCause (Cause.Fail error)
-
-    let ofDie (exn: exn) : Effect<'value, 'error> =
-        ofCause (Cause.Die exn)
-
-    let ofInterrupt () : Effect<'value, 'error> =
-        ofCause Cause.Interrupt
-
-    let ofResult (result: Result<'value, 'error>) : Effect<'value, 'error> =
-        match result with
-        | Ok value -> ofValue value
-        | Error error -> ofError error
-
-    let fold
-        (onSuccess: 'value -> Effect<'next, 'nextError>)
-        (onFailure: Cause<'error> -> Effect<'next, 'nextError>)
-        (effect: Effect<'value, 'error>)
-        : Effect<'next, 'nextError> =
-#if FABLE_COMPILER
-        async {
-            let! exit = effect
-            match exit with
-            | Exit.Success value -> return! onSuccess value
-            | Exit.Failure cause -> return! onFailure cause
-        }
-#else
-        ValueTask<Exit<'next, 'nextError>>(
-            task {
-                let! exit = effect
-
-                match exit with
-                | Exit.Success value -> return! onSuccess value
-                | Exit.Failure cause -> return! onFailure cause
-            })
-#endif
-
-    let map
-        (mapper: 'value -> 'next)
-        (effect: Effect<'value, 'error>)
-        : Effect<'next, 'error> =
-        fold (mapper >> ofValue) ofCause effect
-
-    let bind
-        (binder: 'value -> Effect<'next, 'error>)
-        (effect: Effect<'value, 'error>)
-        : Effect<'next, 'error> =
-        fold binder ofCause effect
-
-    let mapError
-        (mapper: 'error -> 'nextError)
-        (effect: Effect<'value, 'error>)
-        : Effect<'value, 'nextError> =
-        fold ofValue (fun cause ->
-            match cause with
-            | Cause.Fail error -> ofError (mapper error)
-            | Cause.Die exn -> ofDie exn
-            | Cause.Interrupt -> ofInterrupt ()
-        ) effect
-
-module internal InternalCombinatorCore =
-    let mapWith
-        (mapOutcome: (Exit<'value, 'error> -> Exit<'next, 'error>) -> 'operation -> 'nextOperation)
-        (mapper: 'value -> 'next)
-        (operation: 'context -> 'operation)
-        : 'context -> 'nextOperation =
-        fun context -> operation context |> mapOutcome (Exit.map mapper)
-
-    let bindWith
-        (bindOutcome: 'operation -> ('value -> 'nextOperation) -> (Cause<'error> -> 'nextOperation) -> 'nextOperation)
-        (continueWith: 'context -> 'value -> 'nextOperation)
-        (failWith: Cause<'error> -> 'nextOperation)
-        (operation: 'context -> 'operation)
-        : 'context -> 'nextOperation =
-        fun context -> bindOutcome (operation context) (continueWith context) failWith
-
-    let mapErrorWith
-        (mapOutcome: (Exit<'value, 'error> -> Exit<'value, 'nextError>) -> 'operation -> 'nextOperation)
-        (mapper: 'error -> 'nextError)
-        (operation: 'context -> 'operation)
-        : 'context -> 'nextOperation =
-        fun context -> operation context |> mapOutcome (Exit.mapError mapper)
-
-    let localEnvWith
-        (run: 'innerEnvironment -> 'flow -> 'operation)
-        (mapping: 'outerEnvironment -> 'innerEnvironment)
-        (flow: 'flow)
-        : 'outerEnvironment -> 'operation =
-        fun environment -> flow |> run (mapping environment)
-
-    let delayWith
-        (run: 'environment -> 'flow -> 'operation)
-        (factory: unit -> 'flow)
-        : 'environment -> 'operation =
-        fun environment -> factory () |> run environment
-
 /// <summary>Describes a missing service-provider capability.</summary>
 type MissingCapability =
     {
         CapabilityType: Type
     }
-
-type Flow<'env, 'error, 'value> with
-#if FABLE_COMPILER
-    static member inline CapabilityService
-        (projection: 'env -> 'service)
-        : Flow<'env, 'error, 'service> =
-        Flow(fun environment _ -> EffectFlow.ofValue (projection environment))
-
-    /// <summary>Reads a service from <see cref="IServiceProvider" /> and fails when it is not registered.</summary>
-    static member inline ServiceFromProvider
-        ()
-        : Flow<IServiceProvider, MissingCapability, 'service> =
-        Flow(fun provider _ ->
-            match provider.GetService typeof<'service> with
-            | null ->
-                EffectFlow.ofError
-                    {
-                        CapabilityType = typeof<'service>
-                    }
-            | value -> EffectFlow.ofValue (unbox<'service> value))
-#else
-    static member CapabilityService
-        (projection: 'env -> 'service)
-        : Flow<'env, 'error, 'service> =
-        Flow(fun environment _ -> EffectFlow.ofValue (projection environment))
-
-    /// <summary>Reads a service from <see cref="IServiceProvider" /> and fails when it is not registered.</summary>
-    static member ServiceFromProvider
-        ()
-        : Flow<IServiceProvider, MissingCapability, 'service> =
-        Flow(fun provider _ ->
-            match provider.GetService typeof<'service> with
-            | null ->
-                EffectFlow.ofError
-                    {
-                        CapabilityType = typeof<'service>
-                    }
-            | value -> EffectFlow.ofValue (unbox<'service> value))
-#endif
-
-    static member ProvideLayer
-        (
-            layer: Flow<'input, 'error, 'environment>,
-            flow: Flow<'environment, 'error, 'value>
-        ) : Flow<'input, 'error, 'value> =
-        let (Flow layerOperation) = layer
-        let (Flow flowOperation) = flow
-
-        Flow(fun environment ct ->
-            #if FABLE_COMPILER
-            async {
-                let! exit = layerOperation environment ct
-                match exit with
-                | Exit.Success environment -> return! flowOperation environment ct
-                | Exit.Failure cause -> return Exit.Failure cause
-            }
-            #else
-            match (layerOperation environment ct).GetAwaiter().GetResult() with
-            | Exit.Success environment -> flowOperation environment ct
-            | Exit.Failure cause -> EffectFlow.ofCause cause
-            #endif
-        )
-
-#if !FABLE_COMPILER
-type internal AsyncFlow<'env, 'error, 'value> with
-    static member CapabilityService
-        (projection: 'env -> 'service)
-        : AsyncFlow<'env, 'error, 'service> =
-        AsyncFlow(fun environment -> async.Return(Exit.Success(projection environment)))
-
-    static member ServiceFromProvider
-        ()
-        : AsyncFlow<IServiceProvider, MissingCapability, 'service> =
-        AsyncFlow(fun provider ->
-            async {
-                match provider.GetService typeof<'service> with
-                | null ->
-                    return
-                        Exit.Failure (Cause.Fail
-                            {
-                                CapabilityType = typeof<'service>
-                            })
-                | value -> return Exit.Success(unbox<'service> value)
-            })
-
-    static member ProvideLayer
-        (
-            layer: AsyncFlow<'input, 'error, 'environment>,
-            flow: AsyncFlow<'environment, 'error, 'value>
-        ) : AsyncFlow<'input, 'error, 'value> =
-        let (AsyncFlow layerOperation) = layer
-        let (AsyncFlow flowOperation) = flow
-
-        AsyncFlow(fun environment ->
-            async {
-                let! outcome = layerOperation environment
-
-                match outcome with
-                | Exit.Success environment -> return! flowOperation environment
-                | Exit.Failure cause -> return Exit.Failure cause
-            })
-#endif

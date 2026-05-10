@@ -15,7 +15,15 @@
     <Compile Include="HostingTests.fs" />
     <Compile Include="TelemetryTests.fs" />
     <Compile Include="CapsRuntimePatternTests.fs" />
-    <Compile Include="WorkflowTests.fs" />
+    <Compile Include="WorkflowBasicTests.fs" />
+    <Compile Include="WorkflowConcurrencyTests.fs" />
+    <Compile Include="WorkflowParallelTests.fs" />
+    <Compile Include="WorkflowErrorTests.fs" />
+    <Compile Include="WorkflowInteropTests.fs" />
+    <Compile Include="WorkflowSchedulingTests.fs" />
+    <Compile Include="WorkflowResourceTests.fs" />
+    <Compile Include="WorkflowStateTests.fs" />
+    <Compile Include="WorkflowStreamTests.fs" />
     <Compile Include="ValidationTests.fs" />
   </ItemGroup>
 
