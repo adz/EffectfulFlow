@@ -9,4 +9,4 @@ bash "$root_dir/scripts/generate-api-docs.sh"
 bash "$root_dir/scripts/populate-hugo-content.sh"
 
 # Hugo preview
-hugo server --source "$root_dir/site" --bind 127.0.0.1 --port 3000
+hugo server --source "$root_dir/site" --bind 127.0.0.1 --port 3000 --baseURL http://localhost:3000/

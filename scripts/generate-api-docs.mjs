@@ -50,7 +50,7 @@ const pageSpecs = [
       },
       {
         title: 'State management',
-        symbols: ['type:Ref', 'Ref.make', 'Ref.get', 'Ref.set', 'Ref.update', 'Ref.modify', 'type:TRef', 'type:STM', 'STM.atomically', 'TRef.make', 'TRef.get', 'TRef.set', 'TRef.update', 'Builders.stm'],
+        symbols: ['type:Ref', 'Ref.make', 'Ref.get', 'Ref.set', 'Ref.update', 'Ref.modify', 'type:TRef', 'type:STM', 'STM.atomically', 'TRef.make', 'TRef.get', 'TRef.set', 'TRef.update', 'StmBuilders.stm'],
       },
       {
         title: 'Streaming',
@@ -58,7 +58,7 @@ const pageSpecs = [
       },
       {
         title: 'Scheduling',
-        symbols: ['type:Schedule', 'Schedule.recurs', 'Schedule.spaced', 'Schedule.exponential', 'Schedule.jittered', 'Flow.Retry', 'Flow.Repeat'],
+        symbols: ['type:Schedule', 'Schedule.recurs', 'Schedule.spaced', 'Schedule.exponential', 'Schedule.jittered', 'FlowScheduleExtensions.Retry', 'FlowScheduleExtensions.Repeat'],
       },
     ],
   },
@@ -419,6 +419,10 @@ function extractSymbols(filePath) {
       continue;
     }
 
+    if (trimmed.startsWith('#')) {
+      continue;
+    }
+
     if (isAttributeLine(line)) {
       continue;
     }
@@ -437,6 +441,13 @@ function extractSymbols(filePath) {
     const typeMatch = line.match(/^(\s*)type\s+([A-Za-z_][A-Za-z0-9_']*)/);
     if (typeMatch) {
       record(typeMatch[2], 'type', index + 1, extractSignature(lines, index));
+      continue;
+    }
+
+    const memberMatch = line.match(/^\s*(?:static\s+)?member\s+(?:inline\s+)?(?:private\s+)?(?:rec\s+)?(?:[A-Za-z_][A-Za-z0-9_']*\.)?(?:(``([^`]+)``)|([A-Za-z_][A-Za-z0-9_']*))(?=\s|$|[:(=<])/);
+    if (memberMatch && pendingComments.length > 0) {
+      const name = memberMatch[2] || memberMatch[3];
+      record(name, 'member', index + 1, extractSignature(lines, index));
       continue;
     }
 
