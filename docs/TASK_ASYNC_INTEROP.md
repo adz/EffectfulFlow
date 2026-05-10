@@ -219,13 +219,8 @@ Read [`docs/SEMANTICS.md`](./SEMANTICS.md) when you need the exact rerun and can
 
 Use:
 
-- Flow when the boundary is sync
-- Flow when the boundary is `Async`-first
-- Flow when the boundary is `Task`-first
-- `ColdTask<'value>` when a task helper can stay delayed, rerunnable, and cancellable at run time
-
-If you are unsure between Flow and Flow, choose the one that matches the boundary you
-need to return and run today.
+- `Flow` for all execution boundaries. The unified type supports sync, `Async`, and `Task` orchestration.
+- `ColdTask<'value>` when a task helper can stay delayed, rerunnable, and cancellable at run time.
 
 ## Next
 
