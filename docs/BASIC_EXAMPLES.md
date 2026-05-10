@@ -21,8 +21,8 @@ let getUrl =
         return url
     }
 
-let result = getUrl |> Flow.run { ApiUrl = "https://api.example.com" }
-// Ok "https://api.example.com"
+let outcome = getUrl |> Flow.run { ApiUrl = "https://api.example.com" }
+// outcome = Exit.Success "https://api.example.com"
 ```
 
 ## 2. Combining Sync and Async Work
@@ -39,21 +39,19 @@ let fetchUser id =
 let workflow id =
     flow {
         let! validId = validateId id
-        let! user = fetchUser validId
+        let! user = fetchUser validId // Binds Async<'T> directly
         return user.Name
     }
 
-let result = workflow 42 |> Flow.run ()
-// Async<Result<string, string>>
+let effect = workflow 42 |> Flow.run ()
+// effect = Effect<string, string> (ValueTask or Async)
 ```
 
-## 3. Retrying a Task
+## 3. Retrying a Flow
 
-Use the `Flow.Runtime` module to add operational policies like retries.
+Use the `Schedule` module to add operational policies like retries.
 
 ```fsharp
-open FsFlow.Net
-
 let flakyTask =
     flow {
         // Imagine this calls a flaky API
@@ -62,14 +60,14 @@ let flakyTask =
 
 let resilientWorkflow =
     flakyTask
-    |> Flow.Runtime.retry (RetryPolicy.constant (TimeSpan.FromSeconds 1) 3)
+    |> Flow.retry (Schedule.recurs 3)
 
-// Will retry up to 3 times with a 1-second delay
+// Will retry up to 3 times if the task fails.
 ```
 
 ## 4. Conditional Execution
 
-Since FsFlow builders are just F# computation expressions, you can use standard `if/then` logic inside them.
+Since `flow {}` is a standard F# computation expression, you can use `if/then`, `match`, and `try/with` inside it.
 
 ```fsharp
 let conditionalWorkflow input =
@@ -84,12 +82,15 @@ let conditionalWorkflow input =
 
 ## 5. Mapping Errors
 
-Use `mapError` to translate low-level errors into high-level domain errors.
+Use `Flow.mapError` to translate low-level technical errors into domain-specific failures.
 
 ```fsharp
+type AppError = DatabaseUnavailable | UserNotFound
+
 let domainWorkflow =
     lowLevelFlow
     |> Flow.mapError (function
-        | DbError _ -> DatabaseUnavailable
-        | NetworkError _ -> ExternalServiceDown)
+        | DbException _ -> DatabaseUnavailable
+        | :? KeyNotFoundException -> UserNotFound
+        | _ -> DatabaseUnavailable)
 ```

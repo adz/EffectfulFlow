@@ -16,7 +16,7 @@ The key to accumulation is the `and!` keyword. Steps joined by `and!` are evalua
 
 ```fsharp
 type Registration = { Name: string; Email: string }
-type RegError = | NameRequired | EmailRequired
+type RegError = NameRequired | EmailRequired
 
 let validateRegistration input =
     validate {
@@ -24,9 +24,15 @@ let validateRegistration input =
         and! email = input.Email |> Check.notBlank |> Check.orError EmailRequired
         return { Name = name; Email = email }
     }
+
+let outcome = validateRegistration { Name = ""; Email = "" }
+// outcome = Validation (Error {
+//   Errors = [NameRequired; EmailRequired]
+//   Children = []
+// })
 ```
 
-If both fields are blank, the result will be an `Error` containing a `Diagnostics` object with both `NameRequired` and `EmailRequired`.
+If both fields are blank, the result contains a `Diagnostics` object with both `NameRequired` and `EmailRequired`.
 
 ## Sequential Steps in `validate {}`
 
@@ -37,11 +43,11 @@ validate {
     // Stop immediately if the whole object is null
     let! input = input |> Check.notNull |> Check.orError ObjectMissing
     
-    // These run in parallel and accumulate if input was not null
-    let! name = input.Name |> ...
-    and! email = input.Email |> ...
+    // These run only if input was not null
+    let! name = input.Name |> Check.notBlank |> Check.orError NameRequired
+    and! email = input.Email |> Check.notBlank |> Check.orError EmailRequired
     
-    return ...
+    return { Name = name; Email = email }
 }
 ```
 
@@ -56,9 +62,28 @@ let validateCustomer customer =
             validate.name "Name" {
                 return! customer.Name |> Check.notBlank |> Check.orError "Required"
             }
-        // ...
-        return ...
+        return name
     }
+
+let v = validateCustomer { Name = "" }
+// v = Validation (Error {
+//   Errors = []
+//   Children = [
+//     Key "customer" -> {
+//       Errors = []
+//       Children = [
+//         Name "Name" -> { Errors = ["Required"]; Children = [] }
+//       ]
+//     }
+//   ]
+// })
+```
+
+Using `Diagnostics.toString v` would render:
+```text
+customer:
+  Name:
+  - Required
 ```
 
 ## When to use `validate {}`
