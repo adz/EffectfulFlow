@@ -30,7 +30,7 @@ const pageSpecs = [
       },
       {
         title: 'Module functions',
-        symbols: ['module:Flow', 'Flow.run', 'Flow.ok', 'Flow.error', 'Flow.succeed', 'Flow.value', 'Flow.fail', 'Flow.fromResult', 'Flow.fromOption', 'Flow.fromValueOption', 'Flow.orElseFlow', 'Flow.env', 'Flow.read', 'Flow.map', 'Flow.bind', 'Flow.tap', 'Flow.tapError', 'Flow.mapError', 'Flow.catch', 'Flow.orElseWith', 'Flow.orElse', 'Flow.zip', 'Flow.map2', 'Flow.map3', 'Flow.apply', 'Flow.ignore', 'Flow.localEnv', 'Flow.provideLayer', 'Flow.delay', 'Flow.traverse', 'Flow.sequence'],
+        symbols: ['module:Flow', 'Flow.run', 'Flow.runFull', 'Flow.runWithToken', 'Flow.ok', 'Flow.error', 'Flow.succeed', 'Flow.value', 'Flow.fail', 'Flow.fromResult', 'Flow.fromOption', 'Flow.fromValueOption', 'Flow.orElseFlow', 'Flow.env', 'Flow.read', 'Flow.map', 'Flow.bind', 'Flow.tap', 'Flow.tapError', 'Flow.mapError', 'Flow.catch', 'Flow.orElseWith', 'Flow.orElse', 'Flow.zip', 'Flow.map2', 'Flow.map3', 'Flow.apply', 'Flow.ignore', 'Flow.localEnv', 'Flow.provideLayer', 'Flow.delay', 'Flow.traverse', 'Flow.sequence'],
       },
     ],
   },

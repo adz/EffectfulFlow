@@ -249,6 +249,16 @@ let probe : {workflowTypeName}<WrongEnv, string, string> =
             test <@ Flow.run 21 workflow = Ok 42 @>
 
         [<Fact>]
+        let ``Flow runFull and runWithToken mirror run for the default token`` () =
+            let workflow : Flow<int, string, int> =
+                Flow.env
+                |> Flow.map (fun value -> value * 2)
+
+            test <@ Flow.run 21 workflow = Ok 42 @>
+            test <@ Flow.runFull 21 CancellationToken.None workflow = Ok 42 @>
+            test <@ Flow.runWithToken 21 CancellationToken.None workflow = Ok 42 @>
+
+        [<Fact>]
         let ``Flow delay reruns from scratch`` () =
             let runs = ref 0
 

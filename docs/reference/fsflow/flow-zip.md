@@ -16,5 +16,5 @@ let zip (left: Flow<'env, 'error, 'left>) (right: Flow<'env, 'error, 'right>) : 
 ## Information
 
 - **Module**: `Flow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L269)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L284)
 

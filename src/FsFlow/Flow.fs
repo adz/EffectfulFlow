@@ -13,16 +13,27 @@ module Flow =
         let (Flow operation) = flow
         operation environment cancellationToken
 
-    /// <summary>Executes a synchronous flow with the provided environment.</summary>
+    /// <summary>Executes a flow with an explicit cancellation token.</summary>
+    let runFull (environment: 'env) (cancellationToken: CancellationToken) (flow: Flow<'env, 'error, 'value>) =
+        #if FABLE_COMPILER
+        invoke flow environment cancellationToken
+        #else
+        (invoke flow environment cancellationToken).GetAwaiter().GetResult()
+        #endif
+
+    /// <summary>Executes a flow with an explicit cancellation token.</summary>
+    let runWithToken = runFull
+
+    /// <summary>Executes a flow with the provided environment and the default cancellation token.</summary>
     /// <example>
     /// <code>
     /// let flow = Flow.read (fun env -> $"Hello, {env}!")
     /// let result = Flow.run "World" flow
-    /// // result = Ok "Hello, World!"
+    /// // result = Promise that resolves to Ok "Hello, World!" on Fable, or Ok "Hello, World!" on .NET
     /// </code>
     /// </example>
-    let run (environment: 'env) (Flow operation: Flow<'env, 'error, 'value>) : Result<'value, 'error> =
-        (operation environment CancellationToken.None).GetAwaiter().GetResult()
+    let run (environment: 'env) (flow: Flow<'env, 'error, 'value>) =
+        runWithToken environment CancellationToken.None flow
 
     /// <summary>Creates a successful synchronous flow.</summary>
     let ok (value: 'value) : Flow<'env, 'error, 'value> =
@@ -326,40 +337,38 @@ module Flow =
         (mapping: 'outerEnvironment -> 'innerEnvironment)
         (flow: Flow<'innerEnvironment, 'error, 'value>)
         : Flow<'outerEnvironment, 'error, 'value> =
-        Flow(fun environment ct -> let innerEnvironment = mapping environment in run innerEnvironment flow |> EffectFlow.ofResult)
+        Flow(fun environment ct ->
+            let innerEnvironment = mapping environment
+            invoke flow innerEnvironment ct)
 
     /// <summary>Provides a derived environment from a layer flow to a downstream flow.</summary>
     let provideLayer
         (layer: Flow<'input, 'error, 'environment>)
         (flow: Flow<'environment, 'error, 'value>)
         : Flow<'input, 'error, 'value> =
-        Flow(fun environment _ ->
-            match run environment layer with
-            | Ok environment -> run environment flow |> EffectFlow.ofResult
-            | Error error -> EffectFlow.ofError error)
+        Flow(fun environment ct ->
+            invoke layer environment ct
+            |> EffectFlow.bind (fun innerEnvironment -> invoke flow innerEnvironment ct))
 
     /// <summary>Defers flow construction until execution time.</summary>
     let delay (factory: unit -> Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
-        Flow(fun environment ct -> run environment (factory ()) |> EffectFlow.ofResult)
+        Flow(fun environment ct -> invoke (factory ()) environment ct)
 
     /// <summary>Transforms a sequence of values into a flow and stops at the first failure.</summary>
     let traverse
         (mapping: 'value -> Flow<'env, 'error, 'next>)
         (values: seq<'value>)
         : Flow<'env, 'error, 'next list> =
-        Flow(fun environment _ ->
-            let results = ResizeArray()
-            let mutable currentError = None
-            use enumerator = values.GetEnumerator()
-
-            while currentError.IsNone && enumerator.MoveNext() do
-                match mapping enumerator.Current |> run environment with
-                | Ok value -> results.Add value
-                | Error error -> currentError <- Some error
-
-            match currentError with
-            | Some error -> EffectFlow.ofError error
-            | None -> EffectFlow.ofValue (List.ofSeq results))
+        Flow(fun environment ct ->
+            values
+            |> Seq.fold
+                (fun effect value ->
+                    effect
+                    |> EffectFlow.bind (fun results ->
+                        invoke (mapping value) environment ct
+                        |> EffectFlow.map (fun mapped -> mapped :: results)))
+                (EffectFlow.ofValue [])
+            |> EffectFlow.map List.rev)
 
     /// <summary>Transforms a sequence of flows into a flow of a sequence and stops at the first failure.</summary>
     let sequence (flows: seq<Flow<'env, 'error, 'value>>) : Flow<'env, 'error, 'value list> =

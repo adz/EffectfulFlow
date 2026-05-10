@@ -3,11 +3,11 @@ title: Flow.run
 linkTitle: run
 ---
 
-Executes a synchronous flow with the provided environment.
+Executes a flow with the provided environment and the default cancellation token.
 
 
 ```fsharp
-let run (environment: 'env) (Flow operation: Flow<'env, 'error, 'value>) : Result<'value, 'error>
+let run (environment: 'env) (flow: Flow<'env, 'error, 'value>)
 ```
 
 
@@ -16,13 +16,13 @@ let run (environment: 'env) (Flow operation: Flow<'env, 'error, 'value>) : Resul
 ## Information
 
 - **Module**: `Flow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L16)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L35)
 
 ## Examples
 
 ```fsharp
 let flow = Flow.read (fun env -> $"Hello, {env}!")
 let result = Flow.run "World" flow
-// result = Ok "Hello, World!"
+// result = Promise that resolves to Ok "Hello, World!" on Fable, or Ok "Hello, World!" on .NET
 ```
 

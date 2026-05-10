@@ -18,7 +18,7 @@ explicitly through `Flow.run`.
 
 ### `type Flow<'env, 'error, 'value> with static member CapabilityService (projection: 'env -> 'service) : Flow<'env, 'error, 'service>`
 
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L253)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L293)
 
 ## Information
 

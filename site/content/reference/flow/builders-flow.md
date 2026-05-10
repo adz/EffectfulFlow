@@ -4,43 +4,37 @@ linkTitle: flow
 type: docs
 ---
 
-The sync-only `flow { }` computation expression.
+The universal `flow { }` computation expression.
 
 
 
 ## Remarks
 
 <para>
-Use this builder when the boundary is synchronous and you want explicit environment
-reads without introducing async or task scheduling.
+Use this builder when the boundary can mix synchronous values, `Async`, `Task`,
+`Result`, and environment requests while keeping typed failures and explicit
+dependency access.
 </para>
 <para>
-It is the simplest builder in the library and is a good default for pure composition
-and deterministic orchestration.
-</para>
-<para>
-Use `Guard.Of` for check-like sources such as `option`, `voption`,
-`bool`, and `Result&lt;_, unit&gt;`. The CE then binds the resulting
-source value directly while the supplied error stays attached to the failure path.
-</para>
-<para>
-Use `Guard.MapError` when the source already carries an error and you want to keep the
-same source shape while changing the error type.
+It preserves the current environment model while allowing the workflow to compose
+task-oriented inputs directly, so callers do not need to switch builders just to cross
+an async boundary.
 </para>
 
 
 ## Information
 
 - **Module**: `Builders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L668)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Builders.fs#L861)
 
 ## Examples
 
 ```fsharp
 let greeting =
     flow {
-        let! name = Flow.read (fun env -> env.Name)
-        return $"Hello, {name}"
+        let! name = Flow.env
+        let! suffix = async { return "!" }
+        return $"Hello, {name}{suffix}"
     }
 ```
 

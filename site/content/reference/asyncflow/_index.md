@@ -20,7 +20,7 @@ and is executed explicitly through `AsyncFlow.run`.
 
 ### `type AsyncFlow<'env, 'error, 'value> with static member CapabilityService (projection: 'env -> 'service) : AsyncFlow<'env, 'error, 'service>`
 
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L284)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L324)
 
 ## Information
 

@@ -486,6 +486,8 @@
   </url><url>
     <loc>http://localhost:3000/FsFlow/reference/taskflow/taskflow-runcontext/</loc>
   </url><url>
+    <loc>http://localhost:3000/FsFlow/reference/flow/flow-runfull/</loc>
+  </url><url>
     <loc>http://localhost:3000/FsFlow/docs/patterns/examples/</loc>
   </url><url>
     <loc>http://localhost:3000/FsFlow/reference/caps/capability-runtime/</loc>
@@ -493,6 +495,8 @@
     <loc>http://localhost:3000/FsFlow/reference/taskflow-runtime/runtimecontext-runtime/</loc>
   </url><url>
     <loc>http://localhost:3000/FsFlow/reference/taskflow-runtime/runtimecontext/</loc>
+  </url><url>
+    <loc>http://localhost:3000/FsFlow/reference/flow/flow-runwithtoken/</loc>
   </url><url>
     <loc>http://localhost:3000/FsFlow/reference/asyncflow/asyncflow-sequence/</loc>
   </url><url>
