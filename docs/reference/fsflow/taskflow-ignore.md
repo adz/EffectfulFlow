@@ -16,5 +16,5 @@ let ignore (flow: TaskFlow<'env, 'error, 'value>) : TaskFlow<'env, 'error, unit>
 ## Information
 
 - **Module**: `TaskFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L319)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1311)
 

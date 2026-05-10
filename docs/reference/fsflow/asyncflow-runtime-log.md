@@ -22,5 +22,5 @@ let log (writer: 'env -> LogEntry -> unit) (level: LogLevel) (message: string) :
 ## Information
 
 - **Module**: `AsyncFlow.Runtime`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L429)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L807)
 

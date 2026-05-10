@@ -16,5 +16,5 @@ let orElse (fallback: AsyncFlow<'env, 'error, 'value>) (flow: AsyncFlow<'env, 'e
 ## Information
 
 - **Module**: `AsyncFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L247)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L625)
 

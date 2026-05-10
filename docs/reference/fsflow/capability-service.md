@@ -20,5 +20,5 @@ needs one field, not a full cap-set boundary.
 ## Information
 
 - **Module**: `Capability`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L819)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1811)
 

@@ -14,14 +14,14 @@ returns a typed result, and is executed explicitly through `TaskFlow.run`.
 
 ### `type TaskFlow<'env, 'error, 'value>`
 
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L15)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1007)
 
 ### `type TaskFlow<'env, 'error, 'value> with static member CapabilityService (projection: 'env -> 'service) : TaskFlow<'env, 'error, 'service>`
 
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L26)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1018)
 
 ## Information
 
 - **Module**: Global
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L15)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1007)
 

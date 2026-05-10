@@ -40,7 +40,7 @@ const pageSpecs = [
     description: 'Source-documented async workflow surface in FsFlow.',
     intro:
       "This page shows the source-documented `AsyncFlow` surface: the core type, the module functions, and the `asyncFlow { }` builder.",
-    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/AsyncFlow.fs', 'src/FsFlow/Builders.fs'],
+    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/Flow.fs', 'src/FsFlow/Builders.fs'],
     sections: [
       
       {
@@ -126,7 +126,7 @@ const pageSpecs = [
     description: 'Source-documented async runtime support and helpers for FsFlow.',
     intro:
       'This page shows the source-documented `AsyncFlow.Runtime` surface: logging, retry policies, and async operational helpers.',
-    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/AsyncFlow.fs'],
+    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/Flow.fs'],
     sections: [
       {
         title: 'Logging',
@@ -148,7 +148,7 @@ const pageSpecs = [
     description: 'Source-documented task workflow surface in FsFlow.',
     intro:
       'This page shows the source-documented `TaskFlow` surface: the core type, the module functions, and the `taskFlow { }` builder.',
-    sourceFiles: ['src/FsFlow/Flow.fs', 'src/FsFlow/AsyncFlow.fs', 'src/FsFlow/TaskFlow.fs'],
+    sourceFiles: ['src/FsFlow/Flow.fs'],
     sections: [
       
       {
@@ -171,7 +171,7 @@ const pageSpecs = [
     description: 'Source-documented task runtime helpers for FsFlow.',
     intro:
       'This page shows the source-documented task runtime surface: the runtime context and the task-specific operational helpers.',
-    sourceFiles: ['src/FsFlow/Runtime.fs', 'src/FsFlow/TaskFlow.fs'],
+    sourceFiles: ['src/FsFlow/Runtime.fs', 'src/FsFlow/Flow.fs'],
     sections: [
       {
         title: 'Runtime context',
@@ -179,7 +179,7 @@ const pageSpecs = [
       },
       {
         title: 'Runtime helpers',
-        symbols: ['src/FsFlow/TaskFlow.fs::module:TaskFlow.Runtime', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.cancellationToken', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.catchCancellation', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.ensureNotCanceled', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.sleep', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.log', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.logWith', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.useWithAcquireRelease', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.timeout', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.timeoutToOk', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.timeoutToError', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.timeoutWith', 'src/FsFlow/TaskFlow.fs::TaskFlow.Runtime.retry'],
+        symbols: ['src/FsFlow/Flow.fs::module:TaskFlow.Runtime', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.cancellationToken', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.catchCancellation', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.ensureNotCanceled', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.sleep', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.log', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.logWith', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.useWithAcquireRelease', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.timeout', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.timeoutToOk', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.timeoutToError', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.timeoutWith', 'src/FsFlow/Flow.fs::TaskFlow.Runtime.retry'],
       },
     ],
   },
@@ -189,7 +189,7 @@ const pageSpecs = [
     description: 'Source-documented task workflow specification for FsFlow.',
     intro:
       'This page shows the source-documented `TaskFlowSpec` surface, used for defining and running task workflows with explicit configurations.',
-    sourceFiles: ['src/FsFlow/Flow.fs', 'src/FsFlow/AsyncFlow.fs', 'src/FsFlow/TaskFlow.fs'],
+    sourceFiles: ['src/FsFlow/Flow.fs'],
     sections: [
       {
         title: 'Core type',
@@ -207,7 +207,7 @@ const pageSpecs = [
     description: 'Source-documented capabilities and layers for FsFlow.',
     intro:
       'This page shows the source-documented capability and layer surface, including the CAPS request tokens, named capability helpers, and layer composition used for environment management in task workflows.',
-    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/TaskFlow.fs'],
+    sourceFiles: ['src/FsFlow/Core.fs', 'src/FsFlow/Flow.fs'],
     sections: [
       {
         title: 'CAPS tokens',
@@ -289,7 +289,7 @@ const pageSpecs = [
     description: 'Source-documented delayed task helpers used by FsFlow.',
     intro:
       'This page shows the source-documented `ColdTask` surface: the delayed task helper used to anchor execution to the runtime context.',
-    sourceFiles: ['src/FsFlow/Flow.fs', 'src/FsFlow/AsyncFlow.fs', 'src/FsFlow/TaskFlow.fs'],
+    sourceFiles: ['src/FsFlow/Flow.fs'],
     sections: [
       {
         title: 'Core type',
@@ -307,7 +307,7 @@ const pageSpecs = [
     description: 'Source-documented task and async interop helpers for FsFlow.',
     intro:
       'This page shows the interop helpers that bridge task, async, and synchronous boundaries in FsFlow.',
-    sourceFiles: ['src/FsFlow/Flow.fs', 'src/FsFlow/AsyncFlow.fs', 'src/FsFlow/TaskFlow.fs'],
+    sourceFiles: ['src/FsFlow/Flow.fs', 'src/FsFlow/Guard.fs'],
     sections: [
       {
         title: 'TaskFlow bridges',

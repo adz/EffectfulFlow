@@ -17,5 +17,5 @@ let map3 (mapper: 'left -> 'middle -> 'right -> 'value) (left: TaskFlow<'env, 'e
 ## Information
 
 - **Module**: `TaskFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L487)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1479)
 

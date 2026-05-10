@@ -15,10 +15,10 @@ type ColdTask<'value>
 
 ## Constructors
 
-- `ColdTask of (CancellationToken -> Task<'value>)` [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L24)
+- `ColdTask of (CancellationToken -> Task<'value>)` [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1016)
 
 ## Information
 
 - **Module**: Global
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L23)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1015)
 

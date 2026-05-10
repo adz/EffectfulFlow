@@ -34,7 +34,7 @@ check-like sources and existing-error remapping before binding into the flow.
 ## Information
 
 - **Module**: `TaskBuilders`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L1698)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L2471)
 
 ## Examples
 

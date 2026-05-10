@@ -781,17 +781,17 @@ CAPS tokens type Needs: Describes the capability contract for a single dependenc
 </ul>
 <h2 id="capabilities">Capabilities</h2>
 <ul>
-<li>module <a href="./capability.md" class="broken-link"><code>Capability</code></a>: Capability helpers for record projections, runtime adapters, and .NET service-provider interop. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L813" target="_blank" rel="noopener">source</a></li>
+<li>module <a href="./capability.md" class="broken-link"><code>Capability</code></a>: Capability helpers for record projections, runtime adapters, and .NET service-provider interop. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1805" target="_blank" rel="noopener">source</a></li>
 <li>type <a href="http://localhost:3000/FsFlow/reference/caps/missingcapability/"><code>MissingCapability</code></a>: Describes a missing service-provider capability. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Core.fs#L288" target="_blank" rel="noopener">source</a></li>
-<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-service/"><code>Capability.service</code></a>: Reads a capability from a record-based environment projection. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L819" target="_blank" rel="noopener">source</a></li>
-<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-runtime/"><code>Capability.runtime</code></a>: Reads a capability from the runtime half of a two-context runtime environment. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L824" target="_blank" rel="noopener">source</a></li>
-<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-environment/"><code>Capability.environment</code></a>: Reads a capability from the application half of a two-context runtime environment. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L830" target="_blank" rel="noopener">source</a></li>
-<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-servicefromprovider/"><code>Capability.serviceFromProvider</code></a>: Reads a service from <code>IServiceProvider</code> and fails when it is not registered. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L836" target="_blank" rel="noopener">source</a></li>
+<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-service/"><code>Capability.service</code></a>: Reads a capability from a record-based environment projection. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1811" target="_blank" rel="noopener">source</a></li>
+<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-runtime/"><code>Capability.runtime</code></a>: Reads a capability from the runtime half of a two-context runtime environment. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1816" target="_blank" rel="noopener">source</a></li>
+<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-environment/"><code>Capability.environment</code></a>: Reads a capability from the application half of a two-context runtime environment. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1822" target="_blank" rel="noopener">source</a></li>
+<li><a href="http://localhost:3000/FsFlow/reference/caps/capability-servicefromprovider/"><code>Capability.serviceFromProvider</code></a>: Reads a service from <code>IServiceProvider</code> and fails when it is not registered. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1828" target="_blank" rel="noopener">source</a></li>
 </ul>
 <h2 id="layers">Layers</h2>
 <ul>
-<li>module <code>Layer</code>: Helpers for deriving an environment in one flow and consuming it in another. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L850" target="_blank" rel="noopener">source</a></li>
-<li><a href="http://localhost:3000/FsFlow/reference/caps/layer-providelayer/"><code>Layer.provideLayer</code></a>: Provides a derived environment from a layer flow to a downstream flow. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L852" target="_blank" rel="noopener">source</a></li>
+<li>module <code>Layer</code>: Helpers for deriving an environment in one flow and consuming it in another. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1842" target="_blank" rel="noopener">source</a></li>
+<li><a href="http://localhost:3000/FsFlow/reference/caps/layer-providelayer/"><code>Layer.provideLayer</code></a>: Provides a derived environment from a layer flow to a downstream flow. <a href="https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1844" target="_blank" rel="noopener">source</a></li>
 </ul>
 
 	<div class="section-index">

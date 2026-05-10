@@ -17,5 +17,5 @@ let run (cancellationToken: CancellationToken) (spec: TaskFlowSpec<'runtime, 'en
 ## Information
 
 - **Module**: `TaskFlowSpec`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L801)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1793)
 

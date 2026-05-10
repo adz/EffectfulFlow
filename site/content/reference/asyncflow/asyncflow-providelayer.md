@@ -17,5 +17,5 @@ let provideLayer (layer: AsyncFlow<'input, 'error, 'environment>) (flow: AsyncFl
 ## Information
 
 - **Module**: `AsyncFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L313)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L691)
 

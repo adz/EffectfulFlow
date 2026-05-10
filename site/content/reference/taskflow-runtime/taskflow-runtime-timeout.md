@@ -17,5 +17,5 @@ let timeout (after: TimeSpan) (timeoutError: 'error) (flow: TaskFlow<'env, 'erro
 ## Information
 
 - **Module**: `TaskFlow.Runtime`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L676)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1668)
 

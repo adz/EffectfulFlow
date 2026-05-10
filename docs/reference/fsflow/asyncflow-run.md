@@ -16,5 +16,5 @@ let run (environment: 'env) (AsyncFlow operation: AsyncFlow<'env, 'error, 'value
 ## Information
 
 - **Module**: `AsyncFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L8)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L386)
 

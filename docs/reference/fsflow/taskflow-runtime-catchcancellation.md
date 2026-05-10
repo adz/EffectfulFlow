@@ -16,5 +16,5 @@ let catchCancellation (handler: OperationCanceledException -> 'error) (flow: Tas
 ## Information
 
 - **Module**: `TaskFlow.Runtime`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L592)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1584)
 

@@ -17,5 +17,5 @@ let apply (flow: TaskFlow<'env, 'error, 'value -> 'next>) (value: TaskFlow<'env,
 ## Information
 
 - **Module**: `TaskFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L480)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1472)
 

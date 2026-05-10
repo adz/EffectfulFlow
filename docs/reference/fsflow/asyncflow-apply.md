@@ -16,5 +16,5 @@ let apply (flow: AsyncFlow<'env, 'error, 'value -> 'next>) (value: AsyncFlow<'en
 ## Information
 
 - **Module**: `AsyncFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L274)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L652)
 

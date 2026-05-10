@@ -16,5 +16,5 @@ type TaskFlowSpec<'runtime, 'env, 'error, 'value>
 ## Information
 
 - **Module**: Global
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/TaskFlow.fs#L772)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L1764)
 

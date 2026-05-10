@@ -17,5 +17,5 @@ let delay (factory: unit -> AsyncFlow<'env, 'error, 'value>) : AsyncFlow<'env, '
 ## Information
 
 - **Module**: `AsyncFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L327)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L705)
 

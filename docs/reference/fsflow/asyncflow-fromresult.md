@@ -16,5 +16,5 @@ let fromResult (result: Result<'value, 'error>) : AsyncFlow<'env, 'error, 'value
 ## Information
 
 - **Module**: `AsyncFlow`
-- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/AsyncFlow.fs#L39)
+- **Source**: [source](https://github.com/adz/FsFlow/blob/main/src/FsFlow/Flow.fs#L417)
 
