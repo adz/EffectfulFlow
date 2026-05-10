@@ -84,6 +84,14 @@ module Flow =
     let fromResult (result: Result<'value, 'error>) : Flow<'env, 'error, 'value> =
         Flow(fun _ _ -> EffectFlow.ofResult result)
 
+    /// <summary>Executes a flow and converts the final <see cref="T:FsFlow.Exit`2" /> into a standard <see cref="T:System.Result`2" />.</summary>
+    /// <remarks>
+    /// Interruption signals and defects are raised as exceptions in the caller's context.
+    /// </remarks>
+    let toResult (environment: 'env) (flow: Flow<'env, 'error, 'value>) : Result<'value, 'error> =
+        run environment flow
+        |> Exit.toResult
+
     /// <summary>Lifts an option into a synchronous flow with the supplied error.</summary>
     /// <example>
     /// <code>
@@ -431,7 +439,17 @@ module internal AsyncFlow =
 
     /// <summary>Lifts a <see cref="T:System.Result`2" /> into an async flow.</summary>
     let fromResult (result: Result<'value, 'error>) : AsyncFlow<'env, 'error, 'value> =
-        AsyncFlow(fun _ -> async.Return (match result with Ok v -> Exit.Success v | Error e -> Exit.Failure (Cause.Fail e)))
+        AsyncFlow(fun _ -> async.Return (Exit.fromResult result))
+
+    /// <summary>Executes an async flow and converts the final <see cref="T:FsFlow.Exit`2" /> into a standard <see cref="T:System.Result`2" />.</summary>
+    /// <remarks>
+    /// Interruption signals and defects are raised as exceptions in the caller's context.
+    /// </remarks>
+    let toResult (environment: 'env) (flow: AsyncFlow<'env, 'error, 'value>) : Async<Result<'value, 'error>> =
+        async {
+            let! exit = run environment flow
+            return Exit.toResult exit
+        }
 
     /// <summary>Lifts an option into an async flow with the supplied error.</summary>
     let fromOption (error: 'error) (value: 'value option) : AsyncFlow<'env, 'error, 'value> =
@@ -1175,7 +1193,17 @@ module internal TaskFlow =
     /// <param name="result">The result to lift.</param>
     /// <returns>A task flow mirroring the result.</returns>
     let fromResult (result: Result<'value, 'error>) : TaskFlow<'env, 'error, 'value> =
-        TaskFlow(fun _ _ -> Task.FromResult (match result with Ok v -> Exit.Success v | Error e -> Exit.Failure (Cause.Fail e)))
+        TaskFlow(fun _ _ -> Task.FromResult (Exit.fromResult result))
+
+    /// <summary>Executes a task flow and converts the final <see cref="T:FsFlow.Exit`2" /> into a standard <see cref="T:System.Result`2" />.</summary>
+    /// <remarks>
+    /// Interruption signals and defects are raised as exceptions in the caller's context.
+    /// </remarks>
+    let toResult (environment: 'env) (cancellationToken: CancellationToken) (flow: TaskFlow<'env, 'error, 'value>) : Task<Result<'value, 'error>> =
+        task {
+            let! exit = run environment cancellationToken flow
+            return Exit.toResult exit
+        }
 
     /// <summary>Lifts an option into a task flow with the supplied error.</summary>
     /// <param name="error">The error to return if the option is <see cref="T:Microsoft.FSharp.Core.FSharpOption`1.None" />.</param>
