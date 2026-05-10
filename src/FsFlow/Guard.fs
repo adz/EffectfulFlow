@@ -2,6 +2,31 @@ namespace FsFlow
 
 open System.Threading.Tasks
 
+module private GuardFlow =
+    let inline fromAsyncFlow
+        (flow: AsyncFlow<'env, 'error, 'value>)
+        : Flow<'env, 'error, 'value> =
+        Flow(fun environment cancellationToken ->
+            ValueTask<Result<'value, 'error>>(
+                task {
+                    let! result =
+                        Async.StartAsTask(
+                            AsyncFlow.run environment flow,
+                            cancellationToken = cancellationToken)
+
+                    return result
+                }))
+
+    let inline fromTaskFlow
+        (flow: TaskFlow<'env, 'error, 'value>)
+        : Flow<'env, 'error, 'value> =
+        Flow(fun environment cancellationToken ->
+            ValueTask<Result<'value, 'error>>(
+                task {
+                    let! result = TaskFlow.run environment cancellationToken flow
+                    return result
+                }))
+
 /// <summary>
 /// Constructors for turning predicate-like and error-bearing sources into bindable results,
 /// validations, and flows.
@@ -109,24 +134,16 @@ type Guard private () =
             | Error () -> EffectFlow.ofError error)
 
     static member Of(error: 'error, flow: AsyncFlow<'env, unit, 'value>) : AsyncFlow<'env, 'error, 'value> =
-        AsyncFlow(fun environment ->
-            async {
-                let! outcome = AsyncFlow.run environment flow
-                return
-                    match outcome with
-                    | Ok value -> Ok value
-                    | Error () -> Error error
-            })
+        flow
+        |> GuardFlow.fromAsyncFlow
+        |> Flow.mapError (fun () -> error)
+        |> AsyncFlow.fromFlow
 
     static member Of(error: 'error, flow: TaskFlow<'env, unit, 'value>) : TaskFlow<'env, 'error, 'value> =
-        TaskFlow(fun environment cancellationToken ->
-            task {
-                let! outcome = TaskFlow.run environment cancellationToken flow
-                return
-                    match outcome with
-                    | Ok value -> Ok value
-                    | Error () -> Error error
-            })
+        flow
+        |> GuardFlow.fromTaskFlow
+        |> Flow.mapError (fun () -> error)
+        |> TaskFlow.fromFlow
 
     static member MapError(mapper: 'error1 -> 'error2, result: Result<'value, 'error1>) : Result<'value, 'error2> =
         Result.mapError mapper result
@@ -158,7 +175,13 @@ type Guard private () =
         Flow.mapError mapper flow
 
     static member MapError(mapper: 'error1 -> 'error2, flow: AsyncFlow<'env, 'error1, 'value>) : AsyncFlow<'env, 'error2, 'value> =
-        AsyncFlow.mapError mapper flow
+        flow
+        |> GuardFlow.fromAsyncFlow
+        |> Flow.mapError mapper
+        |> AsyncFlow.fromFlow
 
     static member MapError(mapper: 'error1 -> 'error2, flow: TaskFlow<'env, 'error1, 'value>) : TaskFlow<'env, 'error2, 'value> =
-        TaskFlow.mapError mapper flow
+        flow
+        |> GuardFlow.fromTaskFlow
+        |> Flow.mapError mapper
+        |> TaskFlow.fromFlow

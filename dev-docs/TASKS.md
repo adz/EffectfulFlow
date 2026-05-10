@@ -15,7 +15,7 @@ Keep live product and architecture direction in `dev-docs/PLAN.md`.
 
 ## Phase 2: Migration & Cleanup
 
-6. [ ] Migrate existing `FsFlow` internal modules (Guard, Validate) to use the new unified `Flow` type instead of separate `Flow`/`AsyncFlow`/`TaskFlow`.
+6. [x] Migrate existing `FsFlow` internal modules (Guard, Validate) to use the new unified `Flow` type instead of separate `Flow`/`AsyncFlow`/`TaskFlow`.
 7. [ ] Refactor the project structure to remove the separate `AsyncFlow.fs` and `TaskFlow.fs` files, merging their unique logic (e.g., retries, timeouts) into the unified `Flow` module.
 8. [ ] Update existing unit tests and examples in `tests/FsFlow.Tests` and `examples/FsFlow.Examples` to use the unified `flow { }` builder.
 9. [ ] Regenerate API documentation to reflect the single-type model and the removal of the effect-family split.
