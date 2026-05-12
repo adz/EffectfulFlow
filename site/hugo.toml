@@ -99,6 +99,9 @@ defaultContentLanguage = "en"
   [[module.mounts]]
     source = "../docs/STM.md"
     target = "content/docs/state-concurrency/stm.md"
+  [[module.mounts]]
+    source = "../docs/STREAM.md"
+    target = "content/docs/state-concurrency/stream.md"
 
   [[module.mounts]]
     source = "../docs/examples/README.md"
