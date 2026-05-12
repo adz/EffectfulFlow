@@ -93,6 +93,9 @@ defaultContentLanguage = "en"
   [[module.mounts]]
     source = "../docs/REF.md"
     target = "content/docs/state-concurrency/ref.md"
+  [[module.mounts]]
+    source = "../docs/SCHEDULE.md"
+    target = "content/docs/state-concurrency/schedule.md"
 
   [[module.mounts]]
     source = "../docs/examples/README.md"
