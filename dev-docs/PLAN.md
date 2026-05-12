@@ -6,6 +6,8 @@ This file tracks only unresolved product direction.
 ## Remaining Direction
 
 - Keep the public story centered on `Flow` and the `Exit` execution model.
+- Keep `Cause.Fail`, `Cause.Interrupt`, and `Cause.Die` as distinct runtime outcomes.
+- Make defect handling explicit enough to support a ZIO-like lossless failure story.
 - Keep the docs, examples, and generated reference aligned with the source of truth.
 - Trim stale proposal language that no longer changes future decisions.
 
