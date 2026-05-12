@@ -11,7 +11,7 @@ Keep live product and architecture direction in `dev-docs/PLAN.md`.
 4. [x] Overhaul `Task and Async Interop` to focus on direct binding and the unified model, removing old patterns.
 5. [x] Create documentation for `Ref` (atomic mutable references) with examples and API details.
 6. [x] Create documentation for `Schedule` (retry and repeat logic) with examples and API details.
-7. [ ] Create documentation for `STM` (Software Transactional Memory) with examples and API details.
+7. [x] Create documentation for `STM` (Software Transactional Memory) with examples and API details.
 8. [ ] Create documentation for `Stream` (FlowStream) with examples and API details.
 9. [ ] Complete API Reference: Ensure every module has a page, examples, and function descriptions.
 10. [ ] Review and update `BASIC_EXAMPLES.md` and all other `.md` files to ensure API consistency and no old patterns.
