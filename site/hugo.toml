@@ -88,6 +88,13 @@ defaultContentLanguage = "en"
     target = "content/docs/managing-dependencies/capabilities.md"
 
   [[module.mounts]]
+    source = "../docs/STATE_CONCURRENCY.md"
+    target = "content/docs/state-concurrency/_index.md"
+  [[module.mounts]]
+    source = "../docs/REF.md"
+    target = "content/docs/state-concurrency/ref.md"
+
+  [[module.mounts]]
     source = "../docs/examples/README.md"
     target = "content/docs/patterns/examples/_index.md"
   [[module.mounts]]
