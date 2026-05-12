@@ -5,27 +5,13 @@ Keep completed work out of this file.
 Keep settled design decisions in `dev-docs/decisions/`.
 Keep live product and architecture direction in `dev-docs/PLAN.md`.
 
-## Phase 5: Documentation Overhaul (Current)
-
-### Core Model & Getting Started
-1. [ ] Set `Getting Started` as the main landing page for documentation.
-2. [ ] Update `Getting Started` to show how to 'run' a flow and map it to `Task` or `Async`.
-3. [ ] Reorganize documentation structure:
-    - Create "Managing Dependencies" top-level section.
-    - Move Environment Slicing, Capabilities, and Layering under "Managing Dependencies".
-    - Focus "Core Model" on Interop, Execution Semantics, and the FsFlow Model.
-4. [ ] Overhaul `Task and Async Interop`:
-    - Remove mentions of old styles/patterns.
-    - Focus on direct binding and the unified model.
-5. [ ] Update `Simple Examples` (BASIC_EXAMPLES.md) to use only the current API.
-
-### New Feature Documentation
-6. [ ] Add documentation for `Ref` (atomic mutable references).
-7. [ ] Add documentation for `Schedule` (retry and repeat logic).
-8. [ ] Add documentation for `STM` (Software Transactional Memory).
-9. [ ] Add documentation for `Stream` (FlowStream).
-
-### Cleanup & Maintenance
-10. [ ] Review and update all existing documentation files for API consistency.
-11. [ ] Ensure `_index.md` and sidebar navigation reflect the new structure.
-12. [ ] Verify all examples in documentation are up-to-date and compilable.
+1. [ ] Fix broken tests in `FsFlow.Tests` (`WorkflowBasicTests` and `WorkflowErrorTests`).
+2. [ ] Reorganize documentation structure: Create "Managing Dependencies" section and move Environment Slicing, Capabilities, and Layering there.
+3. [ ] Update `Getting Started` to be pedagogical, building up slowly, and show how to 'run' a flow.
+4. [ ] Overhaul `Task and Async Interop` to focus on direct binding and the unified model, removing old patterns.
+5. [ ] Create documentation for `Ref` (atomic mutable references) with examples and API details.
+6. [ ] Create documentation for `Schedule` (retry and repeat logic) with examples and API details.
+7. [ ] Create documentation for `STM` (Software Transactional Memory) with examples and API details.
+8. [ ] Create documentation for `Stream` (FlowStream) with examples and API details.
+9. [ ] Complete API Reference: Ensure every module has a page, examples, and function descriptions.
+10. [ ] Review and update `BASIC_EXAMPLES.md` and all other `.md` files to ensure API consistency and no old patterns.
