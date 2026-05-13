@@ -55,6 +55,18 @@ module WorkflowErrorTests =
         test <@ mapped = Exit.Success 16 @>
 
     [<Fact>]
+    let ``Flow die creates a defect cause`` () =
+        let defect = InvalidOperationException "boom"
+
+        let result =
+            Flow.die defect
+            |> Flow.runSync ()
+
+        match result with
+        | Exit.Failure (Cause.Die ex) -> test <@ obj.ReferenceEquals(ex, defect) @>
+        | other -> failwithf "Expected defect cause, got %A" other
+
+    [<Fact>]
     let ``Check bridges into flow shapes`` () =
         let flowBridge =
             Check.okIf false

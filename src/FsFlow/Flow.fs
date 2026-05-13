@@ -76,6 +76,14 @@ module Flow =
     let fail (failure: 'error) : Flow<'env, 'error, 'value> =
         error failure
 
+    /// <summary>Creates a defective flow that fails with an exception.</summary>
+    /// <remarks>
+    /// This is the public constructor for non-domain defects. Use <see cref="fail" /> for expected
+    /// typed failures and <see cref="die" /> when the workflow should surface a bug or panic.
+    /// </remarks>
+    let die (exn: exn) : Flow<'env, 'error, 'value> =
+        Flow(fun _ _ -> EffectFlow.ofDie exn)
+
     /// <summary>Lifts a <see cref="T:System.Result`2" /> into a synchronous flow.</summary>
     /// <example>
     /// <code>
