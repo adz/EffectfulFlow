@@ -59,6 +59,7 @@ let workflow : Flow<RuntimeContext<RuntimeServices, ApiDeps>, string, Guid> =
 
 Works with any environment:
 
+- `Flow.env`
 - `Flow.read`
 - `Flow.localEnv`
 - `Flow.provideLayer`

@@ -8,6 +8,9 @@ type: docs
 
 The first dependency shape in FsFlow is a record scoped to a boundary, not one global application bag.
 
+The first question is whether the whole record is already the right shape. If it is, use `Flow.env`.
+If you only need part of it, project with `Flow.read`.
+
 That boundary is usually one of these:
 
 - an ASP.NET controller
@@ -76,7 +79,7 @@ That mapping is the architectural win. It keeps the feature boundary visible and
 
 ## Reading Fields
 
-The `Flow.read` helper projects what a workflow needs.
+`Flow.read` projects what a workflow needs from the boundary record.
 
 ```fsharp
 let submitOrder : Flow<SubmitOrderDeps, string, Guid> =

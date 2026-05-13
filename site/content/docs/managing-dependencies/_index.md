@@ -8,28 +8,21 @@ type: docs
 
 FsFlow does not force one dependency style on every workflow. It gives you a ladder:
 
-1. area-scoped records at the boundary
+1. area-scoped records at the boundary, read with `Flow.read`
 2. `RuntimeContext<'runtime, 'env>` when the host and app should be separate
 3. `IServiceProvider` at the outer edge when the host container is the source of truth
 4. nominal `Requires<'dep>` helpers when reuse beats plain record passing
 
-Start with the shallowest level that fits the boundary you are designing. Move deeper only when you can name the pressure that makes the simpler shape awkward.
+Start with the shallowest level that fits the boundary you are designing. Read the record first, then split runtime from app dependencies only when that separation is real, then reach for provider lookup or nominal helpers only when the simpler shape starts to fight the design.
 
 ## Read In Order
 
-| Level | Shape | Best fit | Main APIs | Page |
-| :--- | :--- | :--- | :--- | :--- |
-| 1 | Area-scoped records | Controllers, jobs, integrations, feature boundaries | `Flow.read`, `Flow.localEnv`, `Flow.provideLayer` | [Level 1: Area-Scoped Records](./env-slicing/) |
-| 2 | `RuntimeContext<'runtime, 'env>` | Host services and app dependencies need separate ownership | `RuntimeContext.create`, `Resolver.runtime`, `Resolver.environment`, `Flow.readRuntime`, `Flow.readEnvironment` | [Level 2: RuntimeContext](./runtime-context/) |
-| 3 | `IServiceProvider` edge | ASP.NET, hosted services, DI-heavy hosts | `Resolver.fromProvider`, `MissingCapability` | [Level 3: Provider Edge](./provider-edge/) |
-| 4 | Nominal capability helpers | Reusable helpers that need a named contract | `Requires<'dep>`, `Resolver.resolve` | [Level 4: Nominal Capability Helpers](./capability-contracts/) |
-
-## The Pedagogical Order
-
-1. Start with records that are scoped to a controller, job, or integration boundary.
-2. Split runtime services from application dependencies only when that separation is real.
-3. Use provider lookup only when the host container must remain the root of truth.
-4. Reach for nominal helpers only when a shared contract is clearly paying rent.
+| Level | Shape | Best fit | Main APIs |
+| :--- | :--- | :--- | :--- |
+| 1 | [Area-scoped records](./env-slicing/) | Controllers, jobs, integrations, feature boundaries | `Flow.env`, `Flow.read`, `Flow.localEnv`, `Flow.provideLayer` |
+| 2 | [RuntimeContext<'runtime, 'env>](./runtime-context/) | Host services and app dependencies need separate ownership | `RuntimeContext.create`, `Resolver.runtime`, `Resolver.environment`, `Flow.readRuntime`, `Flow.readEnvironment` |
+| 3 | [IServiceProvider edge](./provider-edge/) | ASP.NET, hosted services, DI-heavy hosts | `Resolver.fromProvider`, `MissingCapability` |
+| 4 | [Nominal capability helpers](./capability-contracts/) | Reusable helpers that need a named contract | `Requires<'dep>`, `Resolver.resolve` |
 
 ## What `RuntimeContext` Is Doing Here
 
