@@ -153,9 +153,9 @@ Workflow:
 ```fsharp
 let submitOrder command : TaskFlow<RuntimeContext<OrderRuntime, OrderApp>, AppError, Guid> =
     taskFlow {
-        let! log = TaskFlow.readRuntime _.Log
-        let! orders = TaskFlow.readEnvironment _.Orders
-        let! email = TaskFlow.readEnvironment _.Email
+        let! log = Flow.readRuntime _.Log
+        let! orders = Flow.readEnvironment _.Orders
+        let! email = Flow.readEnvironment _.Email
 
         log
             { Level = LogLevel.Information
@@ -245,7 +245,7 @@ Service lookup is explicit:
 module Service =
     let get<'service> : TaskFlow<RuntimeContext<'runtime, IServiceProvider>, MissingCapability, 'service> =
         taskFlow {
-            let! sp = TaskFlow.readEnvironment id
+            let! sp = Flow.readEnvironment id
 
             match sp.GetService typeof<'service> with
             | null ->
@@ -379,11 +379,11 @@ Helper modules:
 ```fsharp
 module Orders =
     let repository () : TaskFlow<RuntimeContext<'runtime, #IHasOrders>, 'error, IOrderRepository> =
-        TaskFlow.readEnvironment _.Orders
+        Flow.readEnvironment _.Orders
 
 module Email =
     let sender () : TaskFlow<RuntimeContext<'runtime, #IHasEmail>, 'error, IEmailSender> =
-        TaskFlow.readEnvironment _.Email
+        Flow.readEnvironment _.Email
 ```
 
 Workflow:

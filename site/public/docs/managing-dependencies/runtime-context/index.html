@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Level 2: RuntimeContext">
   <meta itemprop="description" content="Splitting runtime services from application dependencies.">
-  <meta itemprop="wordCount" content="301">
+  <meta itemprop="wordCount" content="286">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Level 2: RuntimeContext">
   <meta name="twitter:description" content="Splitting runtime services from application dependencies.">
@@ -246,7 +246,6 @@
   <ul>
     <li><a href="#what-goes-where">What Goes Where</a></li>
     <li><a href="#reading-the-split">Reading The Split</a></li>
-    <li><a href="#task-based-helpers">Task-Based Helpers</a></li>
     <li><a href="#what-works-with-runtimecontext">What Works With RuntimeContext</a></li>
     <li><a href="#when-to-stop">When To Stop</a></li>
   </ul>
@@ -300,7 +299,8 @@
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">context</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">RuntimeContext</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">create</span> <span style="color:#000">runtime</span> <span style="color:#000">apiDeps</span> <span style="color:#000">cancellationToken</span>
 </span></span></code></pre></div><h2 id="reading-the-split">Reading The Split</h2>
-<p><code>Resolver.runtime</code> and <code>Resolver.environment</code> are the <code>Flow</code>-level readers for this split.</p>
+<p><code>Flow.readRuntime</code> and <code>Flow.readEnvironment</code> are the public readers for this split.
+<code>Resolver.runtime</code> and <code>Resolver.environment</code> are the zero-argument convenience aliases.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">workflow</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RuntimeContext</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RuntimeServices</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">ApiDeps</span><span style="color:#ce5c00;font-weight:bold">&gt;,</span> <span style="color:#204a87;font-weight:bold">string</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">Guid</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">runtime</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Resolver</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">runtime</span><span style="color:#3465a4">()</span>
@@ -312,14 +312,7 @@
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">deps</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Email</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">SendConfirmation</span> <span style="color:#000">order</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><h2 id="task-based-helpers">Task-Based Helpers</h2>
-<p>On the task-based surface, <code>TaskFlow</code> exposes matching helpers:</p>
-<ul>
-<li><code>TaskFlow.readRuntime</code></li>
-<li><code>TaskFlow.readEnvironment</code></li>
-</ul>
-<p>Those are the direct equivalents when the workflow itself is task-shaped.</p>
-<h2 id="what-works-with-runtimecontext">What Works With RuntimeContext</h2>
+</span></span></code></pre></div><h2 id="what-works-with-runtimecontext">What Works With RuntimeContext</h2>
 <p>Works with any environment:</p>
 <ul>
 <li><code>Flow.read</code></li>
@@ -327,6 +320,8 @@
 <li><code>Flow.provideLayer</code></li>
 <li><code>Resolver.resolve</code></li>
 <li><code>Resolver.fromProvider</code></li>
+<li><code>Flow.readRuntime</code></li>
+<li><code>Flow.readEnvironment</code></li>
 </ul>
 <p>RuntimeContext-specific:</p>
 <ul>
@@ -336,8 +331,6 @@
 <li><code>RuntimeContext.cancellationToken</code></li>
 <li><code>Resolver.runtime</code></li>
 <li><code>Resolver.environment</code></li>
-<li><code>TaskFlow.readRuntime</code></li>
-<li><code>TaskFlow.readEnvironment</code></li>
 </ul>
 <p>This is the key distinction: the general helpers work on any environment, while the runtime split helpers only make sense when the environment is actually a <code>RuntimeContext</code>.</p>
 <h2 id="when-to-stop">When To Stop</h2>

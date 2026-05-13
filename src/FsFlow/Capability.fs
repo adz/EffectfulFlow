@@ -76,15 +76,15 @@ module Resolver =
     let resolve
         (projection: 'env -> 'resolve)
         : Flow<RuntimeContext<'runtime, 'env>, 'error, 'resolve> =
-        Flow.read (fun context -> projection context.Environment)
+        Flow.readEnvironment projection
 
     /// <summary>Reads the current runtime from the environment.</summary>
     let runtime<'runtime, 'env, 'error> () : Flow<RuntimeContext<'runtime, 'env>, 'error, 'runtime> =
-        Flow.read (fun context -> context.Runtime)
+        Flow.readRuntime id
 
     /// <summary>Reads the application environment from the environment.</summary>
     let environment<'runtime, 'env, 'error> () : Flow<RuntimeContext<'runtime, 'env>, 'error, 'env> =
-        Flow.read (fun context -> context.Environment)
+        Flow.readEnvironment id
 
     /// <summary>Reads a dependency from <see cref="IServiceProvider" /> and fails when it is not registered.</summary>
     #if FABLE_COMPILER

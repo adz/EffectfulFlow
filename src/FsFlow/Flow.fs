@@ -376,6 +376,30 @@ module Flow =
     let read (projection: 'env -> 'value) : Flow<'env, 'error, 'value> =
         Flow(fun environment _ -> EffectFlow.ofValue (projection environment))
 
+    /// <summary>Projects a value from the runtime half of a <see cref="T:FsFlow.RuntimeContext`2" /> environment.</summary>
+    /// <remarks>
+    /// Use this when a workflow needs operational services such as logging, tracing, or clocks from the host runtime.
+    /// For the application dependency half of the same context, use <see cref="readEnvironment" />.
+    /// </remarks>
+    /// <param name="projection">A function that extracts a value from the runtime object.</param>
+    /// <returns>A <see cref="T:FsFlow.Flow`3" /> containing the projected runtime value.</returns>
+    let readRuntime
+        (projection: 'runtime -> 'value)
+        : Flow<RuntimeContext<'runtime, 'env>, 'error, 'value> =
+        read (fun context -> projection context.Runtime)
+
+    /// <summary>Projects a value from the application environment half of a <see cref="T:FsFlow.RuntimeContext`2" /> environment.</summary>
+    /// <remarks>
+    /// Use this when a workflow needs feature- or boundary-specific dependencies from the application environment.
+    /// For the runtime half of the same context, use <see cref="readRuntime" />.
+    /// </remarks>
+    /// <param name="projection">A function that extracts a value from the application environment.</param>
+    /// <returns>A <see cref="T:FsFlow.Flow`3" /> containing the projected application value.</returns>
+    let readEnvironment
+        (projection: 'env -> 'value)
+        : Flow<RuntimeContext<'runtime, 'env>, 'error, 'value> =
+        read (fun context -> projection context.Environment)
+
     /// <summary>Maps the successful value of a synchronous flow.</summary>
     /// <remarks>
     /// If the source <paramref name="flow" /> fails, the <paramref name="mapper" /> is not executed,

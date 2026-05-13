@@ -20,7 +20,7 @@ Start with the shallowest level that fits the boundary you are designing. Move d
 | Level | Shape | Best fit | Main APIs | Page |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | Area-scoped records | Controllers, jobs, integrations, feature boundaries | `Flow.read`, `Flow.localEnv`, `Flow.provideLayer` | [Level 1: Area-Scoped Records](./env-slicing/) |
-| 2 | `RuntimeContext<'runtime, 'env>` | Host services and app dependencies need separate ownership | `RuntimeContext.create`, `Resolver.runtime`, `Resolver.environment`, `TaskFlow.readRuntime`, `TaskFlow.readEnvironment` | [Level 2: RuntimeContext](./runtime-context/) |
+| 2 | `RuntimeContext<'runtime, 'env>` | Host services and app dependencies need separate ownership | `RuntimeContext.create`, `Resolver.runtime`, `Resolver.environment`, `Flow.readRuntime`, `Flow.readEnvironment` | [Level 2: RuntimeContext](./runtime-context/) |
 | 3 | `IServiceProvider` edge | ASP.NET, hosted services, DI-heavy hosts | `Resolver.fromProvider`, `MissingCapability` | [Level 3: Provider Edge](./provider-edge/) |
 | 4 | Nominal capability helpers | Reusable helpers that need a named contract | `Requires<'dep>`, `Resolver.resolve` | [Level 4: Nominal Capability Helpers](./capability-contracts/) |
 

@@ -220,18 +220,6 @@ module internal TaskFlow =
     let read (projection: 'env -> 'value) : TaskFlow<'env, 'error, 'value> =
         TaskFlow(fun environment _ -> Task.FromResult(Exit.Success(projection environment)))
 
-    /// <summary>Reads the runtime half of a runtime-context environment.</summary>
-    let readRuntime
-        (projection: 'runtime -> 'value)
-        : TaskFlow<RuntimeContext<'runtime, 'env>, 'error, 'value> =
-        read (fun context -> projection context.Runtime)
-
-    /// <summary>Reads the application environment half of a runtime-context environment.</summary>
-    let readEnvironment
-        (projection: 'env -> 'value)
-        : TaskFlow<RuntimeContext<'runtime, 'env>, 'error, 'value> =
-        read (fun context -> projection context.Environment)
-
     /// <summary>Maps the successful value of a task flow.</summary>
     /// <param name="mapper">A function of type <c>'value -> 'next</c> to transform the success value.</param>
     /// <param name="flow">The source task flow of type <see cref="T:FsFlow.TaskFlow`3" />.</param>

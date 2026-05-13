@@ -640,7 +640,7 @@ module Service =
     let get<'service>
         : TaskFlow<RuntimeContext<#IHasServiceProvider, 'ctx, 'env>, MissingCapability, 'service> =
         taskFlow {
-            let! slot = TaskFlow.readRuntime _.ServiceProvider
+            let! slot = Flow.readRuntime _.ServiceProvider
 
             match slot.Services.GetService typeof<'service> with
             | null -> return! TaskFlow.error { CapabilityType = typeof<'service> }

@@ -38,7 +38,8 @@ let context =
 
 ## Reading The Split
 
-`Resolver.runtime` and `Resolver.environment` are the `Flow`-level readers for this split.
+`Flow.readRuntime` and `Flow.readEnvironment` are the public readers for this split.
+`Resolver.runtime` and `Resolver.environment` are the zero-argument convenience aliases.
 
 ```fsharp
 let workflow : Flow<RuntimeContext<RuntimeServices, ApiDeps>, string, Guid> =
@@ -54,15 +55,6 @@ let workflow : Flow<RuntimeContext<RuntimeServices, ApiDeps>, string, Guid> =
     }
 ```
 
-## Task-Based Helpers
-
-On the task-based surface, `TaskFlow` exposes matching helpers:
-
-- `TaskFlow.readRuntime`
-- `TaskFlow.readEnvironment`
-
-Those are the direct equivalents when the workflow itself is task-shaped.
-
 ## What Works With RuntimeContext
 
 Works with any environment:
@@ -72,6 +64,8 @@ Works with any environment:
 - `Flow.provideLayer`
 - `Resolver.resolve`
 - `Resolver.fromProvider`
+- `Flow.readRuntime`
+- `Flow.readEnvironment`
 
 RuntimeContext-specific:
 
@@ -81,8 +75,6 @@ RuntimeContext-specific:
 - `RuntimeContext.cancellationToken`
 - `Resolver.runtime`
 - `Resolver.environment`
-- `TaskFlow.readRuntime`
-- `TaskFlow.readEnvironment`
 
 This is the key distinction: the general helpers work on any environment, while the runtime split helpers only make sense when the environment is actually a `RuntimeContext`.
 
