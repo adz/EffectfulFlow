@@ -31,9 +31,8 @@ The same validation vocabulary stays the same while the execution context grows.
 - Start with `Check` for reusable predicates.
 - Use standard `Result` values and `result {}` for fail-fast pure code.
 - Use `Validation` and `validate {}` when sibling failures should accumulate.
-- Use `flow {}` when the boundary needs typed failure and environment, but not async runtime.
-- Use `flow {}` when the boundary is naturally `Async`.
-- Use `flow {}` when the boundary is naturally `.NET Task`.
+- Use `flow {}` when the boundary needs typed failure plus environment access, async work, or task interop.
+- The same `flow {}` builder also binds `Async`, `Task`, `ValueTask`, and `ColdTask` directly.
 - Keep expected failures typed all the way through instead of switching helper families at each runtime shape.
 
 This is the key difference from split models like `Result`, `Async<Result<_,_>>`, and `Task<Result<_,_>>`

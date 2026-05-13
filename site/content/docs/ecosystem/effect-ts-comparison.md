@@ -8,6 +8,7 @@ type: docs
 
 
 This page shows FsFlow in relation to Effect-TS without pretending they solve the same problem at the same scale.
+The overlap is real, but FsFlow is intentionally much smaller and more F#-application-focused.
 
 ## What Carries Over
 
@@ -16,16 +17,17 @@ These ideas are shared:
 - typed success and error channels
 - explicit dependency access
 - compositional workflow values
-- runtime helpers for retry, timeout, and cancellation-aware execution
+- cancellation-aware execution
+- structured failure handling at the boundary
 
 ## What Is Different
 
-FsFlow is aimed at ordinary F# application code:
+FsFlow is aimed at ordinary F# application code, especially the point where orchestration becomes visible:
 
 - `flow {}` instead of generator-based syntax, with direct binding for `Async`, `Task`, `ValueTask`, and `ColdTask`
-- first-class interop with Result, `Async`, and `.NET Task`
-- explicit environment reads such as `Flow.read _.Gateway` or `Flow.read _.Gateway`
-- a much smaller surface focused on application flows rather than a broader runtime platform
+- first-class interop with `Result`, `Async`, and `.NET Task`
+- explicit environment reads such as `Flow.read _.Gateway`
+- a smaller surface focused on application flows rather than a broader runtime platform
 
 ## What Effect-TS Still Has That FsFlow Does Not
 
@@ -49,11 +51,21 @@ The useful questions are:
 
 ## Practical Takeaway
 
-Use FsFlow if you want a small F#-native library for composable flows with explicit dependencies, typed failures, explicit cancellation, and direct `.NET` interop.
+Use FsFlow if you want a small F#-native library for composable flows with explicit dependencies, typed failures, cancellation-aware boundaries, and direct `.NET` interop.
 
-Do not evaluate it as a feature-peer to Effect-TS. Evaluate it against the F# code you would otherwise write.
+Do not evaluate it as a feature-peer to Effect-TS. Evaluate it against the F# code you would otherwise write, or against the runtime you would otherwise have to build yourself.
+
+## If You Use Effect-TS Today
+
+The closest FsFlow substitute is not the whole Effect-TS runtime. It is the combination of:
+
+- `Check` for pure guards
+- `Validation` for accumulating validation
+- `Flow` for explicit application boundaries
+
+That is the part FsFlow intentionally covers.
 
 ## Next
 
-If you are deciding whether to adopt the library, read [`docs/GETTING_STARTED.md`](./GETTING_STARTED.md),
-[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md), and [`docs/examples/README.md`](./examples/README.md).
+If you are deciding whether to adopt the library, read [`Getting Started`](../start/getting-started.md),
+[`Task and Async Interop`](../core-model/task-async-interop.md), and [`Runnable Examples`](../patterns/examples/README.md).

@@ -94,7 +94,7 @@ The tables below are taken from the joined BenchmarkDotNet report for the curren
 | Method | Mean | Allocated |
 | --- | --- | --- |
 | `Manual token Task` | 229.87 ns | 624 B |
-| `IcedTasksCancellableTask` | 290.42 ns | 504 B |
+| `CancellableTask` | 290.42 ns | 504 B |
 | `Explicit token Task<Result>` | 367.77 ns | 672 B |
 | `TaskFlow` | 1.079 us | 3,136 B |
 
@@ -191,7 +191,7 @@ The actual benchmark suites and the method pairs they compare are:
 - `TaskRailwayBenchmarks`: `DirectTaskResult` vs `TaskFlow`
 - `CompositionChainBenchmarks`: `FlowMapX100`, `FlowBindX100`, `AsyncFlowBindX100`, `TaskFlowBindX100`, `DirectAsyncResultBindX100`, `DirectTaskResultBindX100`, `RawTaskBindX100`
 - `CancellationFlowBenchmarks`: `ExplicitTokenTaskResult` vs `TaskFlow`
-- `CancellableTaskBenchmarks`: `ManualTokenTask` vs `IcedTasksCancellableTask`
+- `CancellableTaskBenchmarks`: `ManualTokenTask` vs `CancellableTask`
 - `SynchronousCompletionBenchmarks`: `CandidateValueTaskFlow` vs `TaskFlow`
 
 The .NET benchmark report is generated from `FsFlow.Benchmarks`; the Fable runner is separate and uses the same comparison vocabulary without pretending the runtime shape is the same.

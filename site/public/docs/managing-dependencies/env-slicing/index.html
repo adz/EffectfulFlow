@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Environment Slicing">
   <meta itemprop="description" content="Deep dive into the Record Pattern for dependency management.">
-  <meta itemprop="wordCount" content="420">
+  <meta itemprop="wordCount" content="396">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Environment Slicing">
   <meta name="twitter:description" content="Deep dive into the Record Pattern for dependency management.">
@@ -176,8 +176,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="td-sidebar-nav-active-item">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -211,8 +209,6 @@
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemeffect-ts-comparison-li">
@@ -251,7 +247,6 @@
     <li><a href="#splitting-runtime-services-from-app-dependencies">Splitting Runtime Services from App Dependencies</a></li>
     <li><a href="#the-capability-module">The Capability Module</a></li>
     <li><a href="#layering-and-composition">Layering and Composition</a></li>
-    <li><a href="#next-steps">Next Steps</a></li>
   </ul>
 </nav>
   </div>
@@ -343,9 +338,6 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">runnable</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">workflow</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">provideLayer</span> <span style="color:#000">appLayer</span>
 </span></span></code></pre></div><p>The downstream workflow stays typed against the smaller environment, while the final runnable workflow accepts the outer environment needed to build it.</p>
-<hr>
-<h2 id="next-steps">Next Steps</h2>
-<p>If you need to decouple your workflows from specific record types entirely (e.g., for a shared library), read about the <a href="http://localhost:3000/docs/managing-dependencies/capabilities/">CAPS Pattern</a>.</p>
 
 	
 </div>

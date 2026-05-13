@@ -18,9 +18,7 @@ focuses on a unified execution model that carries environments and runtime polic
 
 FsFlow provides a single, scalable progression:
 
-```text
 [Check]({{< relref "/reference/check/" >}}) -> [Result]({{< relref "/reference/result/" >}}) -> [Validation]({{< relref "/reference/validation/" >}}) -> [Flow]({{< relref "/reference/flow/" >}})
-```
 
 In FsFlow, the environment and runtime concerns are baked into the computation, allowing you to
 write orchestration logic that remains agnostic of whether the underlying work is sync or async
@@ -36,7 +34,7 @@ If you use these FsToolkit patterns, here is how they correspond to FsFlow:
 | [Result]({{< relref "/reference/result/" >}}).requireSome | `Check.okIfSome opt |> Check.orError` |
 | `asyncResult { }` | `flow {}` |
 | `taskResult { }` | `flow {}` |
-| [Validation]({{< relref "validation.md" >}}) helpers | [Validation]({{< relref "/reference/validation/" >}}) and [`validate {}`]({{< relref "/reference/validation/builders-validate.md" >}}) |
+| [Validation]({{< relref "/reference/validation/" >}}) helpers | [Validation]({{< relref "/reference/validation/" >}}) and [`validate {}`]({{< relref "/reference/validation/builders-validate.md" >}}) |
 
 ## New Things You Get
 
@@ -64,8 +62,8 @@ functions.
 ## Semantic Boundary
 
 FsFlow flows are short-circuiting by default. If your current FsToolkit usage leans on
-independent validation that should report multiple errors, use Validation and [`validate {}`]({{< relref "builders-validate.md" >}})
-to maintain that explicit concern.
+independent validation that should report multiple errors, use [`Validation`]({{< relref "/reference/validation/" >}}) and
+[`validate {}`]({{< relref "/reference/validation/builders-validate.md" >}}) to maintain that explicit concern.
 
 ```fsharp
 let validateUser cmd =

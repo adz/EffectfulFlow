@@ -12,7 +12,7 @@
       <link>http://localhost:3000/docs/ecosystem/integrations-fstoolkit/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/docs/ecosystem/integrations-fstoolkit/</guid>
-      <description>&lt;p&gt;If you are coming from &lt;code&gt;FsToolkit.ErrorHandling&lt;/code&gt;, you will find that FsFlow is orthogonal rather&#xA;than a direct replacement. While both libraries help with result-based programming, FsFlow&#xA;focuses on a unified execution model that carries environments and runtime policies.&lt;/p&gt;&#xA;&lt;h2 id=&#34;the-model-difference&#34;&gt;The Model Difference&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;FsToolkit.ErrorHandling&lt;/code&gt; provides a broad toolbox of helpers for working with Result,&#xA;&lt;code&gt;AsyncResult&lt;/code&gt;, and &lt;code&gt;TaskResult&lt;/code&gt; as separate, wrapped types.&lt;/p&gt;&#xA;&lt;p&gt;FsFlow provides a single, scalable progression:&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[Check](/reference/check/) -&amp;gt; [Result](/reference/result/) -&amp;gt; [Validation](/reference/validation/) -&amp;gt; [Flow](/reference/flow/)&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In FsFlow, the environment and runtime concerns are baked into the computation, allowing you to&#xA;write orchestration logic that remains agnostic of whether the underlying work is sync or async&#xA;until it hits the application boundary.&lt;/p&gt;</description>
+      <description>&lt;p&gt;If you are coming from &lt;code&gt;FsToolkit.ErrorHandling&lt;/code&gt;, you will find that FsFlow is orthogonal rather&#xA;than a direct replacement. While both libraries help with result-based programming, FsFlow&#xA;focuses on a unified execution model that carries environments and runtime policies.&lt;/p&gt;&#xA;&lt;h2 id=&#34;the-model-difference&#34;&gt;The Model Difference&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;FsToolkit.ErrorHandling&lt;/code&gt; provides a broad toolbox of helpers for working with Result,&#xA;&lt;code&gt;AsyncResult&lt;/code&gt;, and &lt;code&gt;TaskResult&lt;/code&gt; as separate, wrapped types.&lt;/p&gt;&#xA;&lt;p&gt;FsFlow provides a single, scalable progression:&lt;/p&gt;&#xA;&lt;p&gt;Check -&amp;gt; Result -&amp;gt; Validation -&amp;gt; Flow&lt;/p&gt;</description>
     </item>
     <item>
       <title>Getting Started</title>
@@ -99,20 +99,6 @@
       <description>&lt;p&gt;This page shows the performance tradeoffs of using FsFlow compared to manual composition across the runtime shapes it supports.&lt;/p&gt;&#xA;&lt;p&gt;The benchmark harness lives in &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/benchmarks/FsFlow.Benchmarks/Suites.fs&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;benchmarks/FsFlow.Benchmarks/Suites.fs&lt;/a&gt; and the shared helpers live in &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/benchmarks/FsFlow.Benchmarks/Common.fs&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;benchmarks/FsFlow.Benchmarks/Common.fs&lt;/a&gt;.&#xA;The Fable runner lives in &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/benchmarks/FsFlow.Benchmarks.Fable/Program.fs&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;benchmarks/FsFlow.Benchmarks.Fable/Program.fs&lt;/a&gt; and shares its workload definitions from &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/benchmarks/FsFlow.Benchmarks.Fable/Shared.fs&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;benchmarks/FsFlow.Benchmarks.Fable/Shared.fs&lt;/a&gt;.&#xA;The Fable benchmark project is self-contained by source inclusion, so it can be compiled directly with Fable against the library code in &lt;a href=&#34;https://github.com/adz/FsFlow/tree/main/src/FsFlow&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;src/FsFlow&lt;/a&gt;. Its local tool manifest lives in &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/benchmarks/FsFlow.Benchmarks.Fable/mise.toml&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;benchmarks/FsFlow.Benchmarks.Fable/mise.toml&lt;/a&gt;, with &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/benchmarks/FsFlow.Benchmarks.Fable/package.json&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;benchmarks/FsFlow.Benchmarks.Fable/package.json&lt;/a&gt; for Node ESM execution and &lt;a href=&#34;https://github.com/adz/FsFlow/blob/main/scripts/run-fable-benchmarks.sh&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;scripts/run-fable-benchmarks.sh&lt;/a&gt; for the target-specific runner.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Capabilities (CAPS)</title>
-      <link>http://localhost:3000/docs/managing-dependencies/capabilities/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/docs/managing-dependencies/capabilities/</guid>
-      <description>&lt;p&gt;The CAPS pattern lets you decouple your workflows from specific record types. Instead of saying &amp;ldquo;I need the &lt;code&gt;AppEnv&lt;/code&gt; record,&amp;rdquo; a workflow says &amp;ldquo;I need any environment that provides an &lt;code&gt;IClock&lt;/code&gt;.&amp;rdquo;&lt;/p&gt;&#xA;&lt;p&gt;This is achieved using the &lt;code&gt;Needs&amp;lt;&#39;dep&amp;gt;&lt;/code&gt; interface and the &lt;code&gt;Env&amp;lt;&#39;dep&amp;gt;&lt;/code&gt; request token.&lt;/p&gt;&#xA;&lt;h2 id=&#34;requesting-a-dependency-with-envdep&#34;&gt;Requesting a Dependency with &lt;code&gt;Env&amp;lt;&#39;dep&amp;gt;&lt;/code&gt;&lt;/h2&gt;&#xA;&lt;p&gt;In a CAPS workflow, you use the &lt;code&gt;Env&amp;lt;&#39;dep&amp;gt;&lt;/code&gt; token to request a dependency by its type. FsFlow handles finding that dependency in the environment for you.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>IcedTasks Integration</title>
-      <link>http://localhost:3000/docs/ecosystem/integrations-icedtasks/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/docs/ecosystem/integrations-icedtasks/</guid>
-      <description>&lt;p&gt;This page shows how FsFlow can fit beside &lt;code&gt;IcedTasks&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;IcedTasks&lt;/code&gt; is a natural neighbor when the codebase already uses task computation expressions and cold or cancellable task helpers.&lt;/p&gt;&#xA;&lt;p&gt;FsFlow does not need to replace that layer. It can add typed failure, environment threading, and boundary management where those concerns matter.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;IcedTasks&lt;/code&gt; is especially interesting when you want task-native ergonomics and performance-sensitive helpers. FsFlow stays in the picture when you want to carry a typed result and an explicit environment together with the runtime shape.&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>STM (Software Transactional Memory)</title>
       <link>http://localhost:3000/docs/state-concurrency/stm/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -159,7 +145,7 @@
       <link>http://localhost:3000/docs/ecosystem/integrations-fsharpplus/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/docs/ecosystem/integrations-fsharpplus/</guid>
-      <description>&lt;p&gt;This page shows how FsFlow can fit beside codebases that already use &lt;code&gt;FSharpPlus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;FSharpPlus&lt;/code&gt; is a broad functional base library. That makes it different from the more targeted integration stories like &lt;code&gt;FsToolkit.ErrorHandling&lt;/code&gt;, &lt;code&gt;Validus&lt;/code&gt;, and &lt;code&gt;IcedTasks&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;FsFlow can sit on top of that style where orchestration begins.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;FSharpPlus&lt;/code&gt; is strongest when the codebase already relies on broad generic operations and monad transformer stacks. That strength comes with a cost: more compiler work, more abstraction to keep in your head, and error surfaces that can be harder to read when you are trying to understand a FsFlow boundary.&lt;/p&gt;</description>
+      <description>&lt;p&gt;This page shows how FsFlow can fit beside codebases that already use &lt;code&gt;FSharpPlus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;FSharpPlus&lt;/code&gt; is a broad functional base library. That makes it different from the more targeted integration stories like &lt;code&gt;FsToolkit.ErrorHandling&lt;/code&gt; and &lt;code&gt;Validus&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;FsFlow can sit on top of that style where orchestration begins.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;FSharpPlus&lt;/code&gt; is strongest when the codebase already relies on broad generic operations and monad transformer stacks. That strength comes with a cost: more compiler work, more abstraction to keep in your head, and error surfaces that can be harder to read when you are trying to understand a FsFlow boundary.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Stream (FlowStream)</title>
@@ -173,7 +159,7 @@
       <link>http://localhost:3000/docs/ecosystem/effect-ts-comparison/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/docs/ecosystem/effect-ts-comparison/</guid>
-      <description>&lt;p&gt;This page shows FsFlow in relation to Effect-TS without pretending they solve the same problem at the same scale.&lt;/p&gt;&#xA;&lt;h2 id=&#34;what-carries-over&#34;&gt;What Carries Over&lt;/h2&gt;&#xA;&lt;p&gt;These ideas are shared:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;typed success and error channels&lt;/li&gt;&#xA;&lt;li&gt;explicit dependency access&lt;/li&gt;&#xA;&lt;li&gt;compositional workflow values&lt;/li&gt;&#xA;&lt;li&gt;runtime helpers for retry, timeout, and cancellation-aware execution&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;what-is-different&#34;&gt;What Is Different&lt;/h2&gt;&#xA;&lt;p&gt;FsFlow is aimed at ordinary F# application code:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;flow {}&lt;/code&gt; instead of generator-based syntax, with direct binding for &lt;code&gt;Async&lt;/code&gt;, &lt;code&gt;Task&lt;/code&gt;, &lt;code&gt;ValueTask&lt;/code&gt;, and &lt;code&gt;ColdTask&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;first-class interop with Result, &lt;code&gt;Async&lt;/code&gt;, and &lt;code&gt;.NET Task&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;explicit environment reads such as &lt;code&gt;Flow.read _.Gateway&lt;/code&gt; or &lt;code&gt;Flow.read _.Gateway&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;a much smaller surface focused on application flows rather than a broader runtime platform&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;what-effect-ts-still-has-that-fsflow-does-not&#34;&gt;What Effect-TS Still Has That FsFlow Does Not&lt;/h2&gt;&#xA;&lt;p&gt;Effect-TS is much broader and more mature. FsFlow does not try to match:&lt;/p&gt;</description>
+      <description>&lt;p&gt;This page shows FsFlow in relation to Effect-TS without pretending they solve the same problem at the same scale.&#xA;The overlap is real, but FsFlow is intentionally much smaller and more F#-application-focused.&lt;/p&gt;&#xA;&lt;h2 id=&#34;what-carries-over&#34;&gt;What Carries Over&lt;/h2&gt;&#xA;&lt;p&gt;These ideas are shared:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;typed success and error channels&lt;/li&gt;&#xA;&lt;li&gt;explicit dependency access&lt;/li&gt;&#xA;&lt;li&gt;compositional workflow values&lt;/li&gt;&#xA;&lt;li&gt;cancellation-aware execution&lt;/li&gt;&#xA;&lt;li&gt;structured failure handling at the boundary&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;what-is-different&#34;&gt;What Is Different&lt;/h2&gt;&#xA;&lt;p&gt;FsFlow is aimed at ordinary F# application code, especially the point where orchestration becomes visible:&lt;/p&gt;</description>
     </item>
     <item>
       <title>Check.</title>
@@ -288,13 +274,6 @@
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;delay&amp;#32;&lt;span&gt;factory&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Defers flow construction until execution time.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;factory&lt;/code&gt;: &lt;code&gt;&lt;span&gt;unit -&amp;gt; &lt;span&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html&#34;&gt;Flow&lt;/a&gt;&amp;lt;&lt;span&gt;&amp;lsquo;env, &amp;rsquo;error, &amp;lsquo;value&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
-      <title>Core.EnvironmentVariableErrors.describe</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariableerrors-describe/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariableerrors-describe/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariableErrors.describe&amp;#32;&lt;span&gt;_arg1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Formats a human-readable description for an error.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;_arg1&lt;/code&gt;: &lt;code&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-caps-core-environmentvariableerror.html&#34;&gt;EnvironmentVariableError&lt;/a&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
       <title>Diagnostic</title>
       <link>http://localhost:3000/reference/diagnostics/t-diagnostic-1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -344,13 +323,6 @@
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Capability.environment&amp;#32;&lt;span&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads the application environment from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;()&lt;/code&gt;: &lt;code&gt;unit&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
-      <title>Core.EnvironmentVariableError</title>
-      <link>http://localhost:3000/reference/caps-core/t-core-environmentvariableerror/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/t-core-environmentvariableerror/</guid>
-      <description>&lt;p&gt;Describes a meaningful environment-variable failure.&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>Check.equal</title>
       <link>http://localhost:3000/reference/check/m-check-equal/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -370,20 +342,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/validation/m-validation-error/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Validation.error&amp;#32;&lt;span&gt;diagnostics&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a failing validation result with the provided diagnostics.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;diagnostics&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-diagnostics-1.html&#34;&gt;Diagnostics&lt;/a&gt;&amp;lt;&amp;rsquo;error&amp;gt;&lt;/span&gt;&lt;/code&gt;&#xA;The &lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-diagnostics-1.html&#34;&gt;Diagnostics&lt;/a&gt; graph.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A failing &lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-validation-2.html&#34;&gt;Validation&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Process.Process.execute</title>
-      <link>http://localhost:3000/reference/caps-process/m-process-process-execute/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-process/m-process-process-execute/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Process.execute&amp;#32;&lt;span&gt;fileName&amp;#32;arguments&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Executes a process using the process environment and returns the result.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;fileName&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;arguments&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>FileSystem.FileSystem.exists</title>
-      <link>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-exists/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-exists/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;FileSystem.exists&amp;#32;&lt;span&gt;path&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Checks if a file exists using the file system environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;path&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
       <title>Schedule.exponential</title>
@@ -568,13 +526,6 @@
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;fromOption&amp;#32;&lt;span&gt;error&amp;#32;value&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Lifts an option into a synchronous flow with the supplied error.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;error&lt;/code&gt;: &lt;code&gt;&amp;lsquo;error&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;value&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&amp;lsquo;value option&lt;/span&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;&#xA;&lt;pre class=&#34;fssnip highlighted&#34;&gt;&lt;code lang=&#34;fsharp&#34;&gt; &lt;span class=&#34;k&#34;&gt;let&lt;/span&gt; &lt;span onmouseout=&#34;hideTip(event, &#39;fs1&#39;, 1)&#34; onmouseover=&#34;showTip(event, &#39;fs1&#39;, 1)&#34; class=&#34;id&#34;&gt;opt&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span onmouseout=&#34;hideTip(event, &#39;fs2&#39;, 2)&#34; onmouseover=&#34;showTip(event, &#39;fs2&#39;, 2)&#34; class=&#34;uc&#34;&gt;Some&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&#xA; &lt;span class=&#34;k&#34;&gt;let&lt;/span&gt; &lt;span onmouseout=&#34;hideTip(event, &#39;fs3&#39;, 3)&#34; onmouseover=&#34;showTip(event, &#39;fs3&#39;, 3)&#34; class=&#34;id&#34;&gt;flow&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;id&#34;&gt;Flow&lt;/span&gt;&lt;span class=&#34;pn&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;id&#34;&gt;fromOption&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;missing&amp;quot;&lt;/span&gt; &lt;span onmouseout=&#34;hideTip(event, &#39;fs1&#39;, 4)&#34; onmouseover=&#34;showTip(event, &#39;fs1&#39;, 4)&#34; class=&#34;id&#34;&gt;opt&lt;/span&gt;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;div class=&#34;fsdocs-tip&#34; id=&#34;fs1&#34;&gt;val opt: string option&lt;/div&gt;&#xA;&lt;div class=&#34;fsdocs-tip&#34; id=&#34;fs2&#34;&gt;union case Option.Some: Value: &amp;#39;T -&amp;gt; Option&amp;lt;&amp;#39;T&amp;gt;&lt;/div&gt;&#xA;&lt;div class=&#34;fsdocs-tip&#34; id=&#34;fs3&#34;&gt;val flow: obj&lt;/div&gt;</description>
     </item>
     <item>
-      <title>Core.EnvironmentVariables.fromPairs</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariables-frompairs/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariables-frompairs/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariables.fromPairs&amp;#32;&lt;span&gt;values&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a deterministic provider from a fixed set of name/value pairs.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;values&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&lt;span&gt;(&lt;span&gt;string * string&lt;/span&gt;)&lt;/span&gt; seq&lt;/span&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
       <title>Check.fromPredicate</title>
       <link>http://localhost:3000/reference/check/m-check-frompredicate/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -603,39 +554,11 @@
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;FlowStream.fromSeq&amp;#32;&lt;span&gt;values&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a stream from a sequence of values.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;values&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&amp;lsquo;value seq&lt;/span&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
-      <title>Core.Clock.fromValue</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-clock-fromvalue/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-clock-fromvalue/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Clock.fromValue&amp;#32;&lt;span&gt;utcNow&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a deterministic clock that always returns the supplied instant.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;utcNow&lt;/code&gt;: &lt;code&gt;&lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.datetimeoffset&#34;&gt;DateTimeOffset&lt;/a&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Core.Guid.fromValue</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-guid-fromvalue/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-guid-fromvalue/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Guid.fromValue&amp;#32;&lt;span&gt;value&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a deterministic GUID generator that always returns the supplied value.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;value&lt;/code&gt;: &lt;code&gt;&lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.guid&#34;&gt;Guid&lt;/a&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Core.Random.fromValue</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-random-fromvalue/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-random-fromvalue/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Random.fromValue&amp;#32;&lt;span&gt;value&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a deterministic random generator that always returns the supplied value.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;value&lt;/code&gt;: &lt;code&gt;int&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
       <title>Flow.fromValueOption</title>
       <link>http://localhost:3000/reference/flow/m-flow-fromvalueoption/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/flow/m-flow-fromvalueoption/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;fromValueOption&amp;#32;&lt;span&gt;error&amp;#32;value&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Lifts a value option into a synchronous flow with the supplied error.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;error&lt;/code&gt;: &lt;code&gt;&amp;lsquo;error&lt;/code&gt;&#xA;The error to return if the value option is &lt;a href=&#34;https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-fsharpvalueoption-1-valuenone&#34;&gt;ValueNone&lt;/a&gt;.&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;value&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&amp;lsquo;value voption&lt;/span&gt;&lt;/code&gt;&#xA;The value option to lift.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A &lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html&#34;&gt;Flow&lt;/a&gt; that succeeds with the option&amp;rsquo;s value or fails with the provided error.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.EnvironmentVariable.get</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariable-get/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariable-get/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariable.get&amp;#32;&lt;span&gt;name&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a raw string environment variable from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
       <title>Ref.get</title>
@@ -652,62 +575,6 @@
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;TRef.get&amp;#32;&lt;span&gt;tref&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads the current value of the transactional reference within a transaction.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;tref&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-tref-1.html&#34;&gt;TRef&lt;/a&gt;&amp;lt;&amp;lsquo;T&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
-      <title>Core.EnvironmentVariable.getBool</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariable-getbool/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariable-getbool/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariable.getBool&amp;#32;&lt;span&gt;name&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a boolean environment variable from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Core.EnvironmentVariable.getGuid</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariable-getguid/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariable-getguid/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariable.getGuid&amp;#32;&lt;span&gt;name&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a GUID environment variable from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Core.EnvironmentVariable.getInt</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariable-getint/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariable-getint/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariable.getInt&amp;#32;&lt;span&gt;name&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads an integer environment variable from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Http.Http.getString</title>
-      <link>http://localhost:3000/reference/caps-http/m-http-http-getstring/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-http/m-http-http-getstring/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Http.getString&amp;#32;&lt;span&gt;url&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Sends a GET request using the HTTP environment and returns the response body.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;url&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Core.IClock</title>
-      <link>http://localhost:3000/reference/caps-core/t-core-iclock/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/t-core-iclock/</guid>
-      <description>&lt;p&gt;Provides synchronous access to the current UTC clock.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Console.IConsole</title>
-      <link>http://localhost:3000/reference/caps-console/t-console-iconsole/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-console/t-console-iconsole/</guid>
-      <description>&lt;p&gt;Provides synchronous access to standard console I/O.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.IEnvironmentVariables</title>
-      <link>http://localhost:3000/reference/caps-core/t-core-ienvironmentvariables/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/t-core-ienvironmentvariables/</guid>
-      <description>&lt;p&gt;Provides synchronous environment-variable lookup.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>FileSystem.IFileSystem</title>
-      <link>http://localhost:3000/reference/caps-filesystem/t-filesystem-ifilesystem/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-filesystem/t-filesystem-ifilesystem/</guid>
-      <description>&lt;p&gt;Provides synchronous access to file system operations.&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>Flow.ignore</title>
       <link>http://localhost:3000/reference/flow/m-flow-ignore/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -722,20 +589,6 @@
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Validation.ignore&amp;#32;&lt;span&gt;validation&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Maps a successful validation value to &lt;code&gt;unit&lt;/code&gt; while preserving the diagnostics.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;validation&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-validation-2.html&#34;&gt;Validation&lt;/a&gt;&amp;lt;&lt;span&gt;&amp;lsquo;value, &amp;rsquo;error&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&#xA;The source validation.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A validation that keeps the original diagnostics and discards the success value.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Core.IGuid</title>
-      <link>http://localhost:3000/reference/caps-core/t-core-iguid/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/t-core-iguid/</guid>
-      <description>&lt;p&gt;Provides synchronous GUID generation.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Http.IHttp</title>
-      <link>http://localhost:3000/reference/caps-http/t-http-ihttp/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-http/t-http-ihttp/</guid>
-      <description>&lt;p&gt;Provides asynchronous access to HTTP client operations.&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>Validation.index</title>
       <link>http://localhost:3000/reference/validation/m-validation-index/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -748,20 +601,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/flow/m-flow-interrupt/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;interrupt&amp;#32;&lt;span&gt;fiber&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Signals a fiber to stop and waits for it to finish its cleanup.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;fiber&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-fiber-2.html&#34;&gt;Fiber&lt;/a&gt;&amp;lt;&lt;span&gt;&amp;lsquo;error, &amp;lsquo;value&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&#xA;The fiber to interrupt.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A flow that completes with the fiber&amp;rsquo;s final outcome after interruption.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Process.IProcess</title>
-      <link>http://localhost:3000/reference/caps-process/t-process-iprocess/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-process/t-process-iprocess/</guid>
-      <description>&lt;p&gt;Provides asynchronous access to external process execution.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.IRandom</title>
-      <link>http://localhost:3000/reference/caps-core/t-core-irandom/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/t-core-irandom/</guid>
-      <description>&lt;p&gt;Provides synchronous random-number generation.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Schedule.jittered</title>
@@ -783,62 +622,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/validation/m-validation-key/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Validation.key&amp;#32;&lt;span&gt;key&amp;#32;validation&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Prefixes a validation with a keyed branch.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;key&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&#xA;The branch key.&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;validation&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-validation-2.html&#34;&gt;Validation&lt;/a&gt;&amp;lt;&lt;span&gt;&amp;lsquo;value, &amp;rsquo;error&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&#xA;The validation to scope.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A validation whose diagnostics are prefixed with &lt;code&gt;Key key&lt;/code&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Console.Console.live</title>
-      <link>http://localhost:3000/reference/caps-console/m-console-console-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-console/m-console-console-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Console.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live console backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.console&#34;&gt;Console&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.Clock.live</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-clock-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-clock-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Clock.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live clock backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.datetimeoffset.utcnow&#34;&gt;DateTimeOffset.UtcNow&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.EnvironmentVariables.live</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariables-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariables-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariables.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live provider backed by the current process environment.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.Guid.live</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-guid-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-guid-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Guid.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live GUID generator backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.guid.newguid&#34;&gt;Guid.NewGuid&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.Random.live</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-random-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-random-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Random.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live random-number generator backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.random&#34;&gt;Random&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>FileSystem.FileSystem.live</title>
-      <link>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;FileSystem.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live file system backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.io.file&#34;&gt;File&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Http.Http.live</title>
-      <link>http://localhost:3000/reference/caps-http/m-http-http-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-http/m-http-http-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Http.live&amp;#32;&lt;span&gt;client&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live HTTP client backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.net.http.httpclient&#34;&gt;HttpClient&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;client&lt;/code&gt;: &lt;code&gt;&lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.net.http.httpclient&#34;&gt;HttpClient&lt;/a&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Process.Process.live</title>
-      <link>http://localhost:3000/reference/caps-process/m-process-process-live/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-process/m-process-process-live/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Process.live&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live process runner backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.diagnostics.process&#34;&gt;Process&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Flow.localEnv</title>
@@ -967,20 +750,6 @@
       <description>&lt;p&gt;Describes the capability contract for a single dependency.&lt;/p&gt;&#xA;&lt;h2 id=&#34;remarks&#34;&gt;Remarks&lt;/h2&gt;&#xA;&lt;p&gt;Named cap-set interfaces inherit this contract once and then expose the dependency through a&#xA;member such as &lt;code&gt;Clock&lt;/code&gt; or &lt;code&gt;Logger&lt;/code&gt;. Workflow builders can accept any environment&#xA;that implements &lt;code&gt;Needs&amp;lt;&#39;dep&amp;gt;&lt;/code&gt;, which lets larger runtimes satisfy smaller&#xA;boundaries.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Core.Guid.newGuid</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-guid-newguid/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-guid-newguid/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Guid.newGuid&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a GUID from the environment.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.Random.nextInt</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-random-nextint/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-random-nextint/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Random.nextInt&amp;#32;&lt;span&gt;minInclusive&amp;#32;maxExclusive&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a random integer from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;minInclusive&lt;/code&gt;: &lt;code&gt;int&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;maxExclusive&lt;/code&gt;: &lt;code&gt;int&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
       <title>Check.notBlank</title>
       <link>http://localhost:3000/reference/check/m-check-notblank/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1007,13 +776,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/check/m-check-notnull/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;notNull&amp;#32;&lt;span&gt;value&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Returns the value when it is not null.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;value&lt;/code&gt;: &lt;code&gt;&amp;lsquo;a&lt;/code&gt;&#xA;The value to check.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A &lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-check-1.html&#34;&gt;Check&lt;/a&gt; containing the non-null value.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Core.Clock.now</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-clock-now/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-clock-now/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Clock.now&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads the current UTC timestamp from the environment.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Flow.ok</title>
@@ -1198,13 +960,6 @@
       <description>&lt;p&gt;Location markers used to describe where a diagnostic belongs in a validation graph.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Process.ProcessResult</title>
-      <link>http://localhost:3000/reference/caps-process/t-process-processresult/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-process/t-process-processresult/</guid>
-      <description>&lt;p&gt;Represents the outcome of an external process execution.&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>Layer.provideLayer</title>
       <link>http://localhost:3000/reference/capability/m-layer-providelayer/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1231,20 +986,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/flow/m-flow-read/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;read&amp;#32;&lt;span&gt;projection&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Projects a value from the current environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;remarks&#34;&gt;Remarks&lt;/h2&gt;&#xA;&lt;p&gt;This is the primary way to access dependencies or configuration stored in the environment.&#xA;The &lt;span class=&#34;fsdocs-param-name&#34;&gt;projection&lt;/span&gt; function is applied to the environment at execution time.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;projection&lt;/code&gt;: &lt;code&gt;&lt;span&gt;&amp;lsquo;env -&amp;gt; &amp;lsquo;value&lt;/span&gt;&lt;/code&gt;&#xA;A function that extracts a value from the environment.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;returns&#34;&gt;Returns&lt;/h2&gt;&#xA;&lt;p&gt;A &lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html&#34;&gt;Flow&lt;/a&gt; containing the projected value.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>FileSystem.FileSystem.readAllText</title>
-      <link>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-readalltext/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-readalltext/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;FileSystem.readAllText&amp;#32;&lt;span&gt;path&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads all text from a file using the file system environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;path&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Console.Console.readLine</title>
-      <link>http://localhost:3000/reference/caps-console/m-console-console-readline/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-console/m-console-console-readline/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Console.readLine&amp;#32;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a line from the console environment.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Schedule.recurs</title>
@@ -1457,20 +1198,6 @@
       <description>&lt;p&gt;Represents a transactional reference that can be updated atomically within an &lt;a href=&#34;https://adz.github.io/FsFlow/reference/FsFlow/fsflow-stm-1.html&#34;&gt;STM&lt;/a&gt; transaction.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Core.EnvironmentVariable.tryGet</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariable-tryget/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariable-tryget/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariable.tryGet&amp;#32;&lt;span&gt;name&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a raw string environment variable without wrapping it in a result.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Core.EnvironmentVariables.tryGet</title>
-      <link>http://localhost:3000/reference/caps-core/m-core-environmentvariables-tryget/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-core/m-core-environmentvariables-tryget/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;EnvironmentVariables.tryGet&amp;#32;&lt;span&gt;name&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Reads a raw environment-variable value from the environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
       <title>Ref.update</title>
       <link>http://localhost:3000/reference/ref/m-ref-update/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1518,20 +1245,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/flow/m-flow-value/</guid>
       <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;value&amp;#32;&lt;span&gt;item&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Alias for &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/ok&#34;&gt;ok&lt;/a&gt; that reads well in some call sites.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;item&lt;/code&gt;: &lt;code&gt;&amp;lsquo;value&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;&#xA;&lt;pre class=&#34;fssnip highlighted&#34;&gt;&lt;code lang=&#34;fsharp&#34;&gt; &lt;span class=&#34;k&#34;&gt;let&lt;/span&gt; &lt;span onmouseout=&#34;hideTip(event, &#39;fs1&#39;, 1)&#34; onmouseover=&#34;showTip(event, &#39;fs1&#39;, 1)&#34; class=&#34;id&#34;&gt;flow&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;id&#34;&gt;Flow&lt;/span&gt;&lt;span class=&#34;pn&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;id&#34;&gt;value&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;constant&amp;quot;&lt;/span&gt;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;div class=&#34;fsdocs-tip&#34; id=&#34;fs1&#34;&gt;val flow: obj&lt;/div&gt;</description>
-    </item>
-    <item>
-      <title>FileSystem.FileSystem.writeAllText</title>
-      <link>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-writealltext/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-filesystem/m-filesystem-filesystem-writealltext/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;FileSystem.writeAllText&amp;#32;&lt;span&gt;path&amp;#32;contents&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Writes all text to a file using the file system environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;path&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;contents&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
-    </item>
-    <item>
-      <title>Console.Console.writeLine</title>
-      <link>http://localhost:3000/reference/caps-console/m-console-console-writeline/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-console/m-console-console-writeline/</guid>
-      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Console.writeLine&amp;#32;&lt;span&gt;message&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Writes a line to the console environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;message&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
       <title>Flow.zip</title>

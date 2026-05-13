@@ -20,20 +20,20 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
 <title>Ecosystem Overview | FsFlow</title>
-<meta name="description" content="How FsFlow fits beside FsToolkit, Validus, IcedTasks, and FSharpPlus.">
+<meta name="description" content="How FsFlow fits beside FsToolkit, Validus, FSharpPlus, and Effect-TS.">
 <meta property="og:url" content="http://localhost:3000/docs/ecosystem/">
   <meta property="og:site_name" content="FsFlow">
   <meta property="og:title" content="Ecosystem Overview">
-  <meta property="og:description" content="How FsFlow fits beside FsToolkit, Validus, IcedTasks, and FSharpPlus.">
+  <meta property="og:description" content="How FsFlow fits beside FsToolkit, Validus, FSharpPlus, and Effect-TS.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
 
   <meta itemprop="name" content="Ecosystem Overview">
-  <meta itemprop="description" content="How FsFlow fits beside FsToolkit, Validus, IcedTasks, and FSharpPlus.">
-  <meta itemprop="wordCount" content="613">
+  <meta itemprop="description" content="How FsFlow fits beside FsToolkit, Validus, FSharpPlus, and Effect-TS.">
+  <meta itemprop="wordCount" content="537">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Ecosystem Overview">
-  <meta name="twitter:description" content="How FsFlow fits beside FsToolkit, Validus, IcedTasks, and FSharpPlus.">
+  <meta name="twitter:description" content="How FsFlow fits beside FsToolkit, Validus, FSharpPlus, and Effect-TS.">
 <link href="http://localhost:3000/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -176,8 +176,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -211,8 +209,6 @@
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemeffect-ts-comparison-li">
@@ -247,7 +243,6 @@
     <li><a href="#examples-to-read-next">Examples To Read Next</a></li>
     <li><a href="#replacing-fstoolkiterrorhandling">Replacing FsToolkit.ErrorHandling</a></li>
     <li><a href="#validus-integration">Validus Integration</a></li>
-    <li><a href="#icedtasks-integration">IcedTasks Integration</a></li>
     <li><a href="#fsharpplus-integration">FSharpPlus Integration</a></li>
     <li><a href="#choosing-quickly">Choosing Quickly</a></li>
     <li><a href="#next">Next</a></li>
@@ -270,7 +265,7 @@
 </nav>
 <div class="td-content">
 	<h1>Ecosystem Overview</h1>
-  <div class="lead">How FsFlow fits beside FsToolkit, Validus, IcedTasks, and FSharpPlus.</div>
+  <div class="lead">How FsFlow fits beside FsToolkit, Validus, FSharpPlus, and Effect-TS.</div>
 	<header class="article-meta">
 		
 </header>
@@ -280,7 +275,6 @@
 <ul>
 <li><code>FsToolkit.ErrorHandling</code> is the established result-oriented layer: it uses core F# types, a small number of wrappers such as <code>Task&lt;Result&lt;_,_&gt;&gt;</code>, and a familiar module-and-builder surface. It fits existing code with low overhead.</li>
 <li><code>Validus</code> is a richer validation DSL if you already use it. FsFlow now covers the common check/result/validation path itself.</li>
-<li><code>IcedTasks</code> is the task-shape layer: it is interesting for performance and task-native ergonomics, but it still lives in the <code>Async</code> / <code>Task</code> / Result space rather than in a richer environment model.</li>
 <li><code>FSharpPlus</code> is the generic FP layer: it brings broad abstractions and monad-transformer-style composition, but that also means more compiler work and more complex error surfacing when you are trying to follow a FsFlow boundary.</li>
 </ul>
 <h2 id="what-fsflow-adds">What FsFlow Adds</h2>
@@ -301,7 +295,7 @@
 <li>a request boundary example that pulls a user from environment-provided data and threads a trace id through the boundary</li>
 <li>a task-shaped example that keeps cold task work delayed until the boundary runs</li>
 </ul>
-<p>Read <a href="./examples/README.md" class="broken-link"><code>Runnable Examples</code></a> after this page if you want to see those patterns in executable form.</p>
+<p>Read <a href="http://localhost:3000/docs/patterns/examples/"><code>Runnable Examples</code></a> after this page if you want to see those patterns in executable form.</p>
 <h2 id="replacing-fstoolkiterrorhandling">Replacing FsToolkit.ErrorHandling</h2>
 <p>Use <code>FsToolkit.ErrorHandling</code> when you already have Result, <code>AsyncResult</code>, or <code>TaskResult</code> code in production.</p>
 <p>This is the closest migration path for existing railway-oriented code:</p>
@@ -310,7 +304,7 @@
 <li>move the orchestration boundary into Flow and bind async/task work directly where needed</li>
 <li>use Check when the check itself can stay pure and only the final error provisioning becomes effectful</li>
 </ul>
-<p>Go to <a href="./INTEGRATIONS_FSTOOLKIT.md" class="broken-link"><code>Replacing FsToolkit.ErrorHandling</code></a> for the migration shape and coexistence patterns.</p>
+<p>Go to <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/"><code>Replacing FsToolkit.ErrorHandling</code></a> for the migration shape and coexistence patterns.</p>
 <h2 id="validus-integration">Validus Integration</h2>
 <p>Use <code>Validus</code> when your codebase already has richer input validation rules or value-object style guards.</p>
 <p>The best coexistence pattern is:</p>
@@ -319,16 +313,7 @@
 <li>keep the result pure</li>
 <li>bridge the final Result into FsFlow when the runtime boundary begins</li>
 </ul>
-<p>Go to <a href="./INTEGRATIONS_VALIDUS.md" class="broken-link"><code>Validus Integration</code></a> for the integration shape and examples.</p>
-<h2 id="icedtasks-integration">IcedTasks Integration</h2>
-<p>Use <code>IcedTasks</code> when the codebase already thinks in task-centric computation expressions, especially ColdTask and cancellable task shapes.</p>
-<p>FsFlow fits beside it when you want:</p>
-<ul>
-<li>typed failure values</li>
-<li>explicit environment threading</li>
-<li>a model that still understands task-native boundaries</li>
-</ul>
-<p>Go to <a href="./INTEGRATIONS_ICEDTASKS.md" class="broken-link"><code>IcedTasks Integration</code></a> for the task-shape comparison.</p>
+<p>Go to <a href="http://localhost:3000/docs/ecosystem/integrations-validus/"><code>Validus Integration</code></a> for the integration shape and examples.</p>
 <h2 id="fsharpplus-integration">FSharpPlus Integration</h2>
 <p>Use <code>FSharpPlus</code> when the codebase already depends on broad functional helpers and generic FP abstractions.</p>
 <p>FsFlow can sit beside that style. Instead:</p>
@@ -337,22 +322,22 @@
 <li>continue using FSharpPlus for the generic transformations your codebase already relies on</li>
 <li>avoid mixing too many abstraction layers inside a single step</li>
 </ul>
-<p>Go to <a href="./INTEGRATIONS_FSHARPPLUS.md" class="broken-link"><code>FSharpPlus Integration</code></a> for the coexistence guidance.</p>
+<p>Go to <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/"><code>FSharpPlus Integration</code></a> for the coexistence guidance.</p>
 <h2 id="choosing-quickly">Choosing Quickly</h2>
 <p>Use:</p>
 <ul>
 <li><code>FsToolkit.ErrorHandling</code> when you are migrating existing <code>Async&lt;Result&lt;_,_&gt;&gt;</code> or <code>TaskResult</code> code</li>
 <li><code>Validus</code> when you already have validation rules and want to keep them pure</li>
-<li><code>IcedTasks</code> when task shape and cancellation-aware cold tasks are already part of the codebase</li>
 <li><code>FSharpPlus</code> when the codebase already leans on a general FP base library and you want FsFlow to stay focused on orchestration</li>
+<li>Effect-TS when you are choosing a full runtime system rather than a lightweight F# application boundary library</li>
 </ul>
 <h2 id="next">Next</h2>
 <p>Read the library-specific pages for concrete coexistence and migration patterns:</p>
 <ul>
-<li><a href="./INTEGRATIONS_FSTOOLKIT.md" class="broken-link"><code>Replacing FsToolkit.ErrorHandling</code></a></li>
-<li><a href="./INTEGRATIONS_VALIDUS.md" class="broken-link"><code>Validus Integration</code></a></li>
-<li><a href="./INTEGRATIONS_ICEDTASKS.md" class="broken-link"><code>IcedTasks Integration</code></a></li>
-<li><a href="./INTEGRATIONS_FSHARPPLUS.md" class="broken-link"><code>FSharpPlus Integration</code></a></li>
+<li><a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/"><code>Replacing FsToolkit.ErrorHandling</code></a></li>
+<li><a href="http://localhost:3000/docs/ecosystem/integrations-validus/"><code>Validus Integration</code></a></li>
+<li><a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/"><code>FSharpPlus Integration</code></a></li>
+<li><a href="http://localhost:3000/docs/ecosystem/effect-ts-comparison/"><code>Effect-TS Comparison</code></a></li>
 </ul>
 
 	<div class="section-index">
@@ -370,12 +355,6 @@
                     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/">Validus Integration</a>
                 </h5>
                 <p>How FsFlow fits beside Validus validation pipelines.</p>
-            </div>
-        <div class="entry">
-                <h5>
-                    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/">IcedTasks Integration</a>
-                </h5>
-                <p>How FsFlow fits beside IcedTasks and task-oriented code.</p>
             </div>
         <div class="entry">
                 <h5>

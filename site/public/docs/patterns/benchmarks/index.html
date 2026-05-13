@@ -180,8 +180,6 @@ The benchmark harness lives in benchmarks/FsFlow.Benchmarks/Suites.fs and the sh
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -215,8 +213,6 @@ The benchmark harness lives in benchmarks/FsFlow.Benchmarks/Suites.fs and the sh
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemeffect-ts-comparison-li">
@@ -502,7 +498,7 @@ The Fable benchmark project is self-contained by source inclusion, so it can be 
           <td>624 B</td>
       </tr>
       <tr>
-          <td><code>IcedTasksCancellableTask</code></td>
+          <td><code>CancellableTask</code></td>
           <td>290.42 ns</td>
           <td>504 B</td>
       </tr>
@@ -729,7 +725,7 @@ The Fable benchmark project is self-contained by source inclusion, so it can be 
 <li><code>TaskRailwayBenchmarks</code>: <code>DirectTaskResult</code> vs <code>TaskFlow</code></li>
 <li><code>CompositionChainBenchmarks</code>: <code>FlowMapX100</code>, <code>FlowBindX100</code>, <code>AsyncFlowBindX100</code>, <code>TaskFlowBindX100</code>, <code>DirectAsyncResultBindX100</code>, <code>DirectTaskResultBindX100</code>, <code>RawTaskBindX100</code></li>
 <li><code>CancellationFlowBenchmarks</code>: <code>ExplicitTokenTaskResult</code> vs <code>TaskFlow</code></li>
-<li><code>CancellableTaskBenchmarks</code>: <code>ManualTokenTask</code> vs <code>IcedTasksCancellableTask</code></li>
+<li><code>CancellableTaskBenchmarks</code>: <code>ManualTokenTask</code> vs <code>CancellableTask</code></li>
 <li><code>SynchronousCompletionBenchmarks</code>: <code>CandidateValueTaskFlow</code> vs <code>TaskFlow</code></li>
 </ul>
 <p>The .NET benchmark report is generated from <code>FsFlow.Benchmarks</code>; the Fable runner is separate and uses the same comparison vocabulary without pretending the runtime shape is the same.</p>

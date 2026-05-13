@@ -26,7 +26,7 @@ let validateRegistration input =
         and! email = input.Email |> notBlank |> orError EmailRequired
         return { Name = name; Email = email }
     }
-```
+
 let outcome = validateRegistration { Name = ""; Email = "" }
 // outcome = Validation (Error {
 //   Errors = [NameRequired; EmailRequired]

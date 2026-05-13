@@ -165,12 +165,12 @@ type CancellationFlowBenchmarks() =
 [<IterationCount(3)>]
 [<Orderer(SummaryOrderPolicy.FastestToSlowest)>]
 type CancellableTaskBenchmarks() =
-    let icedTasksTask = Shared.buildIcedTasksCancellableTaskChain ()
+    let cancellableTask = Shared.buildCancellableTaskChain ()
     let directTask = Shared.buildDirectCancellableTaskValueChain ()
 
     [<Benchmark(Baseline = true)>]
-    member _.IcedTasksCancellableTask() =
-        Shared.runCancellableTask icedTasksTask
+    member _.CancellableTask() =
+        Shared.runCancellableTask cancellableTask
 
     [<Benchmark(Description = "Manual token Task")>]
     member _.ManualTokenTask() =

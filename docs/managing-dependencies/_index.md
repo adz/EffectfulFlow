@@ -19,10 +19,8 @@ This is the simplest way to start. You define your environment as a standard F# 
 
 **Read the Deep Dive:** [Environment Slicing](./env-slicing/)
 
-### 2. The CAPS Pattern (Decoupled Capabilities)
-This style decouples your workflows from specific record types using interface-based contracts. A workflow says "I need a clock," and it doesn't care if that clock comes from a massive app runtime or a tiny test object. It is the best choice for public APIs, shared libraries, and large-scale systems.
-
-**Read the Deep Dive:** [Capabilities (CAPS)](./capabilities/)
+### 2. RuntimeContext for Host Services
+When you need to split operational services from application dependencies, use `RuntimeContext<'runtime, 'env>`. This keeps logging, metrics, and similar host concerns separate from the app record.
 
 ---
 
@@ -32,7 +30,7 @@ These two patterns support different **Architectural Styles**:
 
 - **Style 1: The Booted App**: Usually uses a single large record (Record Pattern) for simplicity.
 - **Style 2: Parameters + Context**: Uses parameters for core logic and a thin record (Record Pattern) for request context.
-- **Style 3: .NET DI**: Often uses the CAPS Pattern to bridge .NET services into the FsFlow execution model.
+- **Style 3: .NET DI**: Often uses `RuntimeContext<'runtime, 'env>` and the Record Pattern to bridge .NET services into the FsFlow execution model.
 
 For more details on these structures, see [Architectural Styles](./architectural-styles/).
 
@@ -40,12 +38,12 @@ For more details on these structures, see [Architectural Styles](./architectural
 
 ## Comparison at a Glance
 
-| Feature | Record Pattern | CAPS Pattern |
+| Feature | Record Pattern | RuntimeContext |
 | :--- | :--- | :--- |
-| **Typical Use** | Local helpers, small apps | Public APIs, shared libraries |
-| **Coupling** | Bound to a specific record type | Bound to an interface/contract |
-| **Simplicity** | High (Standard F#) | Medium (Interface-based) |
-| **Flexibility** | Moderate | Very High |
+| **Typical Use** | Local helpers, small apps | Host services plus app dependencies |
+| **Coupling** | Bound to a specific record type | Bound to two explicit scopes |
+| **Simplicity** | High (Standard F#) | Medium |
+| **Flexibility** | Moderate | High |
 
 ---
 
@@ -53,10 +51,10 @@ For more details on these structures, see [Architectural Styles](./architectural
 
 **Start with the Record Pattern.** It is the most idiomatic way to write F# and requires the least amount of boilerplate. 
 
-Move to the **CAPS Pattern** when:
-- You are building a library that others will consume.
-- You find yourself writing complex "shim" records just to run a workflow in a different context.
-- You want your workflows to read like a set of required "Capabilities" rather than a set of record fields.
+Move to `RuntimeContext<'runtime, 'env>` when:
+- You need to keep operational services separate from application dependencies.
+- You want a thin host/service split without pushing every concern into one record.
+- You are bridging a conventional `.NET` app host into FsFlow workflows.
 
 ## Shared Helpers: The Capability Module
 

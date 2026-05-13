@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="FSharpPlus Integration">
   <meta itemprop="description" content="How FsFlow fits beside FSharpPlus-based codebases.">
-  <meta itemprop="wordCount" content="402">
+  <meta itemprop="wordCount" content="401">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="FSharpPlus Integration">
   <meta name="twitter:description" content="How FsFlow fits beside FSharpPlus-based codebases.">
@@ -176,8 +176,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -211,8 +209,6 @@
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="td-sidebar-nav-active-item">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemeffect-ts-comparison-li">
@@ -272,7 +268,7 @@
 		
 </header>
 	<p>This page shows how FsFlow can fit beside codebases that already use <code>FSharpPlus</code>.</p>
-<p><code>FSharpPlus</code> is a broad functional base library. That makes it different from the more targeted integration stories like <code>FsToolkit.ErrorHandling</code>, <code>Validus</code>, and <code>IcedTasks</code>.</p>
+<p><code>FSharpPlus</code> is a broad functional base library. That makes it different from the more targeted integration stories like <code>FsToolkit.ErrorHandling</code> and <code>Validus</code>.</p>
 <p>FsFlow can sit on top of that style where orchestration begins.</p>
 <p><code>FSharpPlus</code> is strongest when the codebase already relies on broad generic operations and monad transformer stacks. That strength comes with a cost: more compiler work, more abstraction to keep in your head, and error surfaces that can be harder to read when you are trying to understand a FsFlow boundary.</p>
 <h2 id="keep-the-boundary-clear">Keep The Boundary Clear</h2>

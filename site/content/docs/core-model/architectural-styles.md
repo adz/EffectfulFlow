@@ -150,7 +150,7 @@ type ShipOrderWorkflow() =
         }
 ```
 
-This style often utilizes the [CAPS Pattern](./capabilities/) to bridge existing .NET services into a decoupled FsFlow contract.
+This style often uses `RuntimeContext<'runtime, 'env>` or a thin record boundary to bridge existing .NET services into a decoupled FsFlow contract.
 
 Use this style for:
 
@@ -177,7 +177,7 @@ The important constraint is that the chosen workflow family stays explicit at th
 
 ## Next
 
-Read [`docs/GETTING_STARTED.md`](../start/getting-started/) for the core workflow model,
-[`docs/ENV_SLICING.md`](./env-slicing/) for smaller environment projections, and
-[`docs/WHY_FSFLOW.md`](./why-fsflow/) for the trade-offs against manual
+Read [Getting Started](../start/getting-started/) for the core workflow model,
+[Environment Slicing](../managing-dependencies/env-slicing/) for smaller environment projections, and
+[Managing Dependencies](../managing-dependencies/) for the trade-offs against manual
 threading and wrapper-based shapes.

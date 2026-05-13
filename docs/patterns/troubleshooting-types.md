@@ -128,7 +128,7 @@ Most fixes are one of:
 
 ## Next
 
-Read [`docs/GETTING_STARTED.md`](../start/getting-started/) for the workflow overview,
-[`docs/TASK_ASYNC_INTEROP.md`](../core-model/task-async-interop.md) for the binding surface,
+Read [Getting Started](../start/getting-started/) for the workflow overview,
+[Task and Async Interop](../core-model/task-async-interop.md) for the binding surface,
 and [`examples/FsFlow.MaintenanceExamples/Program.fs`](https://github.com/adz/FsFlow/blob/main/examples/FsFlow.MaintenanceExamples/Program.fs)
 for runnable versions of these shapes.

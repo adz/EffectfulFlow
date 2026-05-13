@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Managing Dependencies">
   <meta itemprop="description" content="Introduction to dependency management in FsFlow.">
-  <meta itemprop="wordCount" content="475">
+  <meta itemprop="wordCount" content="435">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Managing Dependencies">
   <meta name="twitter:description" content="Introduction to dependency management in FsFlow.">
@@ -176,8 +176,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -211,8 +209,6 @@
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemeffect-ts-comparison-li">
@@ -245,7 +241,7 @@
     <li><a href="#the-two-styles">The Two Styles</a>
       <ul>
         <li><a href="#1-the-record-pattern-environment-slicing">1. The Record Pattern (Environment Slicing)</a></li>
-        <li><a href="#2-the-caps-pattern-decoupled-capabilities">2. The CAPS Pattern (Decoupled Capabilities)</a></li>
+        <li><a href="#2-runtimecontext-for-host-services">2. RuntimeContext for Host Services</a></li>
       </ul>
     </li>
     <li><a href="#relationship-to-architecture">Relationship to Architecture</a></li>
@@ -282,16 +278,15 @@
 <h3 id="1-the-record-pattern-environment-slicing">1. The Record Pattern (Environment Slicing)</h3>
 <p>This is the simplest way to start. You define your environment as a standard F# record. Workflows &ldquo;read&rdquo; or &ldquo;project&rdquo; the fields they need from this record. It is perfect for local helpers, internal logic, and smaller applications where record types are stable.</p>
 <p><strong>Read the Deep Dive:</strong> <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/">Environment Slicing</a></p>
-<h3 id="2-the-caps-pattern-decoupled-capabilities">2. The CAPS Pattern (Decoupled Capabilities)</h3>
-<p>This style decouples your workflows from specific record types using interface-based contracts. A workflow says &ldquo;I need a clock,&rdquo; and it doesn&rsquo;t care if that clock comes from a massive app runtime or a tiny test object. It is the best choice for public APIs, shared libraries, and large-scale systems.</p>
-<p><strong>Read the Deep Dive:</strong> <a href="http://localhost:3000/docs/managing-dependencies/capabilities/">Capabilities (CAPS)</a></p>
+<h3 id="2-runtimecontext-for-host-services">2. RuntimeContext for Host Services</h3>
+<p>When you need to split operational services from application dependencies, use <code>RuntimeContext&lt;'runtime, 'env&gt;</code>. This keeps logging, metrics, and similar host concerns separate from the app record.</p>
 <hr>
 <h2 id="relationship-to-architecture">Relationship to Architecture</h2>
 <p>These two patterns support different <strong>Architectural Styles</strong>:</p>
 <ul>
 <li><strong>Style 1: The Booted App</strong>: Usually uses a single large record (Record Pattern) for simplicity.</li>
 <li><strong>Style 2: Parameters + Context</strong>: Uses parameters for core logic and a thin record (Record Pattern) for request context.</li>
-<li><strong>Style 3: .NET DI</strong>: Often uses the CAPS Pattern to bridge .NET services into the FsFlow execution model.</li>
+<li><strong>Style 3: .NET DI</strong>: Often uses <code>RuntimeContext&lt;'runtime, 'env&gt;</code> and the Record Pattern to bridge .NET services into the FsFlow execution model.</li>
 </ul>
 <p>For more details on these structures, see <a href="http://localhost:3000/docs/core-model/architectural-styles/">Architectural Styles</a>.</p>
 <hr>
@@ -301,40 +296,40 @@
       <tr>
           <th style="text-align: left">Feature</th>
           <th style="text-align: left">Record Pattern</th>
-          <th style="text-align: left">CAPS Pattern</th>
+          <th style="text-align: left">RuntimeContext</th>
       </tr>
   </thead>
   <tbody>
       <tr>
           <td style="text-align: left"><strong>Typical Use</strong></td>
           <td style="text-align: left">Local helpers, small apps</td>
-          <td style="text-align: left">Public APIs, shared libraries</td>
+          <td style="text-align: left">Host services plus app dependencies</td>
       </tr>
       <tr>
           <td style="text-align: left"><strong>Coupling</strong></td>
           <td style="text-align: left">Bound to a specific record type</td>
-          <td style="text-align: left">Bound to an interface/contract</td>
+          <td style="text-align: left">Bound to two explicit scopes</td>
       </tr>
       <tr>
           <td style="text-align: left"><strong>Simplicity</strong></td>
           <td style="text-align: left">High (Standard F#)</td>
-          <td style="text-align: left">Medium (Interface-based)</td>
+          <td style="text-align: left">Medium</td>
       </tr>
       <tr>
           <td style="text-align: left"><strong>Flexibility</strong></td>
           <td style="text-align: left">Moderate</td>
-          <td style="text-align: left">Very High</td>
+          <td style="text-align: left">High</td>
       </tr>
   </tbody>
 </table>
 <hr>
 <h2 id="which-style-should-i-use">Which style should I use?</h2>
 <p><strong>Start with the Record Pattern.</strong> It is the most idiomatic way to write F# and requires the least amount of boilerplate.</p>
-<p>Move to the <strong>CAPS Pattern</strong> when:</p>
+<p>Move to <code>RuntimeContext&lt;'runtime, 'env&gt;</code> when:</p>
 <ul>
-<li>You are building a library that others will consume.</li>
-<li>You find yourself writing complex &ldquo;shim&rdquo; records just to run a workflow in a different context.</li>
-<li>You want your workflows to read like a set of required &ldquo;Capabilities&rdquo; rather than a set of record fields.</li>
+<li>You need to keep operational services separate from application dependencies.</li>
+<li>You want a thin host/service split without pushing every concern into one record.</li>
+<li>You are bridging a conventional <code>.NET</code> app host into FsFlow workflows.</li>
 </ul>
 <h2 id="shared-helpers-the-capability-module">Shared Helpers: The Capability Module</h2>
 <p>Regardless of which style you choose, FsFlow provides a <code>Capability</code> module that works across both. These helpers let you read from the main <code>Flow</code> surface and from <code>RuntimeContext</code> without needing specific module prefixes.</p>
@@ -354,12 +349,6 @@
                     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/">Environment Slicing</a>
                 </h5>
                 <p>Deep dive into the Record Pattern for dependency management.</p>
-            </div>
-        <div class="entry">
-                <h5>
-                    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/">Capabilities (CAPS)</a>
-                </h5>
-                <p>Deep dive into the interface-based CAPS pattern for decoupled dependencies.</p>
             </div>
         </div>
 </div>

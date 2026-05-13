@@ -44,18 +44,62 @@ Common patterns:
 
 ## Example
 
-```fsharp
-let validateCreateUser dto =
-    if System.String.IsNullOrWhiteSpace dto.Name then
-        Error "name required"
-    else
-        Ok dto
+The Validus README uses a `PersonDto` example to show the normal shape: validate the DTO, build a
+domain record, and keep the output pure. That fits FsFlow cleanly because the boundary can bind the
+`Result` directly.
 
-let createUser : Flow<AppEnv, string, User> =
+```fsharp
+open Validus
+
+type CreateUserDto =
+    { FirstName: string
+      LastName: string
+      Email: string
+      Age: int option }
+
+type User =
+    { Name: string
+      Email: string
+      Age: int option
+      TenantId: string }
+
+let validateCreateUser (dto: CreateUserDto) : Result<User, ValidationErrors> =
+    let nameValidator = Check.String.betweenLen 3 64
+    let firstNameValidator =
+        ValidatorGroup(nameValidator)
+            .Then(Check.String.notEquals dto.LastName)
+            .Build()
+
+    let emailValidator =
+        let emailPatternValidator =
+            Check.WithMessage.String.pattern @"[^@]+@[^\.]+\..+" "Please provide a valid email address"
+        ValidatorGroup(Check.String.betweenLen 8 512)
+            .And(emailPatternValidator)
+            .Build()
+
+    let ageValidator = Check.optional (Check.Int.between 1 120)
+
+    validate {
+        let! first = firstNameValidator "First name" dto.FirstName
+        and! last = nameValidator "Last name" dto.LastName
+        and! email = emailValidator "Email" dto.Email
+        and! age = ageValidator "Age" dto.Age
+
+        return
+            { Name = { First = first; Last = last }
+              Email = email
+              Age = age }
+    }
+
+let createUser (incoming: CreateUserDto) : Flow<AppEnv, ValidationErrors, User> =
     flow {
-        let! dto = validateCreateUser incoming
-        let! tenant = Flow.read _.TenantId
-        return { Name = dto.Name; TenantId = tenant }
+        let! user = validateCreateUser incoming
+        let! tenantId = Flow.read _.TenantId
+        return
+            { Name = $"{user.Name.First} {user.Name.Last}"
+              Email = user.Email
+              Age = user.Age
+              TenantId = tenantId }
     }
 ```
 

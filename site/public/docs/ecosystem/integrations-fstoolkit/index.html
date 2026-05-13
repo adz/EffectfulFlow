@@ -176,8 +176,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -211,8 +209,6 @@
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="td-sidebar-nav-active-item">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsecosystemeffect-ts-comparison-li">
@@ -279,8 +275,8 @@ focuses on a unified execution model that carries environments and runtime polic
 <p><code>FsToolkit.ErrorHandling</code> provides a broad toolbox of helpers for working with Result,
 <code>AsyncResult</code>, and <code>TaskResult</code> as separate, wrapped types.</p>
 <p>FsFlow provides a single, scalable progression:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>[Check](/reference/check/) -&gt; [Result](/reference/result/) -&gt; [Validation](/reference/validation/) -&gt; [Flow](/reference/flow/)
-</span></span></code></pre></div><p>In FsFlow, the environment and runtime concerns are baked into the computation, allowing you to
+<p>Check -&gt; Result -&gt; Validation -&gt; Flow</p>
+<p>In FsFlow, the environment and runtime concerns are baked into the computation, allowing you to
 write orchestration logic that remains agnostic of whether the underlying work is sync or async
 until it hits the application boundary.</p>
 <h2 id="how-things-map">How Things Map</h2>
@@ -338,8 +334,8 @@ from FsToolkit, keep using them! FsFlow&rsquo;s <code>flow {}</code> builders bi
 </ul>
 <h2 id="semantic-boundary">Semantic Boundary</h2>
 <p>FsFlow flows are short-circuiting by default. If your current FsToolkit usage leans on
-independent validation that should report multiple errors, use Validation and <code>validate {}</code>
-to maintain that explicit concern.</p>
+independent validation that should report multiple errors, use <code>Validation</code> and
+<code>validate {}</code> to maintain that explicit concern.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">validateUser</span> <span style="color:#000">cmd</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">validate</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">requireName</span> <span style="color:#000">cmd</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Name</span>

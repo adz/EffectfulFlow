@@ -49,6 +49,7 @@ upsert_frontmatter() {
 # matches our desired site structure. We just copy it over.
 
 cp -r "$root_dir/docs/reference/"* "$ref_dir/"
+rm -rf "$ref_dir"/caps-core "$ref_dir"/caps-console "$ref_dir"/caps-filesystem "$ref_dir"/caps-http "$ref_dir"/caps-process
 
 # Fix index files: remove body titles to avoid double headings in Hugo
 find "$ref_dir" -name "_index.md" -type f -exec sed -i '/^# /d' {} \;
@@ -60,11 +61,6 @@ upsert_frontmatter "$ref_dir/validation/_index.md" "weight" "60"
 upsert_frontmatter "$ref_dir/result/_index.md" "weight" "70"
 upsert_frontmatter "$ref_dir/diagnostics/_index.md" "weight" "80"
 upsert_frontmatter "$ref_dir/capability/_index.md" "weight" "130"
-upsert_frontmatter "$ref_dir/caps-core/_index.md" "weight" "131"
-upsert_frontmatter "$ref_dir/caps-console/_index.md" "weight" "132"
-upsert_frontmatter "$ref_dir/caps-filesystem/_index.md" "weight" "133"
-upsert_frontmatter "$ref_dir/caps-http/_index.md" "weight" "134"
-upsert_frontmatter "$ref_dir/caps-process/_index.md" "weight" "135"
 upsert_frontmatter "$ref_dir/hosting/_index.md" "weight" "140"
 upsert_frontmatter "$ref_dir/telemetry/_index.md" "weight" "150"
 
@@ -87,6 +83,7 @@ for dir in core-model ecosystem managing-dependencies patterns start state-concu
     cp -r "$root_dir/docs/$dir/"* "$docs_dir/$dir/"
   fi
 done
+rm -f "$docs_dir/managing-dependencies/capabilities.md"
 
 # Fix all files: remove body titles to avoid double headings in Hugo
 find "$ref_dir" "$docs_dir" -name "*.md" -type f -exec sed -i '/^# /d' {} \;
@@ -140,7 +137,7 @@ Welcome to the FsFlow guides. Choose a section from the sidebar or start with [G
 <section class=\"docs-card\">
 <span class=\"label\">Managing Dependencies</span>
 <h2><a href=\"./managing-dependencies/\">Environment handling</a></h2>
-<p>Learn how to manage dependencies using the Record Pattern or CAPS pattern.</p>
+<p>Learn how to manage dependencies using the Record Pattern and RuntimeContext.</p>
 </section>
 
 <section class=\"docs-card\">
@@ -158,9 +155,8 @@ Welcome to the FsFlow guides. Choose a section from the sidebar or start with [G
 <section class=\"docs-card\">
 <span class=\"label\">Ecosystem</span>
 <h2><a href=\"./ecosystem/\">Integrations</a></h2>
-<p>Map FsFlow alongside Validus, FsToolkit.ErrorHandling, FSharpPlus, IcedTasks, and Effect-TS.</p>
+<p>Map FsFlow alongside Validus, FsToolkit.ErrorHandling, FSharpPlus, and Effect-TS.</p>
 </section>
 
 </div>
 " > "$docs_dir/_index.md"
-

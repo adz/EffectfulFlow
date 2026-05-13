@@ -42,7 +42,7 @@ FsFlow supports three valid architectural styles.
 Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.
 1. Booted App Environment Use this when your application already has a conventional booted runtime and passing one explicit application environment keeps composition simple.
 This is the most direct use of the Record Pattern. The environment is the full booted application runtime and config:">
-  <meta itemprop="wordCount" content="621">
+  <meta itemprop="wordCount" content="628">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Architectural Styles">
   <meta name="twitter:description" content="This page shows how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.
@@ -192,8 +192,6 @@ This is the most direct use of the Record Pattern. The environment is the full b
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
     <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Environment Slicing</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapabilities-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapabilities"><span class="">Capabilities (CAPS)</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -227,8 +225,6 @@ This is the most direct use of the Record Pattern. The environment is the full b
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-validus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fsharpplus-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemeffect-ts-comparison-li">
@@ -407,7 +403,7 @@ injection, and FsFlow should only appear inside workflow code.</p>
 </span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">shipmentId</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">gateway</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">CreateShipment</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">OrderId</span><span style="color:#ce5c00;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">shipmentId</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>This style often utilizes the <a href="http://localhost:3000/docs/managing-dependencies/capabilities/">CAPS Pattern</a> to bridge existing .NET services into a decoupled FsFlow contract.</p>
+</span></span></code></pre></div><p>This style often uses <code>RuntimeContext&lt;'runtime, 'env&gt;</code> or a thin record boundary to bridge existing .NET services into a decoupled FsFlow contract.</p>
 <p>Use this style for:</p>
 <ul>
 <li>mixed C# and F# teams</li>
@@ -428,9 +424,9 @@ forcing everything into one record.</p>
 <p>The important constraint is not which style you pick.
 The important constraint is that the chosen workflow family stays explicit at the workflow boundary and at execution time.</p>
 <h2 id="next">Next</h2>
-<p>Read <a href="http://localhost:3000/docs/start/getting-started/"><code>docs/GETTING_STARTED.md</code></a> for the core workflow model,
-<a href="http://localhost:3000/docs/managing-dependencies/env-slicing/"><code>docs/ENV_SLICING.md</code></a> for smaller environment projections, and
-<code>docs/WHY_FSFLOW.md</code> for the trade-offs against manual
+<p>Read <a href="http://localhost:3000/docs/start/getting-started/">Getting Started</a> for the core workflow model,
+<a href="http://localhost:3000/docs/managing-dependencies/env-slicing/">Environment Slicing</a> for smaller environment projections, and
+<a href="http://localhost:3000/docs/managing-dependencies/">Managing Dependencies</a> for the trade-offs against manual
 threading and wrapper-based shapes.</p>
 
 	

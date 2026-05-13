@@ -9,7 +9,7 @@ description: How FsFlow fits beside FSharpPlus-based codebases.
 
 This page shows how FsFlow can fit beside codebases that already use `FSharpPlus`.
 
-`FSharpPlus` is a broad functional base library. That makes it different from the more targeted integration stories like `FsToolkit.ErrorHandling`, `Validus`, and `IcedTasks`.
+`FSharpPlus` is a broad functional base library. That makes it different from the more targeted integration stories like `FsToolkit.ErrorHandling` and `Validus`.
 
 FsFlow can sit on top of that style where orchestration begins.
 

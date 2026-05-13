@@ -102,9 +102,3 @@ let runnable = workflow |> Flow.provideLayer appLayer
 ```
 
 The downstream workflow stays typed against the smaller environment, while the final runnable workflow accepts the outer environment needed to build it.
-
----
-
-## Next Steps
-
-If you need to decouple your workflows from specific record types entirely (e.g., for a shared library), read about the [CAPS Pattern](./capabilities/).

@@ -288,7 +288,7 @@ module internal Shared =
 
         fun cancellationToken -> loop 1 0 cancellationToken
 
-    let buildIcedTasksCancellableTaskChain () =
+    let buildCancellableTaskChain () =
         let checkpoint index =
             cancellableTask {
                 let! ct = CancellableTask.getCancellationToken ()

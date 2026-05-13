@@ -30,7 +30,7 @@ Welcome to the FsFlow guides. Choose a section from the sidebar or start with [G
 <section class="docs-card">
 <span class="label">Managing Dependencies</span>
 <h2><a href="./managing-dependencies/">Environment handling</a></h2>
-<p>Learn how to manage dependencies using the Record Pattern or CAPS pattern.</p>
+<p>Learn how to manage dependencies using the Record Pattern and RuntimeContext.</p>
 </section>
 
 <section class="docs-card">
@@ -48,7 +48,7 @@ Welcome to the FsFlow guides. Choose a section from the sidebar or start with [G
 <section class="docs-card">
 <span class="label">Ecosystem</span>
 <h2><a href="./ecosystem/">Integrations</a></h2>
-<p>Map FsFlow alongside Validus, FsToolkit.ErrorHandling, FSharpPlus, IcedTasks, and Effect-TS.</p>
+<p>Map FsFlow alongside Validus, FsToolkit.ErrorHandling, FSharpPlus, and Effect-TS.</p>
 </section>
 
 </div>

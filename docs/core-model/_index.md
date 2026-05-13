@@ -186,10 +186,7 @@ Stay with plain F# when:
 
 ## Next
 
-Read [`docs/VALIDATE_AND_RESULT.md`](./VALIDATE_AND_RESULT.md) for the validation-first story,
-[`docs/GETTING_STARTED.md`](./GETTING_STARTED.md) for the computation-family overview,
-[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for boundary-shape interop, and
-[`docs/examples/README.md`](./examples/README.md) for reference examples.
-e computation-family overview,
-[`docs/TASK_ASYNC_INTEROP.md`](./TASK_ASYNC_INTEROP.md) for boundary-shape interop, and
-[`docs/examples/README.md`](./examples/README.md) for reference examples.
+Read [Validation & Results](../validation-results/) for the validation-first story,
+[Getting Started](../start/getting-started/) for the computation-family overview,
+[Task and Async Interop](./task-async-interop/) for boundary-shape interop, and
+[Runnable Examples](../patterns/examples/) for reference examples.
