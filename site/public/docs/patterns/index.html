@@ -20,16 +20,20 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
 <title>Patterns | FsFlow</title>
-<meta name="description" content="">
+<meta name="description" content="Common architectural patterns, troubleshooting, and benchmarks.">
 <meta property="og:url" content="http://localhost:3000/docs/patterns/">
   <meta property="og:site_name" content="FsFlow">
   <meta property="og:title" content="Patterns">
+  <meta property="og:description" content="Common architectural patterns, troubleshooting, and benchmarks.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
 
   <meta itemprop="name" content="Patterns">
+  <meta itemprop="description" content="Common architectural patterns, troubleshooting, and benchmarks.">
+  <meta itemprop="wordCount" content="8">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Patterns">
+  <meta name="twitter:description" content="Common architectural patterns, troubleshooting, and benchmarks.">
 <link href="http://localhost:3000/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -53,7 +57,7 @@
         <a class="nav-link active" href="http://localhost:3000/docs/"><span>Docs</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="http://localhost:3000/"><span>Reference</span></a>
+        <a class="nav-link" href="http://localhost:3000/reference/"><span>Reference</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="https://github.com/adz/FsFlow" target="_blank" rel="noopener"><span>GitHub</span></a>
@@ -139,19 +143,6 @@
     <a href="http://localhost:3000/docs/start/basic-examples/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsstartbasic-examples"><span class="">Straightforward Examples</span></a>
   </li>
     </ul>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docscore-model-li">
-    <a href="http://localhost:3000/docs/core-model/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docscore-model"><span class="">Core Model</span></a>
-    <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modelsemantics-li">
-    <a href="http://localhost:3000/docs/core-model/semantics/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modelsemantics"><span class="">Execution Semantics</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modeldefects-li">
-    <a href="http://localhost:3000/docs/core-model/defects/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeldefects"><span class="">Defects and Exceptions</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modeltask-async-interop-li">
-    <a href="http://localhost:3000/docs/core-model/task-async-interop/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeltask-async-interop"><span class="">Task and Async Interop</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modelarchitectural-styles-li">
-    <a href="http://localhost:3000/docs/core-model/architectural-styles/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modelarchitectural-styles"><span class="">Architectural Styles</span></a>
-  </li>
-    </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsvalidation-results-li">
     <a href="http://localhost:3000/docs/validation-results/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsvalidation-results"><span class="">Validation &amp; Results</span></a>
     <ul class="ul-2 foldable">
@@ -167,30 +158,17 @@
     <a href="http://localhost:3000/docs/validation-results/diagnostics/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsvalidation-resultsdiagnostics"><span class="">Diagnostics Graph</span></a>
   </li>
     </ul>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docspatterns-li">
-    <a href="http://localhost:3000/docs/patterns/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__section" id="m-docspatterns"><span class="td-sidebar-nav-active-item">Patterns</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docscore-model-li">
+    <a href="http://localhost:3000/docs/core-model/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docscore-model"><span class="">The FsFlow Model</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docspatternstroubleshooting-types-li">
-    <a href="http://localhost:3000/docs/patterns/troubleshooting-types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docspatternstroubleshooting-types"><span class="">Troubleshooting Types</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docspatternsbenchmarks-li">
-    <a href="http://localhost:3000/docs/patterns/benchmarks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docspatternsbenchmarks"><span class="">Benchmarks</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docspatternsexamples-li">
-    <a href="http://localhost:3000/docs/patterns/examples/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docspatternsexamples"><span class="">Runnable Examples</span></a>
-  </li>
-    </ul>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsecosystem-li">
-    <a href="http://localhost:3000/docs/ecosystem/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsecosystem"><span class="">Ecosystem</span></a>
-    <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fstoolkit-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-validus-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-icedtasks-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fsharpplus-li">
-    <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemeffect-ts-comparison-li">
-    <a href="http://localhost:3000/docs/ecosystem/effect-ts-comparison/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemeffect-ts-comparison"><span class="">Effect-TS Comparison</span></a>
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modelsemantics-li">
+    <a href="http://localhost:3000/docs/core-model/semantics/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modelsemantics"><span class="">Execution Semantics</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modeldefects-li">
+    <a href="http://localhost:3000/docs/core-model/defects/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeldefects"><span class="">Defects and Exceptions</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modeltask-async-interop-li">
+    <a href="http://localhost:3000/docs/core-model/task-async-interop/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeltask-async-interop"><span class="">Task and Async Interop</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modelarchitectural-styles-li">
+    <a href="http://localhost:3000/docs/core-model/architectural-styles/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modelarchitectural-styles"><span class="">Architectural Styles</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsmanaging-dependencies-li">
@@ -213,6 +191,32 @@
     <a href="http://localhost:3000/docs/state-concurrency/stm/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsstate-concurrencystm"><span class="">STM (Software Transactional Memory)</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsstate-concurrencystream-li">
     <a href="http://localhost:3000/docs/state-concurrency/stream/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsstate-concurrencystream"><span class="">Stream (FlowStream)</span></a>
+  </li>
+    </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docspatterns-li">
+    <a href="http://localhost:3000/docs/patterns/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__section" id="m-docspatterns"><span class="td-sidebar-nav-active-item">Patterns</span></a>
+    <ul class="ul-2 foldable">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docspatternstroubleshooting-types-li">
+    <a href="http://localhost:3000/docs/patterns/troubleshooting-types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docspatternstroubleshooting-types"><span class="">Troubleshooting Types</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docspatternsbenchmarks-li">
+    <a href="http://localhost:3000/docs/patterns/benchmarks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docspatternsbenchmarks"><span class="">Benchmarks</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docspatternsexamples-li">
+    <a href="http://localhost:3000/docs/patterns/examples/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docspatternsexamples"><span class="">Runnable Examples</span></a>
+  </li>
+    </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsecosystem-li">
+    <a href="http://localhost:3000/docs/ecosystem/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsecosystem"><span class="">Ecosystem Overview</span></a>
+    <ul class="ul-2 foldable">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fstoolkit-li">
+    <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-validus-li">
+    <a href="http://localhost:3000/docs/ecosystem/integrations-validus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-validus"><span class="">Validus Integration</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-icedtasks-li">
+    <a href="http://localhost:3000/docs/ecosystem/integrations-icedtasks/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-icedtasks"><span class="">IcedTasks Integration</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fsharpplus-li">
+    <a href="http://localhost:3000/docs/ecosystem/integrations-fsharpplus/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fsharpplus"><span class="">FSharpPlus Integration</span></a>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemeffect-ts-comparison-li">
+    <a href="http://localhost:3000/docs/ecosystem/effect-ts-comparison/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemeffect-ts-comparison"><span class="">Effect-TS Comparison</span></a>
   </li>
     </ul>
   </li>
@@ -249,15 +253,35 @@
 </nav>
 <div class="td-content">
 	<h1>Patterns</h1>
-  
+  <div class="lead">Common architectural patterns, troubleshooting, and benchmarks.</div>
 	<header class="article-meta">
 		
 </header>
-	
+	<p>Reference guides for troubleshooting, performance, and real-world examples.</p>
+
 	<div class="section-index">
     
     
-    </div>
+    <hr class="panel-line">
+        <div class="entry">
+                <h5>
+                    <a href="http://localhost:3000/docs/patterns/troubleshooting-types/">Troubleshooting Types</a>
+                </h5>
+                <p></p>
+            </div>
+        <div class="entry">
+                <h5>
+                    <a href="http://localhost:3000/docs/patterns/benchmarks/">Benchmarks</a>
+                </h5>
+                <p></p>
+            </div>
+        <div class="entry">
+                <h5>
+                    <a href="http://localhost:3000/docs/patterns/examples/">Runnable Examples</a>
+                </h5>
+                <p>Application-shaped examples that are executed during docs generation and mirrored back into the site.</p>
+            </div>
+        </div>
 </div>
 
           </main>

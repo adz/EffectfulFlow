@@ -14,7 +14,7 @@ description: Shared mutable state with atomic updates in FsFlow.
 
 In a functional program, state is usually passed as parameters or through the environment. However, some scenarios—like a shared counter, a cache, or a status flag—require multiple concurrent workflows to observe and update the same value. 
 
-`Ref` provides a thread-safe way to do this without manual `lock` or `Monitor` calls.
+`Ref` provides a high-level abstraction for thread-safe state management. It encapsulates the synchronization logic (currently implemented using lightweight per-instance locking), ensuring that you can perform complex updates without manual `lock` management or risking data races.
 
 ## Creating a Ref
 

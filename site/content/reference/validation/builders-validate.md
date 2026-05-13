@@ -7,5 +7,7 @@ The `validate { }` builder is used for accumulating sibling failures into a stru
 
 ## Builder
 
-- [`FsFlow.Builders.validate`](./p-builders-validate.md): The accumulating `validate { }` computation expression.
+- [`validate`](./p-validate.md): 
+ The accumulating <code>validate { }</code> computation expression.
+ 
 

@@ -57,14 +57,14 @@ validate {
 
 [`Validation<'value, 'error>`]({{< relref "/reference/validation/t-validation.md" >}}) is structurally similar to `Result<'value, Diagnostics<'error>>`. You can convert between them easily:
 
-- Use [`Validation.toResult`]({{< relref "/reference/validation/m-validationmodule-toresult.md" >}}) to get a standard result back.
+- Use [`Validation.toResult`]({{< relref "/reference/validation/m-validation-toresult.md" >}}) to get a standard result back.
 - Use `Result.toValidation` to start an accumulating block from an existing result.
 
 In general, use [`validate {}`]({{< relref "/reference/validation/builders-validate.md" >}}) at the "leaves" of your application (like form parsing) and [`flow {}`]({{< relref "/reference/flow/builders-flow.md" >}}) for the "branches" (the main business logic).
 
 ## Nested Scopes
 
-To build a structured report (e.g., for JSON APIs), use the [`validate.key`]({{< relref "/reference/validation/m-validationmodule-key.md" >}}), `validate.index`, and `validate.name` helpers. These prefix any diagnostics produced inside the block.
+To build a structured report (e.g., for JSON APIs), use the [`validate.key`]({{< relref "/reference/validation/m-validation-key.md" >}}), `validate.index`, and `validate.name` helpers. These prefix any diagnostics produced inside the block.
 
 ```fsharp
 let validateCustomer customer =

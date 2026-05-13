@@ -1,15 +1,18 @@
 ---
-title: "FsFlow.STM.atomically"
-linkTitle: "atomically`"
+title: "STM.atomically"
+linkTitle: "atomically"
 ---
+
+<div class="fsdocs-usage">
+<code><span>STM.atomically&#32;<span>transaction</span></span></code>
+</div>
 
 Executes an STM transaction atomically within a flow.
 
-
-
 ## Parameters
 
-- `transaction`: The STM transaction to execute.
+- `transaction`: <code><span><a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-stm-1.html">STM</a>&lt;'T&gt;</span></code>
+  The STM transaction to execute.
 
 ## Returns
 

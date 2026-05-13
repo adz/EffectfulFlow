@@ -1,10 +1,8 @@
 ---
-title: "FsFlow.Caps.Core.EnvironmentVariableError"
+title: "Core.EnvironmentVariableError"
 linkTitle: "EnvironmentVariableError"
 type: docs
 ---
 
 Describes a meaningful environment-variable failure.
-
-
 

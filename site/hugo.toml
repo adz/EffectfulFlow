@@ -32,44 +32,6 @@ defaultContentLanguage = "en"
     source = "content"
     target = "content"
 
-  # Root homepage
-  [[module.mounts]]
-    source = "../docs/index.md"
-    target = "content/_index.md"
-  
-  # Guides Sections
-  [[module.mounts]]
-    source = "../docs/start"
-    target = "content/docs/start"
-  [[module.mounts]]
-    source = "../docs/validation-results"
-    target = "content/docs/validation-results"
-  [[module.mounts]]
-    source = "../docs/core-model"
-    target = "content/docs/core-model"
-  [[module.mounts]]
-    source = "../docs/managing-dependencies"
-    target = "content/docs/managing-dependencies"
-  [[module.mounts]]
-    source = "../docs/state-concurrency"
-    target = "content/docs/state-concurrency"
-  [[module.mounts]]
-    source = "../docs/patterns"
-    target = "content/docs/patterns"
-  [[module.mounts]]
-    source = "../docs/ecosystem"
-    target = "content/docs/ecosystem"
-
-  # API Reference
-  [[module.mounts]]
-    source = "../docs/reference"
-    target = "content/reference"
-
-  # Images and content assets
-  [[module.mounts]]
-    source = "../docs/content"
-    target = "static/content"
-
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]

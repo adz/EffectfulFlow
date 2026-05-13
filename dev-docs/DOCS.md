@@ -1,6 +1,6 @@
 # FsFlow Documentation Guide
 
-Source of truth for Docusaurus maintenance and documentation style.
+Source of truth for Hugo + Docsy maintenance and documentation style.
 
 ## Audience and voice
 
@@ -13,13 +13,13 @@ Write for pragmatic F# devs solving dependency, async, and typed-failure problem
 - Start with the user's problem, not the abstraction.
 - Stay factual and avoid marketing, filler, or internal narrative.
 
-## Docusaurus workflow
+## Hugo workflow
 
-- Next docs live in `/docs`.
-- Pre-1.0 docs publish only Next. Do not keep or publish pre-1.0 versioned snapshots.
-- Start `/site/versioned_docs/version-<number>/` snapshots again at 1.0, when compatibility policy becomes SemVer-based.
-- Sidebars live in `/site/sidebars.js`; versioned sidebars should not exist before 1.0.
-- The site uses Docusaurus with a versioning plugin.
+- Hand-written guides live in `/docs`.
+- Source-lifted API reference pages live in `/docs/reference`.
+- The Hugo site source lives in `/site`.
+- Content is synced from `/docs` to `/site/content` via `scripts/populate-hugo-content.sh`.
+- The site uses Hugo with the Docsy theme.
 
 ## Docs Source Of Truth
 
@@ -33,9 +33,9 @@ The API member pages are generated from the XML doc comments in `src/`. When you
 The pipeline is:
 
 1. Edit the public XML doc comments in `src/`.
-2. Run `bash scripts/generate-api-docs.sh`.
-3. Review the regenerated `docs/reference/` pages.
-4. Update the hand-written hub pages and guides so they point at the new API shape.
+2. Run `bash scripts/preview-docs.sh`.
+3. Review the regenerated reference pages in the browser.
+4. Update the hand-written guides in `docs/` as needed.
 
 Do not hand-edit the generated API member pages unless you are fixing a generated-doc bug. If the source comments change, the generated markdown should change with them.
 
@@ -43,20 +43,16 @@ Do not hand-edit the generated API member pages unless you are fixing a generate
 
 - The "Runnable Examples" page is generated from real code in `/examples/`.
 - Use `scripts/generate-example-docs.sh` to refresh it.
-- Do not edit `docs/examples/README.md` or versioned equivalents directly.
-- The API reference member pages under `docs/reference/fsflow/` are generated from the XML docs in `src/`.
+- Do not edit `site/content/docs/examples/_index.md` directly; it is managed by the population script.
+- The API reference member pages under `docs/reference/` are generated from the XML docs in `src/`.
 - Update the generator in `scripts/generate-api-docs.mjs` when the reference structure changes, then rerun the script.
-- The package-hub pages, reference index pages, and the rest of the guides are hand-written markdown.
+- The reference index pages and guide pages are hand-written markdown in `docs/`.
 
-### Preview and versioning
+### Preview and building
 
 Run `bash scripts/preview-docs.sh` for a local live-reload server at `http://localhost:3000`.
 
-For a new docs version after 1.0:
-
-1. Ensure `/docs` is current.
-2. Run `cd site && npm run version 1.0.0`.
-3. That creates a new snapshot in `versioned_docs`.
+To build the static site for deployment, run `bash scripts/build-docs-site.sh`. This will output the site to the `/output` directory.
 
 ## Documentation rules
 

@@ -1,10 +1,12 @@
 ---
-title: "FsFlow.Path"
+title: "Diagnostic<_>.Path"
 linkTitle: "Path"
 type: docs
 ---
 
-A path through a validation graph, represented as a list of `PathSegment`.
+<div class="fsdocs-usage">
+<code>Path</code>
+</div>
 
-
+The path to the source of the error.
 

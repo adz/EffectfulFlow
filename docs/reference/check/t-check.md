@@ -1,14 +1,11 @@
 ---
-title: "FsFlow.Check"
+title: "Check"
 linkTitle: "Check"
 ---
 
-A reusable predicate result that either preserves a value on success or acts as a gate with
- `unit` on success, while carrying a unit failure placeholder until the caller maps it into
- a domain-specific error.
 
-## Remarks
-
-Use the `Check` module helpers to create and compose checks.
-
+ Predicate helpers that return <a href="https://learn.microsoft.com/dotnet/api/system.result-2">Result</a> values with a unit error,
+ plus the bridge functions that turn those checks into application errors. Some helpers preserve
+ the source value; others are gates and return <code>unit</code> on success.
+ 
 

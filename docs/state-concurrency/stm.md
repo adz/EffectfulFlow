@@ -63,11 +63,13 @@ let batchTransfer acc1 acc2 acc3 amount =
     }
     |> STM.atomically
 ```
-
 ## Why use STM instead of Lock?
 
-Using `lock` manually is error-prone and can lead to deadlocks if different parts of your code acquire multiple locks in a different order. STM eliminates deadlocks by managing a consistent commit order internally and makes complex state transitions much easier to write and maintain.
+Using manual `lock` calls is error-prone and often leads to deadlocks when different parts of your code acquire multiple locks in inconsistent orders. 
 
+FsFlow's `STM` uses a **Global Lock** model. This ensures that every `stm { ... }` block is fully isolated and serializable. Because all transactions share a single synchronization point, deadlocks are impossible by design. While this model is coarse-grained, it provides a simple and robust mental model for coordinating complex state transitions across multiple variables.
+
+## Composition
 ## API Reference: Module `TRef`
 
 | Function | Signature | Description |

@@ -17,7 +17,7 @@ FsFlow provides several primitives for managing shared state and coordinating co
 The `Schedule` module provides a powerful language for describing how and when a workflow should be retried upon failure or repeated upon success.
 
 ### [STM (Software Transactional Memory)](./stm/)
-STM allows you to compose multiple atomic operations on `TVar` (transactional variables) into a single transaction. It provides ACID-like properties for in-memory state.
+STM allows you to compose multiple atomic operations on `TRef` (transactional references) into a single transaction. It provides serializable consistency for in-memory state.
 
 ### [Stream (FlowStream)](./stream/)
 FlowStream is an effectful, pull-based stream. It allows you to process large amounts of data asynchronously while respecting the FsFlow environment and error model.

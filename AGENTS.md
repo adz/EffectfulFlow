@@ -27,6 +27,6 @@ Refer to [`dev-docs/PLAN.md`](dev-docs/PLAN.md) for architectural direction and 
 
 ## Documentation Integrity
 
-- **Always Validate:** Every change to the codebase or documentation must be followed by a full documentation build to ensure no broken links or rendering crashes.
-- **Broken Link Check:** Docusaurus will fail the build on broken links. Do not ignore these errors.
-- **MDX Safety:** Ensure all code examples are wrapped in triple-backticks with language hints to prevent MDX execution crashes.
+- **Always Validate:** Every change to the codebase or documentation must be followed by a documentation build via `bash scripts/preview-docs.sh` to ensure correct rendering.
+- **Link Integrity:** Ensure that all cross-references between guides and reference pages are valid. Broken links degrade the experience for both humans and AI agents.
+- **Code Highlighting:** Ensure all code examples are wrapped in triple-backticks with the `fsharp` language hint for proper syntax highlighting.

@@ -299,9 +299,10 @@ module internal Shared =
         let mutable workflow = cancellableTask { return 0 }
 
         for index in 1 .. CancellationCheckpoints do
+            let previous = workflow
             workflow <-
                 cancellableTask {
-                    let! value = workflow
+                    let! value = previous
                     let! checkpointValue = checkpoint index
                     return value + checkpointValue
                 }

@@ -1,10 +1,12 @@
 ---
-title: "FsFlow.Caps.Core.Clock.now"
-linkTitle: "now`"
+title: "Core.Clock.now"
+linkTitle: "now"
 type: docs
 ---
 
+<div class="fsdocs-usage">
+<code><span>Clock.now&#32;<span></span></span></code>
+</div>
+
 Reads the current UTC timestamp from the environment.
-
-
 

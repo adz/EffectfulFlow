@@ -1,10 +1,8 @@
 ---
-title: "FsFlow.Caps.Core.IRandom"
+title: "Core.IRandom"
 linkTitle: "IRandom"
 type: docs
 ---
 
 Provides synchronous random-number generation.
-
-
 

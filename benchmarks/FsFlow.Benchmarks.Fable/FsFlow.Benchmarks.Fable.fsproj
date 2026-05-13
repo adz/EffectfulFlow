@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <GenerateProgramFile>false</GenerateProgramFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\FsFlow\AssemblyInfo.fs" />
+    <Compile Include="..\..\src\FsFlow\Core.fs" />
+    <Compile Include="..\..\src\FsFlow\Foundation.fs" />
+    <Compile Include="..\..\src\FsFlow\Diagnostics.fs" />
+    <Compile Include="..\..\src\FsFlow\Validation.fs" />
+    <Compile Include="..\..\src\FsFlow\Check.fs" />
+    <Compile Include="..\..\src\FsFlow\Runtime.fs" />
+    <Compile Include="..\..\src\FsFlow\AsyncFlow.fs" />
+    <Compile Include="..\..\src\FsFlow\TaskFlow.fs" />
+    <Compile Include="..\..\src\FsFlow\Flow.fs" />
+    <Compile Include="..\..\src\FsFlow\Capability.fs" />
+    <Compile Include="..\..\src\FsFlow\Ref.fs" />
+    <Compile Include="..\..\src\FsFlow\Stm.fs" />
+    <Compile Include="..\..\src\FsFlow\Stream.fs" />
+    <Compile Include="..\..\src\FsFlow\Schedule.fs" />
+    <Compile Include="..\..\src\FsFlow\FlowBuilder.fs" />
+    <Compile Include="..\..\src\FsFlow\ValidateBuilder.fs" />
+    <Compile Include="..\..\src\FsFlow\ResultBuilder.fs" />
+    <Compile Include="..\..\src\FsFlow\Builders.fs" />
+    <Compile Include="..\..\src\FsFlow\Guard.fs" />
+    <Compile Include="Shared.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+</Project>

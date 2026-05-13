@@ -45,14 +45,9 @@ module private FlowBuilderRuntime =
             #endif
         )
 
+#if !FABLE_COMPILER
     let inline fromTask<'env, 'error, 'value> (operation: Task<'value>) : Flow<'env, 'error, 'value> =
         Flow(fun _ cancellationToken ->
-            #if FABLE_COMPILER
-            async {
-                let! value = operation |> Async.AwaitTask
-                return Exit.Success value
-            }
-            #else
             ValueTask<Exit<'value, 'error>>(
                 task {
                     if cancellationToken.IsCancellationRequested then
@@ -61,19 +56,12 @@ module private FlowBuilderRuntime =
                         let! value = operation
                         return Exit.Success value
                 })
-            #endif
         )
 
     let inline fromTaskResult<'env, 'error, 'value>
         (operation: Task<Result<'value, 'error>>)
         : Flow<'env, 'error, 'value> =
         Flow(fun _ cancellationToken ->
-            #if FABLE_COMPILER
-            async {
-                let! result = operation |> Async.AwaitTask
-                return Exit.fromResult result
-            }
-            #else
             ValueTask<Exit<'value, 'error>>(
                 task {
                     if cancellationToken.IsCancellationRequested then
@@ -82,17 +70,10 @@ module private FlowBuilderRuntime =
                         let! result = operation
                         return Exit.fromResult result
                 })
-            #endif
         )
 
     let inline fromTaskUnit<'env, 'error> (operation: Task) : Flow<'env, 'error, unit> =
         Flow(fun _ cancellationToken ->
-            #if FABLE_COMPILER
-            async {
-                do! operation |> Async.AwaitTask
-                return Exit.Success ()
-            }
-            #else
             ValueTask<Exit<unit, 'error>>(
                 task {
                     if cancellationToken.IsCancellationRequested then
@@ -101,17 +82,10 @@ module private FlowBuilderRuntime =
                         do! operation
                         return Exit.Success ()
                 })
-            #endif
         )
 
     let inline fromValueTask<'env, 'error, 'value> (operation: ValueTask<'value>) : Flow<'env, 'error, 'value> =
         Flow(fun _ cancellationToken ->
-            #if FABLE_COMPILER
-            async {
-                let! value = operation.AsTask() |> Async.AwaitTask
-                return Exit.Success value
-            }
-            #else
             ValueTask<Exit<'value, 'error>>(
                 task {
                     if cancellationToken.IsCancellationRequested then
@@ -120,19 +94,12 @@ module private FlowBuilderRuntime =
                         let! value = operation
                         return Exit.Success value
                 })
-            #endif
         )
 
     let inline fromValueTaskResult<'env, 'error, 'value>
         (operation: ValueTask<Result<'value, 'error>>)
         : Flow<'env, 'error, 'value> =
         Flow(fun _ cancellationToken ->
-            #if FABLE_COMPILER
-            async {
-                let! result = operation.AsTask() |> Async.AwaitTask
-                return Exit.fromResult result
-            }
-            #else
             ValueTask<Exit<'value, 'error>>(
                 task {
                     if cancellationToken.IsCancellationRequested then
@@ -141,17 +108,10 @@ module private FlowBuilderRuntime =
                         let! result = operation
                         return Exit.fromResult result
                 })
-            #endif
         )
 
     let inline fromValueTaskUnit<'env, 'error> (operation: ValueTask) : Flow<'env, 'error, unit> =
         Flow(fun _ cancellationToken ->
-            #if FABLE_COMPILER
-            async {
-                do! operation.AsTask() |> Async.AwaitTask
-                return Exit.Success ()
-            }
-            #else
             ValueTask<Exit<unit, 'error>>(
                 task {
                     if cancellationToken.IsCancellationRequested then
@@ -160,8 +120,8 @@ module private FlowBuilderRuntime =
                         do! operation
                         return Exit.Success ()
                 })
-            #endif
         )
+#endif
 
 type FlowBuilder() =
     member _.Return(value: 'value) : Flow<'env, 'error, 'value> =
@@ -182,6 +142,7 @@ type FlowBuilder() =
     member _.YieldFrom(operation: Async<Result<'value, 'error>>) : Flow<'env, 'error, 'value> =
         FlowBuilderRuntime.fromAsyncResult operation
 
+#if !FABLE_COMPILER
     member _.YieldFrom(operation: Task<'value>) : Flow<'env, 'error, 'value> =
         FlowBuilderRuntime.fromTask operation
 
@@ -199,6 +160,7 @@ type FlowBuilder() =
 
     member _.YieldFrom(operation: ValueTask) : Flow<'env, 'error, unit> =
         FlowBuilderRuntime.fromValueTaskUnit operation
+#endif
 
     member _.ReturnFrom(flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
         flow
@@ -209,6 +171,7 @@ type FlowBuilder() =
     member _.ReturnFrom(operation: Async<Result<'value, 'error>>) : Flow<'env, 'error, 'value> =
         FlowBuilderRuntime.fromAsyncResult operation
 
+#if !FABLE_COMPILER
     member _.ReturnFrom(operation: Task<'value>) : Flow<'env, 'error, 'value> =
         FlowBuilderRuntime.fromTask operation
 
@@ -226,6 +189,7 @@ type FlowBuilder() =
 
     member _.ReturnFrom(operation: ValueTask) : Flow<'env, 'error, unit> =
         FlowBuilderRuntime.fromValueTaskUnit operation
+#endif
 
     member _.ReturnFrom(result: Result<'value, 'error>) : Flow<'env, 'error, 'value> =
         FlowBuilderRuntime.fromResult result
@@ -268,6 +232,7 @@ type FlowBuilder() =
         |> FlowBuilderRuntime.fromAsyncResult
         |> Flow.bind binder
 
+#if !FABLE_COMPILER
     member _.Bind
         (
             operation: Task<'value>,
@@ -321,6 +286,7 @@ type FlowBuilder() =
         operation
         |> FlowBuilderRuntime.fromValueTaskUnit
         |> Flow.bind binder
+#endif
 
     member _.Bind
         (
@@ -401,6 +367,7 @@ type FlowBuilder() =
             |> Flow.bind binder
             |> FlowBuilderRuntime.run environment cancellationToken)
 
+#if !FABLE_COMPILER
     member _.Bind
         (
             request: Env<'dep, Task<'value>>,
@@ -490,6 +457,7 @@ type FlowBuilder() =
             |> FlowBuilderRuntime.fromValueTaskUnit
             |> Flow.bind binder
             |> FlowBuilderRuntime.run environment cancellationToken)
+#endif
 
 
     member _.Bind

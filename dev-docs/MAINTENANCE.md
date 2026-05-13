@@ -1,4 +1,4 @@
-# Docusaurus maintenance notes live in [DOCS.md](DOCS.md).
+# Hugo documentation maintenance notes live in [DOCS.md](DOCS.md).
 
 ## Release process
 

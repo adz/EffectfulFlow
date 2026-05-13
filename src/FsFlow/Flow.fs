@@ -263,21 +263,7 @@ module Flow =
         : Flow<'env, 'error, 'value> =
         Flow(fun environment cancellationToken ->
             #if FABLE_COMPILER
-            async {
-                let cts = new CancellationTokenSource()
-                use registration = cancellationToken.Register(fun () -> cts.Cancel())
-                
-                let wrap op = async {
-                    let! res = op
-                    return Some res
-                }
-                let leftOp = wrap (invoke left environment cts.Token)
-                let rightOp = wrap (invoke right environment cts.Token)
-                
-                let! winner = Async.Choice [| leftOp; rightOp |]
-                cts.Cancel()
-                return winner.Value
-            }
+            async { return failwith "Flow.race is not supported on Fable." }
             #else
             ValueTask<Exit<'value, 'error>>(
                 task {

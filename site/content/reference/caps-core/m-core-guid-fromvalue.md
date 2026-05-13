@@ -1,10 +1,16 @@
 ---
-title: "FsFlow.Caps.Core.Guid.fromValue"
+title: "Core.Guid.fromValue"
 linkTitle: "fromValue"
 type: docs
 ---
 
+<div class="fsdocs-usage">
+<code><span>Guid.fromValue&#32;<span>value</span></span></code>
+</div>
+
 Creates a deterministic GUID generator that always returns the supplied value.
 
+## Parameters
 
+- `value`: <code><a href="https://learn.microsoft.com/dotnet/api/system.guid">Guid</a></code>
 

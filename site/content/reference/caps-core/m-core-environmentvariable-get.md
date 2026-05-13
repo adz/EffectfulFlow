@@ -1,10 +1,16 @@
 ---
-title: "FsFlow.Caps.Core.EnvironmentVariable.get"
-linkTitle: "get`"
+title: "Core.EnvironmentVariable.get"
+linkTitle: "get"
 type: docs
 ---
 
+<div class="fsdocs-usage">
+<code><span>EnvironmentVariable.get&#32;<span>name</span></span></code>
+</div>
+
 Reads a raw string environment variable from the environment.
 
+## Parameters
 
+- `name`: <code>string</code>
 

@@ -8,6 +8,7 @@ This file tracks only unresolved product direction.
 - Keep the public story centered on `Flow` and the `Exit` execution model.
 - Keep `Cause.Fail`, `Cause.Interrupt`, and `Cause.Die` as distinct runtime outcomes.
 - Make defect handling explicit enough to support a ZIO-like lossless failure story.
+- Evolve STM from a pessimistic lock model to a full ZIO-like coordination engine with `retry` and `orElse` support (see [STM Evolution](decisions/stm-evolution.md)).
 - Keep the docs, examples, and generated reference aligned with the source of truth.
 - Trim stale proposal language that no longer changes future decisions.
 

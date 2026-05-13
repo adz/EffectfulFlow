@@ -79,8 +79,32 @@ cp "$root_dir/docs/reference/_index.md" "$ref_dir/_index.md"
 upsert_frontmatter "$ref_dir/_index.md" "type" "docs"
 upsert_frontmatter "$ref_dir/_index.md" "weight" "30"
 
+# Sync guide directories from docs/ to site/content/docs/
+# We exclude reference, content, and the root AGENT.md/index.md for now
+for dir in core-model ecosystem managing-dependencies patterns start state-concurrency validation-results; do
+  if [ -d "$root_dir/docs/$dir" ]; then
+    mkdir -p "$docs_dir/$dir"
+    cp -r "$root_dir/docs/$dir/"* "$docs_dir/$dir/"
+  fi
+done
+
+# Fix all files: remove body titles to avoid double headings in Hugo
+find "$ref_dir" "$docs_dir" -name "*.md" -type f -exec sed -i '/^# /d' {} \;
+
+# Ensure all guide pages are marked as docs type
+find "$docs_dir" -type f -name "*.md" -print0 |
+  while IFS= read -r -d '' page; do
+    upsert_frontmatter "$page" "type" "docs"
+  done
+
 # Copy root assets
 cp "$root_dir/llms.txt" "$root_dir/site/static/" 2>/dev/null || true
+mkdir -p "$root_dir/site/static/content"
+cp -r "$root_dir/docs/content/"* "$root_dir/site/static/content/" 2>/dev/null || true
+
+# Copy root homepage
+cp "$root_dir/docs/index.md" "$root_dir/site/content/_index.md"
+upsert_frontmatter "$root_dir/site/content/_index.md" "type" "docs"
 
 # Fixed 'Docs' landing page - avoid flat list
 mkdir -p "$docs_dir"

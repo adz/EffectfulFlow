@@ -6,5 +6,7 @@ The `result { }` builder provides a fail-fast computation expression for standar
 
 ## Builder
 
-- [`FsFlow.Builders.result`](./p-builders-result.md): The fail-fast `result { }` computation expression.
+- [`result`](./p-result.md): 
+ The fail-fast <code>result { }</code> computation expression.
+ 
 

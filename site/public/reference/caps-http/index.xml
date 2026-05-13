@@ -8,25 +8,25 @@
     <language>en-us</language>
     <atom:link href="http://localhost:3000/reference/caps-http/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>FsFlow.Caps.Http.HttpModule.getString</title>
-      <link>http://localhost:3000/reference/caps-http/m-http-httpmodule-getstring/</link>
+      <title>Http.Http.getString</title>
+      <link>http://localhost:3000/reference/caps-http/m-http-http-getstring/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-http/m-http-httpmodule-getstring/</guid>
-      <description>&lt;p&gt;Sends a GET request using the HTTP environment and returns the response body.&lt;/p&gt;</description>
+      <guid>http://localhost:3000/reference/caps-http/m-http-http-getstring/</guid>
+      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Http.getString&amp;#32;&lt;span&gt;url&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Sends a GET request using the HTTP environment and returns the response body.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;url&lt;/code&gt;: &lt;code&gt;string&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
-      <title>FsFlow.Caps.Http.IHttp</title>
+      <title>Http.IHttp</title>
       <link>http://localhost:3000/reference/caps-http/t-http-ihttp/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/caps-http/t-http-ihttp/</guid>
       <description>&lt;p&gt;Provides asynchronous access to HTTP client operations.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>FsFlow.Caps.Http.HttpModule.live</title>
-      <link>http://localhost:3000/reference/caps-http/m-http-httpmodule-live/</link>
+      <title>Http.Http.live</title>
+      <link>http://localhost:3000/reference/caps-http/m-http-http-live/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:3000/reference/caps-http/m-http-httpmodule-live/</guid>
-      <description>&lt;p&gt;Creates a live HTTP client backed by &lt;code&gt;HttpClient&lt;/code&gt;.&lt;/p&gt;</description>
+      <guid>http://localhost:3000/reference/caps-http/m-http-http-live/</guid>
+      <description>&lt;div class=&#34;fsdocs-usage&#34;&gt;&#xA;&lt;code&gt;&lt;span&gt;Http.live&amp;#32;&lt;span&gt;client&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;Creates a live HTTP client backed by &lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.net.http.httpclient&#34;&gt;HttpClient&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;client&lt;/code&gt;: &lt;code&gt;&lt;a href=&#34;https://learn.microsoft.com/dotnet/api/system.net.http.httpclient&#34;&gt;HttpClient&lt;/a&gt;&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
   </channel>
 </rss>

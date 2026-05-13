@@ -1,13 +1,23 @@
 ---
-title: "FsFlow.Flow.zipPar"
-linkTitle: "zipPar`"
+title: "Flow.zipPar"
+linkTitle: "zipPar"
 type: docs
 ---
+
+<div class="fsdocs-usage">
+<code><span>zipPar&#32;<span>left&#32;right</span></span></code>
+</div>
 
 Combines two flows into a tuple of their values, running them concurrently.
 
 ## Remarks
 
-If either flow fails, the other is interrupted immediately.
 
+ If either flow fails, the other is interrupted immediately.
+ 
+
+## Parameters
+
+- `left`: <code><span><a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html">Flow</a>&lt;<span>'env,&#32;'error,&#32;'right</span>&gt;</span></code>
+- `right`: <code><span><a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html">Flow</a>&lt;<span>'env,&#32;'error,&#32;'right</span>&gt;</span></code>
 

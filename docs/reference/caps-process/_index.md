@@ -6,11 +6,11 @@ This page shows the source-documented `FsFlow.Caps.Process` surface: the process
 
 ## Capability
 
-- [`FsFlow.Caps.Process.IProcess`](./t-process-iprocess.md): Provides asynchronous access to external process execution.
-- [`FsFlow.Caps.Process.ProcessResult`](./t-process-processresult.md): Represents the outcome of an external process execution.
+- [`Process.IProcess`](./t-process-iprocess.md): Provides asynchronous access to external process execution.
+- [`Process.ProcessResult`](./t-process-processresult.md): Represents the outcome of an external process execution.
 
 ## Helpers
 
-- [`FsFlow.Caps.Process.ProcessModule.execute`](./m-process-processmodule-execute.md): Executes a process using the process environment and returns the result.
-- [`FsFlow.Caps.Process.ProcessModule.live`](./p-process-processmodule-live.md): Creates a live process runner backed by `Process`.
+- [`Process.Process.execute`](./m-process-process-execute.md): Executes a process using the process environment and returns the result.
+- [`Process.Process.live`](./m-process-process-live.md): Creates a live process runner backed by <a href="https://learn.microsoft.com/dotnet/api/system.diagnostics.process">Process</a>.
 

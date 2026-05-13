@@ -1,15 +1,18 @@
 ---
-title: "FsFlow.Flow.interrupt"
-linkTitle: "interrupt`"
+title: "Flow.interrupt"
+linkTitle: "interrupt"
 ---
+
+<div class="fsdocs-usage">
+<code><span>interrupt&#32;<span>fiber</span></span></code>
+</div>
 
 Signals a fiber to stop and waits for it to finish its cleanup.
 
-
-
 ## Parameters
 
-- `fiber`: The fiber to interrupt.
+- `fiber`: <code><span><a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-fiber-2.html">Fiber</a>&lt;<span>'error,&#32;'value</span>&gt;</span></code>
+  The fiber to interrupt.
 
 ## Returns
 

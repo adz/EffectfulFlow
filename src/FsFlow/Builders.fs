@@ -76,7 +76,7 @@ module Builders =
     /// not evaluated.
     /// </para>
     /// <para>
-    /// `Check<'value>` covers both value-preserving checks and gate checks.
+    /// <c>Check&lt;'value&gt;</c> covers both value-preserving checks and gate checks.
     /// Use <c>Check.orError</c> to attach an application error, and <c>Guard.Of</c> /
     /// <c>Guard.MapError</c> when you want the same error-bound source shape to participate
     /// directly in validation.

@@ -1,9 +1,7 @@
 ---
-title: "FsFlow.Caps.Core.IEnvironmentVariables"
+title: "Core.IEnvironmentVariables"
 linkTitle: "IEnvironmentVariables"
 ---
 
 Provides synchronous environment-variable lookup.
-
-
 
