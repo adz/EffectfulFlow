@@ -62,10 +62,10 @@ Use capability boundaries when the edge should name what it requires instead of 
 
 | Boundary Shape | Idiomatic Pattern |
 | :--- | :--- |
-| Named contract | `type LoginRequires = inherit Requires<IClock>` |
+| Named contract | `type LoginCaps = abstract Clock : IClock` |
 | Whole dependency | `let! clock = Resolve<IClock>` |
 | Projected value | `let! now = Resolve<IClock> _.UtcNow` |
-| Flexible public API | `let login : Flow<#LoginRequires, _, _> = ...` |
+| Flexible public API | `let login : Flow<#LoginCaps, _, _> = ...` |
 
 Prefer this over raw `IServiceProvider` lookup or exact runtime types when callers may provide a larger app runtime.
 
@@ -76,8 +76,8 @@ Translate common patterns from other libraries into idiomatic FsFlow.
 | :--- | :--- |
 | `FsToolkit: AsyncResult.requireSome` | `let! x = opt |> Guard.Of e` |
 | `FsToolkit: Result.requireTrue` | `Check.okIf cond |> Check.orError e` |
-| `ZIO: getOrFail` | `let! x = opt |> Guard.Of e` |
-| `ZIO: serviceWith` | `let! s = Resolver.resolve _.Service` |
+| `Guard: getOrFail` | `let! x = opt |> Guard.Of e` |
+| `Capability lookup` | `let! s = Resolver.resolve _.Service` |
 | `Manual: match x with Some v...` | `let! v = x |> Guard.Of e` |
 | `Manual: Result.mapError mapper` | `let! x = result |> Guard.MapError mapper` |
 

@@ -3,7 +3,7 @@ title: "RuntimeContext"
 type: docs
 ---
 
-The `RuntimeContext` type and module split host services from application dependencies and carry the cancellation token for task-based execution.
+The `RuntimeContext` type and module split host services from application dependencies and carry the cancellation token for task-based execution. In the current foundation it is the execution carrier above the adapter layer, not the runtime storage engine.
 
 ## Core type
 

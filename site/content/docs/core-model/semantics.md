@@ -117,7 +117,3 @@ Use Cold inputs when you want the effect to observe the runtime `CancellationTok
 ## Runtime Helpers
 
 Operational helpers for logging, timeout, retry, and resource handling are grouped into the `Flow.Runtime` and `Schedule` modules.
-
-## Next
-
-Read [Defects and Exceptions](./defects.md) for the defect-model rationale, [Getting Started](../start/getting-started/) for a tutorial-style overview, or browse the [API Reference](../../reference/) for detailed signatures.

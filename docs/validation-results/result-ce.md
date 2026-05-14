@@ -29,19 +29,23 @@ let validateUser name email =
     }
 ```
 
-## Guarded Bindings
+## Guard
 
-`Guard` is a powerful companion to `result {}`. It allows you to bind boolean or check-shaped sources directly while attaching an error value at the binding site.
+`result {}` binds `Result` directly.
+`Guard` bridges `Option`, `bool`, `Check`, and other source shapes into `result {}` while attaching an error value at the binding site.
 
 ```fsharp
+type User = { Name: string }
+type LoginError = MissingPassword | Unauthorized
+
+let tryGetUser username =
+    if username = "ada" then Some { Name = username } else None
+
 let login username password =
     result {
-        // If password is blank, fails with MissingPassword
+        let! user = tryGetUser username |> Guard.Of Unauthorized
         do! Check.notBlank password |> Guard.Of MissingPassword
-        
-        // If user not found, maps the underlying error to Unauthorized
-        let! user = tryGetUser username |> Guard.MapError (fun _ -> Unauthorized)
-        
+
         return user
     }
 ```

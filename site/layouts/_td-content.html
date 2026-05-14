@@ -14,6 +14,7 @@
 	</header>
 	{{ .Render "_td-content-after-header" -}}
 	{{ .Content }}
+	{{ partial "pager.html" . }}
 	{{ partial "feedback.html" . -}}
 	{{ if (.Site.Config.Services.Disqus.Shortname) -}}
 		<br />

@@ -59,7 +59,3 @@ let printNumbers =
 | `runForEach` | `'env -> ('v -> unit) -> FlowStream<'e, 'err, 'v> -> Flow<'env, 'err, unit>` | Consumes the stream with a side-effecting action. |
 
 ---
-
-## Next Steps
-
-Explore more advanced concurrency patterns in [State and Concurrency]({{< relref "/docs/state-concurrency/" >}}).

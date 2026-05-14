@@ -504,6 +504,40 @@ module Flow =
             invoke flow environment cancellationToken
             |> EffectFlow.mapError mapper)
 
+    /// <summary>Maps both the successful value and the failure cause of a synchronous flow.</summary>
+    /// <param name="onSuccess">The function to transform the success value.</param>
+    /// <param name="onFailure">The function to transform the failure cause.</param>
+    /// <param name="flow">The source flow.</param>
+    /// <returns>A new <see cref="T:FsFlow.Flow`3" /> with transformed success and error types.</returns>
+    let mapBoth
+        (onSuccess: 'value -> 'next)
+        (onFailure: Cause<'error> -> Cause<'nextError>)
+        (flow: Flow<'env, 'error, 'value>)
+        : Flow<'env, 'nextError, 'next> =
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.mapBoth onSuccess onFailure)
+
+    /// <summary>Folds both the successful value and the failure cause into a new flow.</summary>
+    /// <remarks>
+    /// This is the most powerful combinator for branching logic based on the full outcome of a flow,
+    /// including interruptions and defects.
+    /// </remarks>
+    /// <param name="onSuccess">A function that returns a new flow from the success value.</param>
+    /// <param name="onFailure">A function that returns a new flow from the failure cause.</param>
+    /// <param name="flow">The source flow.</param>
+    /// <returns>A flow that continues with the outcome of either <paramref name="onSuccess" /> or <paramref name="onFailure" />.</returns>
+    let fold
+        (onSuccess: 'value -> Flow<'env, 'nextError, 'next>)
+        (onFailure: Cause<'error> -> Flow<'env, 'nextError, 'next>)
+        (flow: Flow<'env, 'error, 'value>)
+        : Flow<'env, 'nextError, 'next> =
+        Flow(fun environment cancellationToken ->
+            invoke flow environment cancellationToken
+            |> EffectFlow.fold
+                (fun value -> invoke (onSuccess value) environment cancellationToken)
+                (fun cause -> invoke (onFailure cause) environment cancellationToken))
+
     /// <summary>Catches exceptions raised during execution and maps them to a typed error.</summary>
     /// <remarks>
     /// Exceptions that are not caught by this helper will bubble up to the caller of <see cref="run" />.

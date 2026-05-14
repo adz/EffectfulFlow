@@ -25,10 +25,10 @@ type IProcess =
 [<RequireQualifiedAccess>]
 module Process =
     /// <summary>Executes a process using the process environment and returns the result.</summary>
-    let execute (fileName: string) (arguments: string) : Flow<'env, 'e, ProcessResult> when 'env :> Requires<IProcess> =
+    let execute (fileName: string) (arguments: string) : Flow<'env, 'e, ProcessResult> when 'env :> IProcess =
         flow {
             let! (env: 'env) = Flow.env
-            return! env.Dep.Execute(fileName, arguments)
+            return! env.Execute(fileName, arguments)
         }
 
 #if !FABLE_COMPILER

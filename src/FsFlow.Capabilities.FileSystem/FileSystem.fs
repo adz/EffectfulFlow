@@ -16,16 +16,16 @@ type IFileSystem =
 [<RequireQualifiedAccess>]
 module FileSystem =
     /// <summary>Reads all text from a file using the file system environment.</summary>
-    let readAllText (path: string) : Flow<'env, 'e, string> when 'env :> Requires<IFileSystem> =
-        Flow.read (fun (env: 'env) -> env.Dep.ReadAllText(path))
+    let readAllText (path: string) : Flow<'env, 'e, string> when 'env :> IFileSystem =
+        Flow.read (fun (env: 'env) -> env.ReadAllText(path))
 
     /// <summary>Writes all text to a file using the file system environment.</summary>
-    let writeAllText (path: string) (contents: string) : Flow<'env, 'e, unit> when 'env :> Requires<IFileSystem> =
-        Flow.read (fun (env: 'env) -> env.Dep.WriteAllText(path, contents))
+    let writeAllText (path: string) (contents: string) : Flow<'env, 'e, unit> when 'env :> IFileSystem =
+        Flow.read (fun (env: 'env) -> env.WriteAllText(path, contents))
 
     /// <summary>Checks if a file exists using the file system environment.</summary>
-    let exists (path: string) : Flow<'env, 'e, bool> when 'env :> Requires<IFileSystem> =
-        Flow.read (fun (env: 'env) -> env.Dep.Exists(path))
+    let exists (path: string) : Flow<'env, 'e, bool> when 'env :> IFileSystem =
+        Flow.read (fun (env: 'env) -> env.Exists(path))
 
 #if !FABLE_COMPILER
     /// <summary>Creates a live file system backed by <see cref="T:System.IO.File" />.</summary>

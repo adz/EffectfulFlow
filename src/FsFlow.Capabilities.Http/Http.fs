@@ -14,10 +14,10 @@ type IHttp =
 [<RequireQualifiedAccess>]
 module Http =
     /// <summary>Sends a GET request using the HTTP environment and returns the response body.</summary>
-    let getString (url: string) : Flow<'env, 'e, string> when 'env :> Requires<IHttp> =
+    let getString (url: string) : Flow<'env, 'e, string> when 'env :> IHttp =
         flow {
             let! (env: 'env) = Flow.env
-            return! env.Dep.GetString(url)
+            return! env.GetString(url)
         }
 
 #if !FABLE_COMPILER

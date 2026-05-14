@@ -1,99 +1,56 @@
 ---
 weight: 25
 title: Defects and Exceptions
-description: Why FsFlow keeps a first-class defect branch alongside typed failures and interruption.
+description: Why FsFlow separates domain failures, interruptions, and defects.
 ---
 
 # Defects and Exceptions
 
-This page shows why FsFlow keeps `Cause.Die` as a first-class outcome and how it differs from typed failures and cancellation.
+FsFlow distinguishes between expected failures, administrative signals (interruption), and unexpected defects. This separation ensures that your domain logic remains clean while the runtime provides robust, leak-proof resource management.
 
-FsFlow has three distinct failure kinds:
+## Quick Start: Usage Patterns
 
-- `Cause.Fail error`: an expected domain failure
-- `Cause.Interrupt`: a cancellation or interruption signal
-- `Cause.Die exn`: an unexpected defect or bug
+### Producing Failures
+Choose the function that matches your intent:
 
-You can produce `Cause.Die` explicitly with `Flow.die`, or let the runtime preserve it when an uncaught exception escapes a `Flow`, `AsyncFlow`, or `TaskFlow` boundary.
+| Intent | Function | Outcome |
+| :--- | :--- | :--- |
+| **Domain Error** (Expected) | `Flow.fail "Not found"` | `Cause.Fail "Not found"` |
+| **Defect/Panic** (Bug) | `Flow.die (exn "Database down")` | `Cause.Die exn` |
+| **Interruption** | `Flow.Runtime.interrupt` | `Cause.Interrupt` |
 
-Keeping those cases separate is not about adding ceremony. It is about keeping the failure story lossless inside the same execution model.
+### Bridging Exceptions
+Use `Flow.catch` to convert specific exceptions into domain errors. Exceptions not caught by the handler will remain as `Cause.Die`.
 
-## Why Not Just Throw Exceptions?
+```fsharp
+let safeParse id =
+    flow {
+        let! json = Http.get id
+        return Json.parse json
+    }
+    |> Flow.catch (function
+        | :? JsonException as ex -> DomainError.InvalidFormat ex.Message
+        | ex -> reraise ex) // Bubbles up as Cause.Die
+```
 
-Thrown exceptions are useful, but they are not the same as a typed defect channel.
+---
 
-If a flow throws, the exception escapes as control flow unless a caller catches it. At that point:
+## The "Why": Architectural Rationale
 
-- the failure is no longer a value you can inspect or combine
-- the runtime has already unwound the stack
-- the code that handles the failure must remember to catch it
+While standard F# practice favors "just using exceptions" for defects, FsFlow treats them as first-class data in the `Exit` type for three critical reasons.
 
-That works for local error handling, but it breaks down as soon as you want the failure story to stay inside the workflow algebra.
+### 1. Structural Integrity (The "Closed" Algebra)
+In complex orchestration like `Flow.zipPar` (running two flows concurrently), the engine must coordinate the lifecycle of multiple fibers.
 
-`Cause.Die` exists so FsFlow can keep defects as data until the caller chooses what to do with them.
+*   **The Problem:** If a defect is just a thrown exception, it escapes the return value of the function. The engine would have to handle two disjoint failure paths: returning a failure value OR catching a thrown exception. This forces every combinator to use defensive `try...finally` blocks just to coordinate basic signaling.
+*   **The Solution:** By capturing defects into the `Exit` type, every flow execution is guaranteed to return a value. This makes the algebra "closed." If one branch dies, the engine receives it as data, immediately triggers cancellation for the other branches, and returns a single, structured outcome.
 
-## Why Keep Defects Separate From Typed Errors?
+### 2. Lossless Concurrency Coordination
+When a fiber fails, you often need to perform cleanup (e.g., `ensuring` or `onExit`). 
 
-Typed errors answer a different question from defects.
+By reifying defects into `Cause.Die`, FsFlow passes the exact cause—including the original exception and stack trace—to your finalizers as a value. This enables high-fidelity observability: you can log exactly why a background fiber died without crashing the host process, and without needing a `try...with` block inside every finalizer.
 
-- `Cause.Fail` means "the domain rejected this input or action"
-- `Cause.Die` means "something went wrong that was not part of the domain contract"
-
-That distinction matters when you are composing workflows:
-
-- retries should usually target `Fail`, not `Die`
-- fallback logic should usually target `Fail`, not `Die`
-- logging and observability should record defects differently from expected domain errors
-
-If defects are collapsed into ordinary errors, the runtime can no longer tell whether a failure was expected, retryable, or a bug.
-
-## Why Keep Defects In The Same Algebra?
-
-Keeping defects inside `Exit` and `Cause` gives FsFlow a lossless failure model.
-
-That means a workflow can carry all of this through composition:
-
-- success values
-- typed failures
-- interruption
-- defects
-
-The value-level representation lets the runtime and combinators preserve meaning instead of flattening everything into a single `exn`.
-
-## What Users Should Do
-
-Users should treat `Cause.Die` as the defect path, not as the normal error path.
-
-The intended surface is:
-
-- use `Flow.fail` or `Flow.error` for expected domain errors
-- use interruption-aware helpers for cancellation
-- use `Flow.die` for explicit defects
-- use `Flow.catch` only when you intentionally want to convert an exception into a typed domain error
-
-That keeps the code honest about intent.
-
-## What The Runtime Should Do
-
-The runtime should preserve defects as `Cause.Die` when it observes an unexpected exception at the execution boundary.
-
-That gives the library two important properties:
-
-- explicit defects remain explicit
-- unexpected exceptions become visible inside the workflow outcome instead of disappearing as ambient control flow
-
-Retry helpers and fallback combinators should continue to treat `Cause.Die` and `Cause.Interrupt` as terminal. Only `Cause.Fail` should participate in retry or domain fallback decisions.
-
-## Why This Page Exists
-
-This is the reason `Die` stays in the model:
-
-- `Fail` is for domain control flow
-- `Interrupt` is for cancellation
-- `Die` is for defects
-
-Those three cases are different enough to deserve separate branches.
-
-## Next
-
-Read [Execution Semantics](./semantics.md) for the full `Flow -> Effect -> Exit` story, or [Task and Async Interop](./task-async-interop.md) for how the builder binds different runtime shapes.
+### 3. Precision in Retries and Fallbacks
+The distinction between `Fail` and `Die` allows for smarter defaults:
+*   **Retries** should usually target `Fail` (e.g., a transient network error), but never `Die` (e.g., a `NullReferenceException`). Retrying a bug is usually a waste of resources.
+*   **Fallbacks** (`orElse`) usually target domain failures. If a workflow has a defect, it usually indicates a corrupted state that fallback logic wasn't designed to handle.

@@ -1,26 +1,27 @@
 ---
 weight: 30
-title: "Level 2: RuntimeContext"
+title: "RuntimeContext"
 description: Splitting runtime services from application dependencies.
 type: docs
 ---
 
 
-Use `RuntimeContext<'runtime, 'env>` when the host concerns and application concerns should be separate.
+`RuntimeContext<'runtime, 'env>` gives your app services a separate lane from the host runtime.
 
-This is the right level when:
+This gives you:
 
-- logging and metrics come from the host
-- your application dependencies belong to the feature or boundary
-- the runtime should be shared across multiple areas
-- you want the cancellation token carried with the task execution model
+- logging, metrics, tracing, or clocking belong to the host runtime
+- your app services belong to a feature module or boundary record
+- the same runtime services should be shared across multiple areas
+- the cancellation token should travel with the execution model
 
-`RuntimeContext` is not a replacement for area-scoped records. It is a deliberate second axis.
+`RuntimeContext` is the execution carrier above the adapter layer. It is not the runtime storage
+engine and it is not the only way to model a dependency boundary.
 
 ## What Goes Where
 
-- `Runtime` holds operational concerns such as logging, metrics, tracing, and clocks.
-- `Environment` holds application dependencies.
+- `Runtime` holds host runtime services such as logging, metrics, tracing, and clocks.
+- `Environment` holds your app services.
 - `CancellationToken` belongs to the active run.
 
 ```fsharp
@@ -38,22 +39,24 @@ let context =
 
 ## Reading The Split
 
-`Flow.readRuntime` and `Flow.readEnvironment` are the public readers for this split.
-`Resolver.runtime` and `Resolver.environment` are the zero-argument convenience aliases.
+`Flow.readRuntime` and `Flow.readEnvironment` read the two halves.
+`Resolver.runtime` and `Resolver.environment` read the same split at the host edge.
 
 ```fsharp
 let workflow : Flow<RuntimeContext<RuntimeServices, ApiDeps>, string, Guid> =
     flow {
-        let! runtime = Resolver.runtime()
-        let! deps = Resolver.environment()
+        let! runtime = Flow.readRuntime id
+        let! app = Flow.readEnvironment id
 
         runtime.Log { Level = LogLevel.Information; Message = "starting"; TimestampUtc = runtime.Clock.UtcNow() }
 
-        let! order = deps.Orders.Create()
-        do! deps.Email.SendConfirmation order
+        let! order = app.Orders.Create()
+        do! app.Email.SendConfirmation order
         return order.Id
     }
 ```
+
+Here, `runtime` is the host runtime and `app` is the app service set the workflow actually uses.
 
 ## What Works With RuntimeContext
 
@@ -74,15 +77,24 @@ RuntimeContext-specific:
 - `RuntimeContext.runtime`
 - `RuntimeContext.environment`
 - `RuntimeContext.cancellationToken`
+- `Flow.readRuntime`
+- `Flow.readEnvironment`
 - `Resolver.runtime`
 - `Resolver.environment`
 
-This is the key distinction: the general helpers work on any environment, while the runtime split helpers only make sense when the environment is actually a `RuntimeContext`.
+The general helpers work on any environment, while the runtime split helpers only make sense when
+the environment is actually a `RuntimeContext`.
 
 ## When To Stop
 
-If the runtime/app split is only there because “it sounds cleaner,” stop and use level 1 records.
+If the split only exists because it sounds cleaner, stop and use a concrete record.
 
-Use `RuntimeContext` only when the host-owned services really need their own lane.
+`RuntimeContext` is worth using when your app services need a separate lane from the host runtime
+and you want to read them through `Flow.readRuntime` and `Flow.readEnvironment`.
 
-See the [RuntimeContext reference](../../reference/runtime/) for the constructors and mapping helpers, and the [Resolver reference](../../reference/capability/) for the `runtime`, `environment`, and `resolve` readers.
+Keep the adapter layer at the boundary that creates the `RuntimeContext`; do not thread it through
+every helper just because it is available.
+
+See the [RuntimeContext reference](../../reference/runtime/) for the constructors and mapping
+helpers, and the [Capability reference](../../reference/capability/) for the `runtime`,
+`environment`, and `resolve` readers.

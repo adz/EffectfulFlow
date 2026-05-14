@@ -14,12 +14,12 @@ type IConsole =
 [<RequireQualifiedAccess>]
 module Console =
     /// <summary>Reads a line from the console environment.</summary>
-    let readLine<'env when 'env :> Requires<IConsole>> : Flow<'env, 'e, string> =
-        Flow.read (fun (env: 'env) -> env.Dep.ReadLine())
+    let readLine<'env when 'env :> IConsole> : Flow<'env, 'e, string> =
+        Flow.read (fun (env: 'env) -> env.ReadLine())
 
     /// <summary>Writes a line to the console environment.</summary>
-    let writeLine (message: string) : Flow<'env, 'e, unit> when 'env :> Requires<IConsole> =
-        Flow.read (fun (env: 'env) -> env.Dep.WriteLine(message))
+    let writeLine (message: string) : Flow<'env, 'e, unit> when 'env :> IConsole =
+        Flow.read (fun (env: 'env) -> env.WriteLine(message))
 
 #if !FABLE_COMPILER
     /// <summary>Creates a live console backed by <see cref="T:System.Console" />.</summary>

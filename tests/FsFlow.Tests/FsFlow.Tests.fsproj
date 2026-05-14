@@ -13,6 +13,7 @@
     <Compile Include="CapsCoreTests.fs" />
     <Compile Include="CapsUnifiedTests.fs" />
     <Compile Include="HostingTests.fs" />
+    <Compile Include="RuntimeFoundationTests.fs" />
     <Compile Include="TelemetryTests.fs" />
     <Compile Include="CapsRuntimePatternTests.fs" />
     <Compile Include="WorkflowBasicTests.fs" />

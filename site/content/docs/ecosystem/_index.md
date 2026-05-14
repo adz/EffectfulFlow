@@ -1,13 +1,13 @@
 ---
 weight: 70
-title: Ecosystem Overview
-description: How FsFlow fits beside FsToolkit, Validus, FSharpPlus, and Effect-TS.
+title: Comparisons and Integrations
+description: Other libraries FsFlow compares with and works alongside, including FsToolkit, Validus, FSharpPlus, and Effect-TS.
 type: docs
 ---
 
 
 
-This page shows how FsFlow can live alongside the libraries you are most likely to already have in a codebase.
+This page compares FsFlow with libraries you may already use, and shows where they fit together in the same codebase.
 
 The rule of thumb is simple: keep each library on the boundary it already owns, then let FsFlow take over orchestration where the runtime shape becomes explicit.
 
@@ -75,21 +75,3 @@ FsFlow can sit beside that style. Instead:
 - avoid mixing too many abstraction layers inside a single step
 
 Go to [`FSharpPlus Integration`](./integrations-fsharpplus/) for the coexistence guidance.
-
-## Choosing Quickly
-
-Use:
-
-- `FsToolkit.ErrorHandling` when you are migrating existing `Async<Result<_,_>>` or `TaskResult` code
-- `Validus` when you already have validation rules and want to keep them pure
-- `FSharpPlus` when the codebase already leans on a general FP base library and you want FsFlow to stay focused on orchestration
-- Effect-TS when you are choosing a full runtime system rather than a lightweight F# application boundary library
-
-## Next
-
-Read the library-specific pages for concrete coexistence and migration patterns:
-
-- [`Replacing FsToolkit.ErrorHandling`](./integrations-fstoolkit/)
-- [`Validus Integration`](./integrations-validus/)
-- [`FSharpPlus Integration`](./integrations-fsharpplus/)
-- [`Effect-TS Comparison`](./effect-ts-comparison/)

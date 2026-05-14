@@ -4,13 +4,11 @@ linkTitle: "Requires<dep>"
 type: docs
 ---
 
-Describes the capability contract for a single dependency.
+Compatibility contract for a single dependency.
 
 ## Remarks
 
 
- Named capability interfaces inherit this contract once and then expose the dependency through a
- member such as <code>Clock</code> or <code>Logger</code>. Workflow builders can accept any environment
- that implements <code>Requires&lt;&#39;dep&gt;</code>, which lets larger runtimes satisfy smaller
- boundaries.
+ Prefer nominal capability interfaces for public workflows. This helper remains for lower-level
+ binding machinery that still needs to work with a single dependency directly.
  

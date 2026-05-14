@@ -64,8 +64,3 @@ The closest FsFlow substitute is not the whole Effect-TS runtime. It is the comb
 - `Flow` for explicit application boundaries
 
 That is the part FsFlow intentionally covers.
-
-## Next
-
-If you are deciding whether to adopt the library, read [`Getting Started`](../start/getting-started.md),
-[`Task and Async Interop`](../core-model/task-async-interop.md), and [`Runnable Examples`](../patterns/examples/README.md).

@@ -25,7 +25,6 @@ type RecordingLoggerFactory(logger: RecordingLogger) =
 
 type private MockEnv =
     { EnvVars: IEnvironmentVariables }
-    interface Requires<IEnvironmentVariables> with member this.Dep = this.EnvVars
 
 module HostingTests =
     [<Fact>]
@@ -39,7 +38,7 @@ module HostingTests =
 
     [<Fact>]
     let ``Startup: validateEnvironment detects missing variables`` () =
-        let flow : Flow<#Requires<IEnvironmentVariables>, EnvironmentVariableError, string> =
+        let flow : Flow<IEnvironmentVariables, EnvironmentVariableError, string> =
             EnvironmentVariable.get "FSFLOW_HOSTING_MISSING"
         let result = Startup.validateEnvironment flow
         

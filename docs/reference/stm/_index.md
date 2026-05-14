@@ -2,7 +2,7 @@
 title: "STM"
 ---
 
-The `STM` module provides composable atomic transactions.
+The `STM` module provides composable atomic transactions with `retry` / `orElse` coordination.
 
 ## Core types
 

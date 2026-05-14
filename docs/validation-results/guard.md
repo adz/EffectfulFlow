@@ -7,13 +7,39 @@ description: Bridging pure checks and effectful sources into Flow.
 
 # The Guard
 
-The [**Guard**]({{< relref "/reference/flow/t-flow.md" >}}) is a bridge. It allows pure predicate checks and simple error-bearing sources (like `Option` or `Result`) to **fail a computation** with a specific domain error.
+The [**Guard**]({{< relref "/reference/flow/t-flow.md" >}}) turns source shapes like `Option`,
+`ValueOption`, `bool`, `Result<'value, unit>`, `Validation<'value, unit>`, and the `Async` / `Task`
+ / `ValueTask` versions of those into bindable results.
 
-While builders like [`flow {}`]({{< relref "/reference/flow/builders-flow.md" >}}) and `result {}` can bind many types directly, Guard is the primary tool for assigning a domain-specific error to a source or "unwrapping" an effectful source before validation.
+Inside a `flow {}`, bind the effect first, then apply `Guard` to the value the effect returned.
+That keeps the source shape explicit and keeps the domain error at the binding site.
 
-## Why do I need Guard?
+## What Guard Works On
 
-Consider a simple user lookup. When it is a pure function, it works seamlessly with [`Check`]({{< relref "/reference/check/" >}}):
+`Guard.Of` works on:
+
+- `Option<'value>`
+- `ValueOption<'value>`
+- `bool`
+- `Result<'value, unit>`
+- `Validation<'value, unit>`
+- `Async<Option<'value>>`, `Task<Option<'value>>`, `ValueTask<Option<'value>>`
+- `Async<ValueOption<'value>>`, `Task<ValueOption<'value>>`, `ValueTask<ValueOption<'value>>`
+- `Async<bool>`, `Task<bool>`, `ValueTask<bool>`
+- `Async<Result<'value, unit>>`, `Task<Result<'value, unit>>`, `ValueTask<Result<'value, unit>>`
+
+`Guard.MapError` works on:
+
+- `Result<'value, 'error>`
+- `Validation<'value, 'error>`
+- `Flow<'env, 'error, 'value>`
+- `Async<Result<'value, 'error>>`
+- `Task<Result<'value, 'error>>`
+- `ValueTask<Result<'value, 'error>>`
+
+## Why It Exists
+
+Consider a simple user lookup. When it is pure, `Check` works directly:
 
 ```fsharp
 open FsFlow
@@ -28,14 +54,13 @@ let tryGetUser name : User option =
     users |> List.tryFind (fun u -> u.Name = name)
 
 let loginPure name =
-    [`result {}`]({{< relref "/reference/result/builders-result.md" >}}) {
-        // This works: okIfSome expects an Option, which tryGetUser returns
+    result {
         let! user = tryGetUser name |> okIfSome |> orError UserNotFound
         return user
     }
 ```
 
-However, in a real application, lookup usually requires a database connection from the environment or performs async work. Now it becomes a [`Flow`]({{< relref "/reference/flow/t-flow.md" >}}):
+However, in a real application, lookup usually requires a database connection from the environment or performs async work. Then it becomes a [`Flow`]({{< relref "/reference/flow/t-flow.md" >}}):
 
 ```fsharp
 // In reality, this needs the environment and is effectful
@@ -46,32 +71,27 @@ let tryGetUserFlow name : Flow<DbEnv, AppError, User option> =
     }
 ```
 
-If you try to use the same `Check` pattern inside a `flow {}` block, it will fail to compile:
+If you try to apply `Check` directly to the `Flow`, it fails to compile.
+Bind the `Flow` first, then guard the value it returns:
 
 ```fsharp
 let login name =
     flow {
-        // COMPILE ERROR: tryGetUserFlow returns a Flow, but okIfSome expects an Option.
-        // The builder hasn't "unwrapped" the flow yet!
-        let! user = tryGetUserFlow name |> Check.okIfSome |> Check.orError UserNotFound
-        
+        let! maybeUser = tryGetUserFlow name
+        let! user = maybeUser |> Guard.Of UserNotFound
         return user
     }
 ```
 
-`Check` functions expect pure types (like `Option` or `string`). They don't know how to look "inside" a Flow. 
-
-[**Guard**]({{< relref "/reference/flow/t-flow.md" >}}) is the bridge. It allows you to "mark" an effectful source so that the flow builder binds it first before applying the check:
+`Guard` works on the value, not on the `Flow` itself. `flow {}` binds the effectful source; `Guard`
+maps the resulting `Option`, `Check`, `Result`, or `Validation` into the domain error you choose.
 
 ```fsharp
 let login name password =
     flow {
-        // 1. Guard binds the flow, sees the Option, and applies the error logic
-        let! user = tryGetUserFlow name |> Guard.Of UserNotFound
-        
-        // 2. You can also guard pure checks that haven't been lifted yet
+        let! maybeUser = tryGetUserFlow name
+        let! user = maybeUser |> Guard.Of UserNotFound
         do! notBlank password |> Guard.Of InvalidPassword
-        
         return user
     }
 ```
@@ -100,5 +120,5 @@ let! user = fetchUser id |> Guard.MapError (fun ex -> DatabaseError ex.Message)
 
 Use **Guard** whenever you need to:
 - Assign a domain error to a pure `Check` or `Option` inside a computation.
-- "Unwrap" an effectful source that returns a simple type before validating it.
+- Bind an effectful source first, then turn its `Option`, `Check`, `Result`, or `Validation` into a domain error.
 - Keep your business logic readable by avoiding manual matching or re-lifting inside your flows.

@@ -68,25 +68,33 @@ module ResolverExtensions =
                 #endif
             )
 
-/// <summary>Helpers for working with capabilities in task workflows.</summary>
+/// <summary>
+/// Helpers for working with capability contracts, runtime/application readers, and layer helpers.
+/// These are compatibility and edge-binding helpers; nominal contracts and adapter-generated
+/// records are the preferred public model.
+/// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module Resolver =
     /// <summary>Reads a dependency from the environment using the provided projection.</summary>
+    /// <remarks>Use this as a compatibility helper or at the boundary where a projection is still the cleanest shape.</remarks>
     let resolve
         (projection: 'env -> 'resolve)
         : Flow<RuntimeContext<'runtime, 'env>, 'error, 'resolve> =
         Flow.readEnvironment projection
 
     /// <summary>Reads the current runtime from the environment.</summary>
+    /// <remarks>Compatibility alias for the runtime half of <see cref="RuntimeContext{runtime, env}" />.</remarks>
     let runtime<'runtime, 'env, 'error> () : Flow<RuntimeContext<'runtime, 'env>, 'error, 'runtime> =
         Flow.readRuntime id
 
     /// <summary>Reads the application environment from the environment.</summary>
+    /// <remarks>Compatibility alias for the environment half of <see cref="RuntimeContext{runtime, env}" />.</remarks>
     let environment<'runtime, 'env, 'error> () : Flow<RuntimeContext<'runtime, 'env>, 'error, 'env> =
         Flow.readEnvironment id
 
     /// <summary>Reads a dependency from <see cref="IServiceProvider" /> and fails when it is not registered.</summary>
+    /// <remarks>Edge helper only. Prefer a record or nominal contract once the host boundary has been crossed.</remarks>
     #if FABLE_COMPILER
     let inline fromProvider<'resolve> : Flow<IServiceProvider, MissingCapability, 'resolve> =
         Flow.ResolveFromProvider()
@@ -95,11 +103,15 @@ module Resolver =
         Flow.ResolveFromProvider()
     #endif
 
-/// <summary>Helpers for deriving an environment in one flow and consuming it in another.</summary>
+/// <summary>
+/// Helpers for deriving an environment in one flow and consuming it in another.
+/// The layer surface is a boundary primitive, not the main public dependency model.
+/// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module Layer =
     /// <summary>Provides a derived environment from a layer flow to a downstream flow.</summary>
+    /// <remarks>Boundary primitive for composition roots, not the default workflow shape.</remarks>
     let provideLayer
         (layer: Flow<'input, 'error, 'environment>)
         (flow: Flow<'environment, 'error, 'value>)

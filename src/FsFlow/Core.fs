@@ -58,6 +58,11 @@ module Exit =
         | Exit.Success v -> Exit.Success v
         | Exit.Failure c -> Exit.Failure (Cause.map mapper c)
 
+    let mapBoth (onSuccess: 'v -> 'w) (onFailure: Cause<'e> -> Cause<'f>) (exit: Exit<'v, 'e>) : Exit<'w, 'f> =
+        match exit with
+        | Exit.Success v -> Exit.Success (onSuccess v)
+        | Exit.Failure c -> Exit.Failure (onFailure c)
+
     let fromResult (result: Result<'v, 'e>) : Exit<'v, 'e> =
         match result with
         | Ok v -> Exit.Success v
@@ -212,12 +217,10 @@ module RetryPolicy =
           Delay = fun _ -> TimeSpan.Zero
           ShouldRetry = fun _ -> true }
 
-/// <summary>Describes the capability contract for a single dependency.</summary>
+/// <summary>Compatibility contract for a single dependency.</summary>
 /// <remarks>
-/// Named capability interfaces inherit this contract once and then expose the dependency through a
-/// member such as <c>Clock</c> or <c>Logger</c>. Workflow builders can accept any environment
-/// that implements <c>Requires&lt;'dep&gt;</c>, which lets larger runtimes satisfy smaller
-/// boundaries.
+/// Prefer nominal capability interfaces for public workflows. This helper remains for lower-level
+/// binding machinery that still needs to work with a single dependency directly.
 /// </remarks>
 /// <typeparam name="dep">The dependency type exposed by the environment.</typeparam>
 /// <example>
@@ -225,9 +228,14 @@ module RetryPolicy =
 /// type IClock =
 ///     abstract UtcNow : unit -&gt; DateTimeOffset
 ///
-/// type ClockRequires =
-///     inherit Requires&lt;IClock&gt;
+/// type IRuntimeCaps =
 ///     abstract Clock : IClock
+///
+/// let readClock : Flow&lt;#IRuntimeCaps, unit, IClock&gt; =
+///     flow {
+///         let! clock = Flow.read _.Clock
+///         return clock
+///     }
 /// </code>
 /// </example>
 type Requires<'dep> =
@@ -236,8 +244,8 @@ type Requires<'dep> =
 /// <summary>Request token for binding a whole dependency inside a workflow.</summary>
 /// <remarks>
 /// Use this token when a workflow needs the dependency itself rather than a value projected from
-/// that dependency. The <c>flow {}</c> builder and its internal compatibility helpers
-/// read it from any environment that implements <c>Requires&lt;'dep&gt;</c>.
+/// that dependency. The <c>flow {}</c> builder and its compatibility helpers read it from any
+/// environment that exposes the dependency directly or through a nominal capability contract.
 /// </remarks>
 /// <typeparam name="dep">The dependency type to read from the environment.</typeparam>
 /// <example>
@@ -274,13 +282,12 @@ type Resolve<'dep> =
 /// type IClock =
 ///     abstract UtcNow : unit -&gt; DateTimeOffset
 ///
-/// type ClockRequires =
-///     inherit Requires&lt;IClock&gt;
+/// type IRuntimeCaps =
 ///     abstract Clock : IClock
 ///
-/// let readClockNow : Flow&lt;#ClockRequires, unit, DateTimeOffset&gt; =
+/// let readClockNow : Flow&lt;#IRuntimeCaps, unit, DateTimeOffset&gt; =
 ///     flow {
-///         let! now = Resolve&lt;IClock&gt; _.UtcNow
+///         let! now = Flow.read (fun runtime -> runtime.Clock.UtcNow())
 ///         return now
 ///     }
 /// </code>

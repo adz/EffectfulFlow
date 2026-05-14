@@ -4,7 +4,7 @@ weight: 140
 type: docs
 ---
 
-This page shows the source-documented `FsFlow.Hosting` surface: the IServiceProvider adapters and startup validation.
+This page shows the source-documented `FsFlow.Hosting` surface: the host adapters, runtime composition, and startup validation helpers.
 
 ## Startup
 

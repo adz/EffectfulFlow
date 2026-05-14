@@ -14,10 +14,14 @@ module CapsCoreTests =
             Guid: IGuid
             EnvVars: IEnvironmentVariables
         }
-        interface Requires<IClock> with member this.Dep = this.Clock
-        interface Requires<IRandom> with member this.Dep = this.Random
-        interface Requires<IGuid> with member this.Dep = this.Guid
-        interface Requires<IEnvironmentVariables> with member this.Dep = this.EnvVars
+        interface IClock with
+            member this.UtcNow() = this.Clock.UtcNow()
+        interface IRandom with
+            member this.NextInt minInclusive maxExclusive = this.Random.NextInt minInclusive maxExclusive
+        interface IGuid with
+            member this.NewGuid() = this.Guid.NewGuid()
+        interface IEnvironmentVariables with
+            member this.TryGet name = this.EnvVars.TryGet name
 
     [<Fact>]
     let ``clock random guid and environment variable helpers are deterministic when fixed`` () =

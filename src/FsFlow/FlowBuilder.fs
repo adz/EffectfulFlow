@@ -528,10 +528,10 @@ type FlowBuilder() =
 
     member _.TryFinally(flow: Flow<'env, 'error, 'value>, compensation: unit -> unit) : Flow<'env, 'error, 'value> =
         Flow(fun environment cancellationToken ->
-            try
-                FlowBuilderRuntime.run environment cancellationToken flow
-            finally
-                compensation ())
+            FlowBuilderRuntime.run environment cancellationToken flow
+            |> EffectFlow.mapBoth
+                (fun value -> compensation (); value)
+                (fun cause -> compensation (); cause))
 
     member this.Using
         (

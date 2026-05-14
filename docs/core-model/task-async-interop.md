@@ -117,7 +117,3 @@ let myFlow =
 - Prefer **direct binding** for `Async`, `Task`, and `Result`.
 - Use **`ColdTask`** for task-based logic that should respect flow cancellation, retry, and repetition.
 - Use **`Guard`** to bridge existing error-bearing sources with custom error mapping.
-
-## Next
-
-Read [Execution Semantics]({{< relref "/docs/core-model/semantics.md" >}}) for the exact runtime behavior, or [Managing Dependencies]({{< relref "/docs/managing-dependencies/" >}}) for structuring your environment.

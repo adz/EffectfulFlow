@@ -1,0 +1,20 @@
+{{- $prevPage := .NextInSection -}}
+{{- $nextPage := .PrevInSection -}}
+{{- $hasPrev := $prevPage -}}
+{{- $hasNext := $nextPage -}}
+{{- if or $hasPrev $hasNext -}}
+<nav class="docs-page-nav{{ if and $hasNext (not $hasPrev) }} docs-page-nav--next-only{{ else if and $hasPrev (not $hasNext) }} docs-page-nav--prev-only{{ end }}">
+  {{- if $hasPrev -}}
+  <a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="{{ $prevPage.RelPermalink }}" aria-label="{{ T "ui_pager_prev" }} - {{ $prevPage.Title }}">
+    <span class="docs-page-nav__arrow" aria-hidden="true">←</span>
+    <span>{{ T "ui_pager_prev" }}</span>
+  </a>
+  {{- end -}}
+  {{- if $hasNext -}}
+  <a class="docs-home-cta docs-page-nav__link docs-page-nav__next" href="{{ $nextPage.RelPermalink }}" aria-label="{{ T "ui_pager_next" }} - {{ $nextPage.Title }}">
+    <span>{{ T "ui_pager_next" }}</span>
+    <span class="docs-page-nav__arrow" aria-hidden="true">→</span>
+  </a>
+  {{- end -}}
+</nav>
+{{- end -}}

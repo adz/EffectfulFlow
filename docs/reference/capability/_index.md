@@ -1,16 +1,16 @@
 ---
-title: "Resolver"
+title: "Capability"
 ---
 
-This page shows the source-documented resolver and layer surface, including Resolve request tokens, environment management helpers, and the runtime/application split used by RuntimeContext.
+In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with `Requires` and `Resolve` as the binding surface.
 
-## Resolve tokens
+## Binding tokens
 
-- [`Requires`](./t-requires-1.md): Describes the capability contract for a single dependency.
+- [`Requires`](./t-requires-1.md): Compatibility contract for a single dependency.
 - [`Resolve`](./t-resolve-1.md): Request token for binding a whole dependency inside a workflow.
 - [`Resolve`](./t-resolve-2.md): Request token for projecting a value from a dependency.
 
-## Dependencies
+## Edge helpers
 
 - [`MissingCapability`](./t-missingcapability.md): Describes a missing service-provider capability.
 - [`Resolver.resolve`](./m-resolver-resolve.md): Reads a dependency from the environment using the provided projection.

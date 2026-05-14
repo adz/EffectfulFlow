@@ -12,15 +12,16 @@ description: FsFlow technical guides, semantics, and API reference.
 <h1>A single model for Result-based programs in F#.</h1>
 
 <div class="lede">
-Write predicate checks once. Keep fail-fast logic in <code>Result</code>, accumulate multiple failures with <a href="{{< relref "/reference/validation/" >}}"><code>Validation</code></a>, then lift the same logic into <a href="{{< relref "/reference/flow/" >}}"><code>Flow</code></a> when the boundary needs environment access, async work, task interop, cancellation, or runtime policy.
+Write predicate checks once. Keep fail-fast logic in <code>Result</code>, accumulate multiple failures with <a href="{{< relref "/reference/validation/" >}}"><code>Validation</code></a>, then lift the same logic into <a href="{{< relref "/reference/flow/" >}}"><code>Flow</code></a> when the boundary needs environment access, async work, task interop, cancellation, runtime policy, or adapter-driven dependency handling.
 </div>
 
 <div class="docs-home-meta">
 <a class="docs-chip" href="{{< relref "/docs/validation-results/" >}}">Pure Checks -> Result & Validation</a>
 <a class="docs-chip" href="{{< relref "/docs/start/getting-started.md" >}}">Flow</a>
 <a class="docs-chip" href="{{< relref "/docs/core-model/" >}}">Typed failure</a>
-<a class="docs-chip" href="{{< relref "/docs/managing-dependencies/env-slicing.md" >}}">Explicit environment</a>
 <a class="docs-chip" href="{{< relref "/docs/core-model/task-async-interop.md" >}}">Runtime context</a>
+<a class="docs-chip" href="{{< relref "/docs/managing-dependencies/" >}}">Dependency models</a>
+<a class="docs-chip" href="{{< relref "/reference/capability/" >}}">Capability contracts</a>
 <a class="docs-chip" href="{{< relref "/docs/core-model/semantics.md" >}}">Cold execution semantics</a>
 </div>
 
@@ -61,8 +62,8 @@ type Clock =
 
 let readVerifiedEmail userId =
     flow {
-        let! user = Resolve<Api> (_.LoadUser userId)
-        let! checkedAt = Resolve<Clock> _.UtcNow
+        let! user = Flow.read (fun api -> api.LoadUser userId)
+        let! checkedAt = Flow.read (fun clock -> clock.UtcNow)
         let! email = validateEmail user.Email
 
         return email, checkedAt

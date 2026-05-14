@@ -6,9 +6,13 @@ type: docs
 ---
 
 
-Software Transactional Memory (STM) is a powerful concurrency primitive that allows you to combine multiple atomic operations into a single **transaction**. 
+Software Transactional Memory (STM) is a concurrency primitive that lets you compose multiple
+atomic operations into a single **transaction**.
 
-While `Ref` is perfect for updating a single variable, `STM` is designed for scenarios where you need to update **multiple** variables consistently. FsFlow ensures that the entire transaction is executed atomically—either all changes are committed, or none are.
+While `Ref` is perfect for updating a single variable, `STM` is designed for scenarios where you
+need to update **multiple** variables consistently. FsFlow ensures that the entire transaction is
+executed atomically, and it now supports `retry` / `orElse` style coordination for transactions
+that need to wait on state changes or fall back to alternate branches.
 
 > **Note:** `STM` is currently available on **.NET** only.
 
@@ -16,6 +20,8 @@ While `Ref` is perfect for updating a single variable, `STM` is designed for sce
 
 - **`TRef<'T>`**: A transactional reference. Similar to `Ref<'T>`, but designed to be used inside an STM transaction.
 - **`stm { ... }`**: A computation expression used to compose transactional operations.
+- **`STM.retry`**: Aborts the current branch and waits for a committed state change before retrying.
+- **`STM.orElse`**: Tries a fallback branch when the first branch retries.
 - **`STM.atomically`**: The bridge that executes an `stm` block as a single atomic effect within a `flow`.
 
 ## Basic Usage
@@ -63,11 +69,14 @@ let batchTransfer acc1 acc2 acc3 amount =
     }
     |> STM.atomically
 ```
-## Why use STM instead of Lock?
+## Why use STM instead of lock?
 
-Using manual `lock` calls is error-prone and often leads to deadlocks when different parts of your code acquire multiple locks in inconsistent orders. 
+Using manual `lock` calls is error-prone and often leads to deadlocks when different parts of your
+code acquire multiple locks in inconsistent orders.
 
-FsFlow's `STM` uses a **Global Lock** model. This ensures that every `stm { ... }` block is fully isolated and serializable. Because all transactions share a single synchronization point, deadlocks are impossible by design. While this model is coarse-grained, it provides a simple and robust mental model for coordinating complex state transitions across multiple variables.
+FsFlow's `STM` keeps commit atomicity inside the engine and adds `retry` / `orElse` coordination
+so a transaction can wait for a relevant state change or fall back to another branch without
+exposing lock management in user code.
 
 ## Composition
 ## API Reference: Module `TRef`
@@ -83,4 +92,6 @@ FsFlow's `STM` uses a **Global Lock** model. This ensures that every `stm { ... 
 
 | Function | Signature | Description |
 | :--- | :--- | :--- |
+| `retry` | `STM<'T>` | Requests that the current branch waits and reruns after a committed change. |
+| `orElse` | `STM<'T> -> STM<'T> -> STM<'T>` | Falls back to a second branch when the first branch retries. |
 | `atomically` | `STM<'T> -> Flow<'env, 'none, 'T>` | Executes a composed transaction as an atomic flow. |

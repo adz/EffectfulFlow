@@ -36,60 +36,80 @@ type TRef<'T>(initialValue: 'T) =
 /// </summary>
 type TJournal = Dictionary<int64, obj * ITRef>
 
+type TransactionResult<'T> =
+    | Done of 'T
+    | Retry
+
+type TContext =
+    {
+        Journal: TJournal
+        Reads: HashSet<int64>
+    }
+
 /// <summary>
-/// Represents a transactional operation that can be composed and executed atomically.
+/// Represents a transactional operation that can be composed, retried, and executed atomically.
 /// </summary>
 /// <typeparam name="T">The type of the value produced by the operation.</typeparam>
-type STM<'T> = STM of (TJournal -> 'T)
+type STM<'T> = STM of (TContext -> TransactionResult<'T>)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module TRef =
     /// <summary>Creates a new <see cref="T:FsFlow.TRef`1" /> with the initial value.</summary>
     let make (value: 'T) : STM<TRef<'T>> =
-        STM(fun _ -> TRef(value))
+        STM(fun _ -> Done(TRef(value)))
 
     /// <summary>Reads the current value of the transactional reference within a transaction.</summary>
     let get (tref: TRef<'T>) : STM<'T> =
-        STM(fun journal ->
-            match journal.TryGetValue tref.Id with
-            | true, (v, _) -> unbox<'T> v
-            | false, _ -> tref.Value)
+        STM(fun context ->
+            context.Reads.Add tref.Id |> ignore
+
+            match context.Journal.TryGetValue tref.Id with
+            | true, (v, _) -> Done(unbox<'T> v)
+            | false, _ -> Done tref.Value)
 
     /// <summary>Sets the value of the transactional reference within a transaction.</summary>
     let set (value: 'T) (tref: TRef<'T>) : STM<unit> =
-        STM(fun journal ->
-            journal[tref.Id] <- (box value, tref :> ITRef))
+        STM(fun context ->
+            context.Journal[tref.Id] <- (box value, tref :> ITRef)
+            Done ())
 
     /// <summary>Updates the value of the transactional reference within a transaction using the supplied function.</summary>
     let update (f: 'T -> 'T) (tref: TRef<'T>) : STM<unit> =
-        STM(fun journal ->
-            let current = 
-                match journal.TryGetValue tref.Id with
+        STM(fun context ->
+            context.Reads.Add tref.Id |> ignore
+
+            let current =
+                match context.Journal.TryGetValue tref.Id with
                 | true, (v, _) -> unbox<'T> v
                 | false, _ -> tref.Value
-            journal[tref.Id] <- (box (f current), tref :> ITRef))
+
+            context.Journal[tref.Id] <- (box (f current), tref :> ITRef)
+            Done ())
 
 /// <summary>
 /// Computation expression builder for STM transactions.
 /// </summary>
 type StmBuilder() =
-    member _.Return(value: 'T) : STM<'T> = STM(fun _ -> value)
+    member _.Return(value: 'T) : STM<'T> = STM(fun _ -> Done value)
     member _.ReturnFrom(stm: STM<'T>) : STM<'T> = stm
     member _.Bind(stm: STM<'T>, f: 'T -> STM<'U>) : STM<'U> =
-        STM(fun journal ->
+        STM(fun context ->
             let (STM op) = stm
-            let value = op journal
-            let (STM nextOp) = f value
-            nextOp journal)
-    member _.Zero() : STM<unit> = STM(fun _ -> ())
-    member _.Delay(f: unit -> STM<'T>) : STM<'T> = STM(fun journal -> let (STM op) = f () in op journal)
+            match op context with
+            | Retry -> Retry
+            | Done value ->
+                let (STM nextOp) = f value
+                nextOp context)
+    member _.Zero() : STM<unit> = STM(fun _ -> Done ())
+    member _.Delay(f: unit -> STM<'T>) : STM<'T> = STM(fun context -> let (STM op) = f () in op context)
     member _.Combine(stm1: STM<unit>, stm2: STM<'T>) : STM<'T> =
-        STM(fun journal -> 
+        STM(fun context ->
             let (STM op1) = stm1
             let (STM op2) = stm2
-            op1 journal
-            op2 journal)
+            match op1 context with
+            | Retry -> Retry
+            | Done () -> op2 context)
 
 [<AutoOpen>]
 module StmBuilders =
@@ -101,19 +121,66 @@ module StmBuilders =
 [<RequireQualifiedAccess>]
 module STM =
     let private stmLock = obj()
+    let mutable private version = 0L
 
-    /// <summary>Executes an STM transaction atomically within a flow.</summary>
+    let private snapshot (context: TContext) =
+        {
+            Journal = TJournal(context.Journal)
+            Reads = HashSet<int64>(context.Reads)
+        }
+
+    let private freshContext () =
+        {
+            Journal = TJournal()
+            Reads = HashSet<int64>()
+        }
+
+    /// <summary>Signals that the current branch should retry once observed state changes.</summary>
+    let retry<'T> : STM<'T> =
+        STM(fun _ -> Retry)
+
+    /// <summary>Tries the left branch and falls back to the right branch when the left branch retries.</summary>
+    let orElse (left: STM<'T>) (right: STM<'T>) : STM<'T> =
+        STM(fun context ->
+            let (STM leftOp) = left
+            match leftOp(snapshot context) with
+            | Done value -> Done value
+            | Retry ->
+                let (STM rightOp) = right
+                rightOp(snapshot context))
+
+    /// <summary>
+    /// Executes an STM transaction atomically within a flow while preserving retry/orElse coordination.
+    /// </summary>
     /// <param name="transaction">The STM transaction to execute.</param>
     /// <returns>A flow that performs the transaction and returns its result.</returns>
     let atomically (transaction: STM<'T>) : Flow<'env, 'none, 'T> =
-        Flow(fun _ _ ->
-            let (STM op) = transaction
-            lock stmLock (fun () ->
-                let journal = TJournal()
-                let result = op journal
-                for KeyValue(_, (v, tref)) in journal do
-                    tref.Commit(v)
+        let rec run () =
+            let outcome, _ =
+                lock stmLock (fun () ->
+                    let (STM op) = transaction
+                    let context = freshContext ()
+
+                    match op context with
+                    | Done result ->
+                        for KeyValue(_, (v, tref)) in context.Journal do
+                            tref.Commit(v)
+
+                        version <- version + 1L
+                        Monitor.PulseAll stmLock
+                        Choice1Of2 result, 0L
+                    | Retry ->
+                        Choice2Of2 version, version)
+
+            match outcome with
+            | Choice1Of2 result ->
                 EffectFlow.ofValue result
-            )
-        )
+            | Choice2Of2 versionToWaitFor ->
+                lock stmLock (fun () ->
+                    while version = versionToWaitFor do
+                        Monitor.Wait stmLock |> ignore)
+
+                run ()
+
+        Flow(fun _ _ -> run ())
 #endif

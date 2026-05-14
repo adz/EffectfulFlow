@@ -16,10 +16,17 @@ type UnifiedCaps =
         Http: IHttp
         Process: IProcess
     }
-    interface Requires<IConsole> with member this.Dep = this.Console
-    interface Requires<IFileSystem> with member this.Dep = this.FS
-    interface Requires<IHttp> with member this.Dep = this.Http
-    interface Requires<IProcess> with member this.Dep = this.Process
+    interface IConsole with
+        member this.ReadLine() = this.Console.ReadLine()
+        member this.WriteLine(message) = this.Console.WriteLine(message)
+    interface IFileSystem with
+        member this.ReadAllText(path) = this.FS.ReadAllText(path)
+        member this.WriteAllText(path, contents) = this.FS.WriteAllText(path, contents)
+        member this.Exists(path) = this.FS.Exists(path)
+    interface IHttp with
+        member this.GetString(url) = this.Http.GetString(url)
+    interface IProcess with
+        member this.Execute(fileName, arguments) = this.Process.Execute(fileName, arguments)
 
 module CapsUnifiedTests =
     [<Fact>]

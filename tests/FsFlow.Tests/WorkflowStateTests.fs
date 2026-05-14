@@ -46,3 +46,64 @@ module WorkflowStateTests =
             }
 
         test <@ Flow.runSync () workflow = Exit.Success (15, 15) @>
+
+    [<Fact>]
+    let ``STM: orElse falls back when the first branch retries`` () =
+        let workflow =
+            flow {
+                let! value =
+                    stm {
+                        let! result =
+                            STM.orElse
+                                (stm {
+                                    do! STM.retry
+                                    return 10
+                                })
+                                (stm {
+                                    return 99
+                                })
+
+                        return result
+                    }
+                    |> STM.atomically
+
+                return value
+            }
+
+        test <@ Flow.runSync () workflow = Exit.Success 99 @>
+
+    [<Fact>]
+    let ``STM: retry waits until a committed update changes state`` () =
+        let gate =
+            TRef.make 0
+            |> STM.atomically
+            |> Flow.runSync ()
+            |> Exit.toResult
+            |> function
+                | Ok value -> value
+                | Error error -> failwithf "Expected TRef creation to succeed, got %A" error
+
+        let waiter =
+            Task.Run(fun () ->
+                Flow.runSync () (
+                    stm {
+                        let! current = TRef.get gate
+                        if current = 0 then
+                            do! STM.retry
+                        return current
+                    }
+                    |> STM.atomically))
+
+        Thread.Sleep 50
+        test <@ waiter.IsCompleted = false @>
+
+        let setter =
+            stm {
+                do! TRef.set 1 gate
+            }
+            |> STM.atomically
+
+        test <@ Flow.runSync () setter = Exit.Success () @>
+
+        let exit = waiter.GetAwaiter().GetResult()
+        test <@ exit = Exit.Success 1 @>

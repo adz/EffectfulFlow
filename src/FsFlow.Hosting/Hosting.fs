@@ -38,7 +38,6 @@ type DefaultRuntime =
         Clock: IClock
         Logger: LogEntry -> unit
     }
-    interface Requires<IClock> with member this.Dep = this.Clock
 
 [<RequireQualifiedAccess>]
 module Hosting =
@@ -62,10 +61,9 @@ module Hosting =
 [<RequireQualifiedAccess>]
 module Startup =
     /// <summary>Validates that all required environment variables are present and valid using the process environment.</summary>
-    let validateEnvironment (flow: Flow<#Requires<IEnvironmentVariables>, EnvironmentVariableError, 'v>) : Result<'v, string list> =
+    let validateEnvironment (flow: Flow<IEnvironmentVariables, EnvironmentVariableError, 'v>) : Result<'v, string list> =
         let envVars = EnvironmentVariables.live
-        let adapter = { new Requires<IEnvironmentVariables> with member _.Dep = envVars }
-        match (Flow.run adapter flow).AsTask().GetAwaiter().GetResult() with
+        match (Flow.run envVars flow).AsTask().GetAwaiter().GetResult() with
         | Exit.Success v -> Ok v
         | Exit.Failure (Cause.Fail e) -> Error [ EnvironmentVariableErrors.describe e ]
         | Exit.Failure Cause.Interrupt -> Error [ "Validation was interrupted" ]

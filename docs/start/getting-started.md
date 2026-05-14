@@ -139,10 +139,3 @@ let effect = Flow.run config fetchFromApi
 2.  **Compose**: Combine smaller flows, Results, Tasks, and Asyncs into larger ones.
 3.  **Run**: Call `Flow.run env` at your application's entry point (e.g., a Controller or Main function).
 4.  **Handle**: Match on the `Exit` value to handle success, failure, or defects.
-
-## Next Steps
-
-- **[Managing Dependencies]({{< relref "/docs/managing-dependencies/" >}})**: Start with area-scoped records, then move to `RuntimeContext`, provider lookup, or nominal capability helpers only when the boundary calls for it.
-- **[Execution Semantics]({{< relref "/docs/core-model/semantics.md" >}})**: Understand short-circuiting, "cold" vs "hot" tasks, and interruption.
-- **[Defects and Exceptions]({{< relref "/docs/core-model/defects.md" >}})**: Understand why `Die` is separate from typed failures and how to use it.
-- **[Task and Async Interop]({{< relref "/docs/core-model/task-async-interop.md" >}})**: A deep dive into binding different effect types.

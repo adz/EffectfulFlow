@@ -46,6 +46,24 @@ module internal OptionFlow =
 
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
 module EffectFlow =
+    let mapBoth
+        (onSuccess: 'value -> 'next)
+        (onFailure: Cause<'error> -> Cause<'nextError>)
+        (effect: Effect<'value, 'error>)
+        : Effect<'next, 'nextError> =
+#if FABLE_COMPILER
+        async {
+            let! exit = effect
+            return Exit.mapBoth onSuccess onFailure exit
+        }
+#else
+        ValueTask<Exit<'next, 'nextError>>(
+            task {
+                let! exit = effect
+                return Exit.mapBoth onSuccess onFailure exit
+            })
+#endif
+
     let causeOfException (exn: exn) : Cause<'error> =
         if exn :? OperationCanceledException then
             Cause.Interrupt

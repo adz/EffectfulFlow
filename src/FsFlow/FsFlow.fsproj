@@ -51,6 +51,10 @@
     <Compile Include="Validation.fs" />
     <Compile Include="Check.fs" />
     <Compile Include="Runtime.fs" />
+    <Compile Include="RuntimeScope.fs" />
+    <Compile Include="RuntimeRegistry.fs" />
+    <Compile Include="RuntimeAdapter.fs" />
+    <Compile Include="RuntimeLayer.fs" />
     <Compile Include="AsyncFlow.fs" />
     <Compile Include="TaskFlow.fs" />
     <Compile Include="Flow.fs" />

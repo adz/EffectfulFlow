@@ -1,60 +1,129 @@
 ---
 weight: 50
-title: "Level 4: Nominal Capability Helpers"
-description: Small named contracts for reusable helpers.
+title: "Nominal Capability Contracts"
+description: Small named interfaces for reusable helpers and public capability boundaries.
 ---
 
-# Level 4: Nominal Capability Helpers
+# Nominal Capability Contracts
 
-Use nominal capability helpers when you need a reusable helper that should state its dependency contract explicitly.
+In FsFlow, a capability is a named interface that describes what a flow needs from `env`.
+A capability contract puts that interface in the environment surface type.
 
-This is the deepest level in the guide because it is the most abstract. It is useful, but only when the simpler record shapes are no longer enough.
+Using an interface through a capability contract makes the dependency visible in the type, so the
+compiler can check it, refactoring can move safely, and reusable helpers can advertise what they
+need.
+
+This page is for readers who want the dependency surface to be part of the type:
+
+- the record is getting too wide
+- the dependency list is becoming boilerplate
+- you want the compiler to notice when a refactor changes what an effect needs
+- you want the effect signature to read like a dependency statement, not a plumbing report
+
+The contract should be small, named, and stable. When it grows, split the bundle into runtime and
+app slices or move the boundary back to a concrete record.
 
 ## The Contract
-
-`Requires<'dep>` says that an environment exposes a single dependency.
 
 ```fsharp
 type IClock =
     abstract UtcNow : unit -> DateTimeOffset
 
-type IHasClock =
-    inherit Requires<IClock>
+type ILog =
+    abstract Info : string -> unit
+
+type IDb =
+    abstract Query : string -> string
+
+type IRuntimeCaps =
     abstract Clock : IClock
+    abstract Log : ILog
+
+type IAppCaps =
+    abstract Db : IDb
 ```
 
-The contract is tiny on purpose. When it starts to grow, that is usually a sign to return to level 1.
+The contract is the interface surface, not the lookup mechanism.
 
 ## Reading Through The Contract
 
-`Resolver.resolve` is the matching read operation.
+Use the contract directly from workflows and helper functions.
 
 ```fsharp
-let getTimestamp : Flow<#IHasClock, unit, DateTimeOffset> =
+let getTimestamp : Flow<#IRuntimeCaps, unit, DateTimeOffset> =
     flow {
-        let! clock = Resolver.resolve _.Clock
+        let! clock = Flow.read _.Clock
         return clock.UtcNow()
     }
 ```
 
-This is a good fit for shared helpers that need a named capability surface.
+In practice, the contract often comes from an adapter-generated host type or a concrete record
+that implements the interface.
 
-## When It Is Worth It
+## Why Use A Contract
 
-Use this level when:
+Capability contracts give you:
 
-- a helper is shared across multiple areas
-- the dependency contract is stable
-- a record would be too feature-specific or too wide
+- compiler checks on the dependency surface
+- refactor safety when a helper changes what it needs
+- workflow signatures that read as “this effect needs logging, clock, and db”
+- reusable helpers that advertise what they depend on
+- programming to interfaces, but for effects
+
+That makes effects visible in the flow without forcing every boundary to become a big record.
+If the boundary is already obvious, a record already gives you direct access. A contract adds a
+type-level name that the compiler checks and that helpers can reuse across flows.
+
+## What A Record Gives You
+
+A record gives you:
+
+- a short dependency list with direct fields
+- a boundary that stays local to one area
+- a shape that is easy to reuse as data
+- no extra interface for a structure that is already simple
+
+## What A Contract Gives You
+
+A contract gives you:
+
+- the same dependency shape named once and reused across flows or helpers
+- compiler errors at the call site when a dependency changes
+- a flow that advertises its capabilities directly
+- a readable type instead of a long parameter bag
+
+## Binding Tokens
+
+`Requires<'dep>`, `Resolve<'dep>`, and `Resolve<'dep, 'value>` are the binding tokens FsFlow uses
+to name a dependency at the projection boundary.
+
+These tokens project a single service from `env` and keep the lookup shape explicit in the type.
+
+## What A Named Contract Gives You
+
+A named contract gives you:
+
+- a helper shared across multiple areas
+- a stable dependency shape with one name
+- a signature that explains itself
+- a reusable interface that justifies the extra type-level name
 
 ## When It Is Not Worth It
 
-Do not use nominal helpers just because they look more “architectural.”
+Do not add a named contract just to make the code look more abstract.
 
-If you only need one feature boundary, a record is better.
-If you only need host/application separation, use `RuntimeContext`.
-If you only need host registrations, use the provider edge.
+A record keeps a concrete boundary direct.
+`RuntimeContext` separates your app services from the host runtime.
+Standard `.NET` AppHost plus DI adapts the container once at the host edge.
 
-The nominal layer is for reusable helper surfaces, not for making every dependency more abstract than it needs to be.
+## What This Replaces
 
-See the [Resolver reference](../../reference/capability/) for `Requires<'dep>`, `Resolve<'dep>`, and `Resolver.resolve`.
+The current shape is simple:
+
+- a concrete record boundary
+- a small nominal interface
+- `RuntimeContext<'runtime, 'env>` for separating your app services from the host runtime
+- `Flow.read` or `Flow.readRuntime` / `Flow.readEnvironment` to project values from the contract
+
+See the [Capability reference](../../reference/capability/) for the binding tokens, the
+runtime/app readers, and the layer surface.
