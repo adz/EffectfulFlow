@@ -19,37 +19,25 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
 <title>Architectural Styles | FsFlow</title>
-<meta name="description" content="This page shows how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.
-FsFlow supports three valid architectural styles.
-Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.
-1. Booted App Environment Use this when your application already has a conventional booted runtime and passing one explicit application environment keeps composition simple.
-This is the most direct use of the Record Pattern. The environment is the full booted application runtime and config:">
+<meta name="description" content="The architectural style discussion now lives in Managing Dependencies. That page starts from env, then walks through records, capability contracts, RuntimeContext, and standard .NET AppHost Plus DI in one flow.
+Read Managing Dependencies for the full walkthrough.">
 <meta property="og:url" content="http://localhost:3000/docs/core-model/architectural-styles/">
   <meta property="og:site_name" content="FsFlow">
   <meta property="og:title" content="Architectural Styles">
-  <meta property="og:description" content="This page shows how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.
-FsFlow supports three valid architectural styles.
-Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.
-1. Booted App Environment Use this when your application already has a conventional booted runtime and passing one explicit application environment keeps composition simple.
-This is the most direct use of the Record Pattern. The environment is the full booted application runtime and config:">
+  <meta property="og:description" content="The architectural style discussion now lives in Managing Dependencies. That page starts from env, then walks through records, capability contracts, RuntimeContext, and standard .NET AppHost Plus DI in one flow.
+Read Managing Dependencies for the full walkthrough.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
 
   <meta itemprop="name" content="Architectural Styles">
-  <meta itemprop="description" content="This page shows how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.
-FsFlow supports three valid architectural styles.
-Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.
-1. Booted App Environment Use this when your application already has a conventional booted runtime and passing one explicit application environment keeps composition simple.
-This is the most direct use of the Record Pattern. The environment is the full booted application runtime and config:">
-  <meta itemprop="wordCount" content="628">
+  <meta itemprop="description" content="The architectural style discussion now lives in Managing Dependencies. That page starts from env, then walks through records, capability contracts, RuntimeContext, and standard .NET AppHost Plus DI in one flow.
+Read Managing Dependencies for the full walkthrough.">
+  <meta itemprop="wordCount" content="37">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Architectural Styles">
-  <meta name="twitter:description" content="This page shows how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.
-FsFlow supports three valid architectural styles.
-Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.
-1. Booted App Environment Use this when your application already has a conventional booted runtime and passing one explicit application environment keeps composition simple.
-This is the most direct use of the Record Pattern. The environment is the full booted application runtime and config:">
+  <meta name="twitter:description" content="The architectural style discussion now lives in Managing Dependencies. That page starts from env, then walks through records, capability contracts, RuntimeContext, and standard .NET AppHost Plus DI in one flow.
+Read Managing Dependencies for the full walkthrough.">
 <link href="http://localhost:3000/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -190,14 +178,12 @@ This is the most direct use of the Record Pattern. The environment is the full b
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Level 1: Area-Scoped Records</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesruntime-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/runtime-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesruntime-context"><span class="">Level 2: RuntimeContext</span></a>
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesruntime-context-li">
+    <a href="http://localhost:3000/docs/managing-dependencies/runtime-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesruntime-context"><span class="">RuntimeContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Level 3: Provider Edge</span></a>
+    <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapability-contracts-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Level 4: Nominal Capability Helpers</span></a>
+    <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Nominal Capability Contracts</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -254,20 +240,7 @@ This is the most direct use of the Record Pattern. The environment is the full b
 </div>
 
             <div class="td-toc" data-proofer-ignore>
-<div class="td-toc-title">
-      <span class="td-toc-title__text">On this page</span>
-      <a class="td-toc-title__link" title="Top of page" href="#"></a>
-    </div>
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#1-booted-app-environment">1. Booted App Environment</a></li>
-    <li><a href="#2-explicit-dependencies-plus-context">2. Explicit Dependencies Plus Context</a></li>
-    <li><a href="#3-standard-net-apphost-plus-di">3. Standard <code>.NET</code> AppHost Plus DI</a></li>
-    <li><a href="#which-style-to-prefer">Which Style To Prefer</a></li>
-    <li><a href="#next">Next</a></li>
-  </ul>
-</nav>
-  </div>
+</div>
 
             
 
@@ -290,150 +263,10 @@ This is the most direct use of the Record Pattern. The environment is the full b
 	<header class="article-meta">
 		
 </header>
-	<p>This page shows how the FsFlow workflow family should fit into your application architecture without forcing one app shape on every codebase.</p>
-<p>FsFlow supports three valid architectural styles.</p>
-<blockquote>
-<p>Three related workflow families. Three valid architectural styles. Choose based on app shape and team preferences.</p>
-</blockquote>
-<h2 id="1-booted-app-environment">1. Booted App Environment</h2>
-<p>Use this when your application already has a conventional booted runtime and passing one explicit application environment keeps composition simple.</p>
-<p>This is the most direct use of the <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/">Record Pattern</a>. The environment is the full booted application runtime and config:</p>
-<ul>
-<li>DB</li>
-<li>logging</li>
-<li>config</li>
-<li>clients</li>
-<li>services</li>
-<li>cache</li>
-</ul>
-<p>Typical shape:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">AppEnv</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Db</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IDb</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">Log</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">string</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#204a87;font-weight:bold">unit</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">Config</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">AppConfig</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">Billing</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IBillingClient</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">Cache</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">ICache</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">handle</span> <span style="color:#000">command</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">AppEnv</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">ResultValue</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">env</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#000">env</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Log</span> <span style="color:#4e9a06">&#34;handling command&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">runWorkflow</span> <span style="color:#000">env</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Db</span> <span style="color:#000">env</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Billing</span> <span style="color:#000">command</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>This is inspired by app-level runtime shapes such as Rails, Phoenix, or a booted <code>.NET</code> host,
-but the environment is still passed explicitly and never global.</p>
-<p>Use this style for:</p>
-<ul>
-<li>controllers and endpoints</li>
-<li>handlers</li>
-<li>persistence workflows</li>
-<li>infrastructure-heavy orchestration</li>
-<li>integration tests</li>
-</ul>
-<p>Choose this when simplicity of app composition matters most.</p>
-<h2 id="2-explicit-dependencies-plus-context">2. Explicit Dependencies Plus Context</h2>
-<p>Use this when you want feature modules to state their real dependencies directly and keep <code>'ctx</code>
-for request or execution context only.</p>
-<p>Typical shape:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">PlaceOrderDeps</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">LoadCart</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">CartId</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RequestContext</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">Cart</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">SaveOrder</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Order</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RequestContext</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">unit</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">PublishEvent</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">OrderPlaced</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RequestContext</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">unit</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">RequestContext</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">TraceId</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">string</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">UserId</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">string</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#000">Deadline</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">System</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">DateTimeOffset</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">placeOrder</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">deps</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">PlaceOrderDeps</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">PlaceOrderInput</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RequestContext</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">OrderId</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">ctx</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">env</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">cart</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">deps</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">LoadCart</span> <span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">CartId</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Order</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">create</span> <span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">UserId</span> <span style="color:#000">cart</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">deps</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">SaveOrder</span> <span style="color:#000">order</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">deps</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">PublishEvent</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">OrderPlaced</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>The shape is:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#000">deps</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">input</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#204a87;font-weight:bold">&#39;</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">&#39;</span><span style="color:#000">err</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">&#39;</span><span style="color:#000">a</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>
-</span></span></code></pre></div><p>Here, the <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/">Record Pattern</a> is used only for the thin <code>'ctx</code> (request or execution context). Typical examples:</p>
-<ul>
-<li>trace id</li>
-<li>request id</li>
-<li>user or session</li>
-<li>cancellation</li>
-<li>deadline</li>
-</ul>
-<p>Use this style for:</p>
-<ul>
-<li>use cases</li>
-<li>domain orchestration</li>
-<li>workflow modules</li>
-<li>highly testable feature logic</li>
-</ul>
-<p>Choose this when clarity and locality matter most.</p>
-<h2 id="3-standard-net-apphost-plus-di">3. Standard <code>.NET</code> AppHost Plus DI</h2>
-<p>Use this when the surrounding application should stay in standard <code>.NET</code> startup and dependency
-injection, and FsFlow should only appear inside workflow code.</p>
-<p>Keep the host conventional:</p>
-<ul>
-<li><code>AppHost</code></li>
-<li>DI container</li>
-<li>logging, config, and options</li>
-<li>normal <code>.NET</code> startup</li>
-</ul>
-<p>Use FsFlow inside:</p>
-<ul>
-<li>feature workflows</li>
-<li>handlers</li>
-<li>jobs</li>
-<li>application services</li>
-</ul>
-<p>Typical shape:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">RuntimeServices</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Logger</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">ILogger</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">ShipOrderWorkflow</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">AppEnv</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Gateway</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IShippingGateway</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">ShipOrderWorkflow</span><span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">member</span> <span style="color:#000">_</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Run</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">ShipOrderInput</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RuntimeContext</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RuntimeServices</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppEnv</span><span style="color:#ce5c00;font-weight:bold">&gt;,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">ShipmentId</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">logger</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">readRuntime</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Logger</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">gateway</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Gateway</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#000">logger</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">LogInformation</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#4e9a06">&#34;shipping order {OrderId}&#34;</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">OrderId</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">shipmentId</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">gateway</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">CreateShipment</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">OrderId</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">shipmentId</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>This style often uses <code>RuntimeContext&lt;'runtime, 'env&gt;</code> or a thin record boundary to bridge existing .NET services into a decoupled FsFlow contract.</p>
-<p>Use this style for:</p>
-<ul>
-<li>mixed C# and F# teams</li>
-<li>enterprise <code>.NET</code> apps</li>
-<li>incremental adoption</li>
-</ul>
-<p>Choose this when familiarity and low migration risk matter most.</p>
-<p>If the task boundary needs separate runtime services and application capabilities, use
-<code>RuntimeContext&lt;'runtime, 'env&gt;</code> and the <code>Flow.readRuntime</code> / <code>Flow.read</code> split instead of
-forcing everything into one record.</p>
-<h2 id="which-style-to-prefer">Which Style To Prefer</h2>
-<p>There is no single mandated architecture.</p>
-<ul>
-<li>Use Booted App Environment when app-level composition is the main concern.</li>
-<li>Use Explicit Dependencies Plus Context when feature-level reasoning and testability matter more.</li>
-<li>Use standard <code>.NET</code> AppHost plus DI when the host should stay conventional and the workflow family is an internal application abstraction.</li>
-</ul>
-<p>The important constraint is not which style you pick.
-The important constraint is that the chosen workflow family stays explicit at the workflow boundary and at execution time.</p>
-<h2 id="next">Next</h2>
-<p>Read <a href="http://localhost:3000/docs/start/getting-started/">Getting Started</a> for the core workflow model,
-<a href="http://localhost:3000/docs/managing-dependencies/env-slicing/">Environment Slicing</a> for smaller environment projections, and
-<a href="http://localhost:3000/docs/managing-dependencies/">Managing Dependencies</a> for the trade-offs against manual
-threading and wrapper-based shapes.</p>
+	<p>The architectural style discussion now lives in <a href="http://localhost:3000/docs/managing-dependencies/">Managing Dependencies</a>.
+That page starts from <code>env</code>, then walks through records, capability contracts, <code>RuntimeContext</code>,
+and standard <code>.NET</code> AppHost Plus DI in one flow.</p>
+<p>Read <a href="http://localhost:3000/docs/managing-dependencies/">Managing Dependencies</a> for the full walkthrough.</p>
 
 	
 </div>

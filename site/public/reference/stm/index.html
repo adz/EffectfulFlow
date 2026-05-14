@@ -20,14 +20,14 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
 <title>STM | FsFlow</title>
-<meta name="description" content="The STM module provides composable atomic transactions.
+<meta name="description" content="The STM module provides composable atomic transactions with retry / orElse coordination.
 Core types TRef: Represents a transactional reference that can be updated atomically within an STM transaction.
 STM: Represents a transactional operation that can be composed and executed atomically.
 Module functions TRef.make: Creates a new TRef with the initial value. TRef.get: Reads the current value of the transactional reference within a transaction. TRef.set: Sets the value of the transactional reference within a transaction. TRef.update: Updates the value of the transactional reference within a transaction using the supplied function. STM.atomically: Executes an STM transaction atomically within a flow. Builder Stm.stm: The stm { } computation expression for building atomic transactions.">
 <meta property="og:url" content="http://localhost:3000/reference/stm/">
   <meta property="og:site_name" content="FsFlow">
   <meta property="og:title" content="STM">
-  <meta property="og:description" content="The STM module provides composable atomic transactions.
+  <meta property="og:description" content="The STM module provides composable atomic transactions with retry / orElse coordination.
 Core types TRef: Represents a transactional reference that can be updated atomically within an STM transaction.
 STM: Represents a transactional operation that can be composed and executed atomically.
 Module functions TRef.make: Creates a new TRef with the initial value. TRef.get: Reads the current value of the transactional reference within a transaction. TRef.set: Sets the value of the transactional reference within a transaction. TRef.update: Updates the value of the transactional reference within a transaction using the supplied function. STM.atomically: Executes an STM transaction atomically within a flow. Builder Stm.stm: The stm { } computation expression for building atomic transactions.">
@@ -35,14 +35,14 @@ Module functions TRef.make: Creates a new TRef with the initial value. TRef.get:
   <meta property="og:type" content="website">
 
   <meta itemprop="name" content="STM">
-  <meta itemprop="description" content="The STM module provides composable atomic transactions.
+  <meta itemprop="description" content="The STM module provides composable atomic transactions with retry / orElse coordination.
 Core types TRef: Represents a transactional reference that can be updated atomically within an STM transaction.
 STM: Represents a transactional operation that can be composed and executed atomically.
 Module functions TRef.make: Creates a new TRef with the initial value. TRef.get: Reads the current value of the transactional reference within a transaction. TRef.set: Sets the value of the transactional reference within a transaction. TRef.update: Updates the value of the transactional reference within a transaction using the supplied function. STM.atomically: Executes an STM transaction atomically within a flow. Builder Stm.stm: The stm { } computation expression for building atomic transactions.">
-  <meta itemprop="wordCount" content="105">
+  <meta itemprop="wordCount" content="110">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="STM">
-  <meta name="twitter:description" content="The STM module provides composable atomic transactions.
+  <meta name="twitter:description" content="The STM module provides composable atomic transactions with retry / orElse coordination.
 Core types TRef: Represents a transactional reference that can be updated atomically within an STM transaction.
 STM: Represents a transactional operation that can be composed and executed atomically.
 Module functions TRef.make: Creates a new TRef with the initial value. TRef.get: Reads the current value of the transactional reference within a transaction. TRef.set: Sets the value of the transactional reference within a transaction. TRef.update: Updates the value of the transactional reference within a transaction using the supplied function. STM.atomically: Executes an STM transaction atomically within a flow. Builder Stm.stm: The stm { } computation expression for building atomic transactions.">
@@ -414,7 +414,7 @@ Module functions TRef.make: Creates a new TRef with the initial value. TRef.get:
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-referencecapability-li">
-    <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="">Resolver</span></a>
+    <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="">Capability</span></a>
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencecapabilitym-resolver-environment-li">
     <a href="http://localhost:3000/reference/capability/m-resolver-environment/" title="Resolver.environment" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilitym-resolver-environment"><span class="">environment</span></a>
@@ -592,7 +592,7 @@ Module functions TRef.make: Creates a new TRef with the initial value. TRef.get:
 	<header class="article-meta">
 		
 </header>
-	<p>The <code>STM</code> module provides composable atomic transactions.</p>
+	<p>The <code>STM</code> module provides composable atomic transactions with <code>retry</code> / <code>orElse</code> coordination.</p>
 <h2 id="core-types">Core types</h2>
 <ul>
 <li>

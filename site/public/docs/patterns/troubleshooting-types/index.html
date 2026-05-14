@@ -42,7 +42,7 @@ Most FsFlow type errors are not exotic. The compiler usually sees one wrapper sh
 Error: A Unique Overload For Method Bind Could Not Be Determined This usually happens when the compiler cannot tell which wrapper shape a let! value should use.
 Example:
 let nested : Async&lt;Async&lt;Result&lt;int, string&gt;&gt;&gt; = async { return async { return Ok 42 } } let workflow : Flow&lt;unit, string, int&gt; = flow { let! next = nested let! value = next return value } The second let! is ambiguous.">
-  <meta itemprop="wordCount" content="433">
+  <meta itemprop="wordCount" content="409">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Troubleshooting Types">
   <meta name="twitter:description" content="This page shows the compiler errors that usually mean you crossed a wrapper boundary in the wrong place.
@@ -183,21 +183,17 @@ let nested : Async&lt;Async&lt;Result&lt;int, string&gt;&gt;&gt; = async { retur
     <a href="http://localhost:3000/docs/core-model/defects/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeldefects"><span class="">Defects and Exceptions</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modeltask-async-interop-li">
     <a href="http://localhost:3000/docs/core-model/task-async-interop/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeltask-async-interop"><span class="">Task and Async Interop</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modelarchitectural-styles-li">
-    <a href="http://localhost:3000/docs/core-model/architectural-styles/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modelarchitectural-styles"><span class="">Architectural Styles</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Level 1: Area-Scoped Records</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesruntime-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/runtime-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesruntime-context"><span class="">Level 2: RuntimeContext</span></a>
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesruntime-context-li">
+    <a href="http://localhost:3000/docs/managing-dependencies/runtime-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesruntime-context"><span class="">RuntimeContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Level 3: Provider Edge</span></a>
+    <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapability-contracts-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Level 4: Nominal Capability Helpers</span></a>
+    <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Nominal Capability Contracts</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -225,7 +221,7 @@ let nested : Async&lt;Async&lt;Result&lt;int, string&gt;&gt;&gt; = async { retur
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsecosystem-li">
-    <a href="http://localhost:3000/docs/ecosystem/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsecosystem"><span class="">Ecosystem Overview</span></a>
+    <a href="http://localhost:3000/docs/ecosystem/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsecosystem"><span class="">Comparisons and Integrations</span></a>
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fstoolkit-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
@@ -265,7 +261,6 @@ let nested : Async&lt;Async&lt;Result&lt;int, string&gt;&gt;&gt; = async { retur
     <li><a href="#error-option-or-valueoption-does-not-match-your-error-type">Error: <code>Option</code> Or <code>ValueOption</code> Does Not Match Your Error Type</a></li>
     <li><a href="#error-coldtask-does-not-match-task">Error: ColdTask Does Not Match <code>Task</code></a></li>
     <li><a href="#when-type-errors-usually-mean-a-boundary-problem">When Type Errors Usually Mean A Boundary Problem</a></li>
-    <li><a href="#next">Next</a></li>
   </ul>
 </nav>
   </div>
@@ -367,12 +362,11 @@ The compiler usually sees one wrapper shape and you intended another.</p>
 <li>use <code>Guard.Of</code> or <code>Guard.MapError</code> to bridge existing error-bearing sources</li>
 <li>move back to plain Result until the real workflow boundary appears</li>
 </ul>
-<h2 id="next">Next</h2>
-<p>Read <a href="http://localhost:3000/docs/start/getting-started/">Getting Started</a> for the workflow overview,
-<a href="http://localhost:3000/docs/core-model/task-async-interop/">Task and Async Interop</a> for the binding surface,
-and <a href="https://github.com/adz/FsFlow/blob/main/examples/FsFlow.MaintenanceExamples/Program.fs" target="_blank" rel="noopener"><code>examples/FsFlow.MaintenanceExamples/Program.fs</code></a>
-for runnable versions of these shapes.</p>
 
+	<nav class="docs-page-nav docs-page-nav--next-only"><a class="docs-home-cta docs-page-nav__link docs-page-nav__next" href="http://localhost:3000/docs/patterns/benchmarks/" aria-label="Next - Benchmarks">
+    <span>Next</span>
+    <span class="docs-page-nav__arrow" aria-hidden="true">→</span>
+  </a></nav>
 	
 </div>
 

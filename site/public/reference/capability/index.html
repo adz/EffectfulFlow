@@ -19,25 +19,21 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-144x144.png" sizes="144x144">
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
-<title>Resolver | FsFlow</title>
-<meta name="description" content="This page shows the source-documented resolver and layer surface, including Resolve request tokens, environment management helpers, and the runtime/application split used by RuntimeContext.
-Resolve tokens Requires: Describes the capability contract for a single dependency. Resolve: Request token for binding a whole dependency inside a workflow. Resolve: Request token for projecting a value from a dependency. Dependencies MissingCapability: Describes a missing service-provider capability. Resolver.resolve: Reads a dependency from the environment using the provided projection. Resolver.runtime: Reads the current runtime from the environment. Resolver.environment: Reads the application environment from the environment. Resolver.fromProvider: Reads a dependency from IServiceProvider and fails when it is not registered. Layers Layer.provideLayer: Provides a derived environment from a layer flow to a downstream flow.">
+<title>Capability | FsFlow</title>
+<meta name="description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
 <meta property="og:url" content="http://localhost:3000/reference/capability/">
   <meta property="og:site_name" content="FsFlow">
-  <meta property="og:title" content="Resolver">
-  <meta property="og:description" content="This page shows the source-documented resolver and layer surface, including Resolve request tokens, environment management helpers, and the runtime/application split used by RuntimeContext.
-Resolve tokens Requires: Describes the capability contract for a single dependency. Resolve: Request token for binding a whole dependency inside a workflow. Resolve: Request token for projecting a value from a dependency. Dependencies MissingCapability: Describes a missing service-provider capability. Resolver.resolve: Reads a dependency from the environment using the provided projection. Resolver.runtime: Reads the current runtime from the environment. Resolver.environment: Reads the application environment from the environment. Resolver.fromProvider: Reads a dependency from IServiceProvider and fails when it is not registered. Layers Layer.provideLayer: Provides a derived environment from a layer flow to a downstream flow.">
+  <meta property="og:title" content="Capability">
+  <meta property="og:description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
 
-  <meta itemprop="name" content="Resolver">
-  <meta itemprop="description" content="This page shows the source-documented resolver and layer surface, including Resolve request tokens, environment management helpers, and the runtime/application split used by RuntimeContext.
-Resolve tokens Requires: Describes the capability contract for a single dependency. Resolve: Request token for binding a whole dependency inside a workflow. Resolve: Request token for projecting a value from a dependency. Dependencies MissingCapability: Describes a missing service-provider capability. Resolver.resolve: Reads a dependency from the environment using the provided projection. Resolver.runtime: Reads the current runtime from the environment. Resolver.environment: Reads the application environment from the environment. Resolver.fromProvider: Reads a dependency from IServiceProvider and fails when it is not registered. Layers Layer.provideLayer: Provides a derived environment from a layer flow to a downstream flow.">
-  <meta itemprop="wordCount" content="116">
+  <meta itemprop="name" content="Capability">
+  <meta itemprop="description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
+  <meta itemprop="wordCount" content="168">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Resolver">
-  <meta name="twitter:description" content="This page shows the source-documented resolver and layer surface, including Resolve request tokens, environment management helpers, and the runtime/application split used by RuntimeContext.
-Resolve tokens Requires: Describes the capability contract for a single dependency. Resolve: Request token for binding a whole dependency inside a workflow. Resolve: Request token for projecting a value from a dependency. Dependencies MissingCapability: Describes a missing service-provider capability. Resolver.resolve: Reads a dependency from the environment using the provided projection. Resolver.runtime: Reads the current runtime from the environment. Resolver.environment: Reads the application environment from the environment. Resolver.fromProvider: Reads a dependency from IServiceProvider and fails when it is not registered. Layers Layer.provideLayer: Provides a derived environment from a layer flow to a downstream flow.">
+  <meta name="twitter:title" content="Capability">
+  <meta name="twitter:description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
 <link href="http://localhost:3000/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -406,7 +402,7 @@ Resolve tokens Requires: Describes the capability contract for a single dependen
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-referencecapability-li">
-    <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="td-sidebar-nav-active-item">Resolver</span></a>
+    <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="td-sidebar-nav-active-item">Capability</span></a>
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-resolver-environment-li">
     <a href="http://localhost:3000/reference/capability/m-resolver-environment/" title="Resolver.environment" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilitym-resolver-environment"><span class="">environment</span></a>
@@ -547,7 +543,7 @@ Resolve tokens Requires: Describes the capability contract for a single dependen
 <a href="https://github.com/adz/FsFlow/tree/main/content/reference/capability/_index.md" class="td-page-meta--view td-page-meta__view" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines fa-fw"></i> View page source</a>
   <a href="https://github.com/adz/FsFlow/edit/main/content/reference/capability/_index.md" class="td-page-meta--edit td-page-meta__edit" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Edit this page</a>
   <a href="https://github.com/adz/FsFlow/new/main/content/reference/capability?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60get-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child td-page-meta__child" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Create child page</a>
-  <a href="https://github.com/adz/FsFlow/issues/new?title=Resolver" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/adz/FsFlow/issues/new?title=Capability" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
   
 </div>
 
@@ -558,8 +554,8 @@ Resolve tokens Requires: Describes the capability contract for a single dependen
     </div>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#resolve-tokens">Resolve tokens</a></li>
-    <li><a href="#dependencies">Dependencies</a></li>
+    <li><a href="#binding-tokens">Binding tokens</a></li>
+    <li><a href="#edge-helpers">Edge helpers</a></li>
     <li><a href="#layers">Layers</a></li>
   </ul>
 </nav>
@@ -575,23 +571,23 @@ Resolve tokens Requires: Describes the capability contract for a single dependen
   <li class="breadcrumb-item">
     <a href="http://localhost:3000/reference/">Reference</a></li>
   <li class="breadcrumb-item active" aria-current="page">
-    Resolver</li>
+    Capability</li>
   </ol>
 </nav>
 <div class="td-content">
-	<h1>Resolver</h1>
+	<h1>Capability</h1>
   
 	<header class="article-meta">
 		
 </header>
-	<p>This page shows the source-documented resolver and layer surface, including Resolve request tokens, environment management helpers, and the runtime/application split used by RuntimeContext.</p>
-<h2 id="resolve-tokens">Resolve tokens</h2>
+	<p>In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with <code>Requires</code> and <code>Resolve</code> as the binding surface.</p>
+<h2 id="binding-tokens">Binding tokens</h2>
 <ul>
-<li><a href="http://localhost:3000/reference/capability/t-requires-1/"><code>Requires</code></a>: Describes the capability contract for a single dependency.</li>
+<li><a href="http://localhost:3000/reference/capability/t-requires-1/"><code>Requires</code></a>: Compatibility contract for a single dependency.</li>
 <li><a href="http://localhost:3000/reference/capability/t-resolve-1/"><code>Resolve</code></a>: Request token for binding a whole dependency inside a workflow.</li>
 <li><a href="http://localhost:3000/reference/capability/t-resolve-2/"><code>Resolve</code></a>: Request token for projecting a value from a dependency.</li>
 </ul>
-<h2 id="dependencies">Dependencies</h2>
+<h2 id="edge-helpers">Edge helpers</h2>
 <ul>
 <li><a href="http://localhost:3000/reference/capability/t-missingcapability/"><code>MissingCapability</code></a>: Describes a missing service-provider capability.</li>
 <li><a href="http://localhost:3000/reference/capability/m-resolver-resolve/"><code>Resolver.resolve</code></a>: Reads a dependency from the environment using the provided projection.</li>

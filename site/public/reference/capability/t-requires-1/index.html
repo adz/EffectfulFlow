@@ -19,25 +19,25 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
 <title>Requires | FsFlow</title>
-<meta name="description" content="Describes the capability contract for a single dependency.
-Remarks Named capability interfaces inherit this contract once and then expose the dependency through a member such as Clock or Logger. Workflow builders can accept any environment that implements Requires&lt;&#39;dep&gt;, which lets larger runtimes satisfy smaller boundaries.">
+<meta name="description" content="Compatibility contract for a single dependency.
+Remarks Prefer nominal capability interfaces for public workflows. This helper remains for lower-level binding machinery that still needs to work with a single dependency directly.">
 <meta property="og:url" content="http://localhost:3000/reference/capability/t-requires-1/">
   <meta property="og:site_name" content="FsFlow">
   <meta property="og:title" content="Requires">
-  <meta property="og:description" content="Describes the capability contract for a single dependency.
-Remarks Named capability interfaces inherit this contract once and then expose the dependency through a member such as Clock or Logger. Workflow builders can accept any environment that implements Requires&lt;&#39;dep&gt;, which lets larger runtimes satisfy smaller boundaries.">
+  <meta property="og:description" content="Compatibility contract for a single dependency.
+Remarks Prefer nominal capability interfaces for public workflows. This helper remains for lower-level binding machinery that still needs to work with a single dependency directly.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="reference">
 
   <meta itemprop="name" content="Requires">
-  <meta itemprop="description" content="Describes the capability contract for a single dependency.
-Remarks Named capability interfaces inherit this contract once and then expose the dependency through a member such as Clock or Logger. Workflow builders can accept any environment that implements Requires&lt;&#39;dep&gt;, which lets larger runtimes satisfy smaller boundaries.">
-  <meta itemprop="wordCount" content="45">
+  <meta itemprop="description" content="Compatibility contract for a single dependency.
+Remarks Prefer nominal capability interfaces for public workflows. This helper remains for lower-level binding machinery that still needs to work with a single dependency directly.">
+  <meta itemprop="wordCount" content="31">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Requires">
-  <meta name="twitter:description" content="Describes the capability contract for a single dependency.
-Remarks Named capability interfaces inherit this contract once and then expose the dependency through a member such as Clock or Logger. Workflow builders can accept any environment that implements Requires&lt;&#39;dep&gt;, which lets larger runtimes satisfy smaller boundaries.">
+  <meta name="twitter:description" content="Compatibility contract for a single dependency.
+Remarks Prefer nominal capability interfaces for public workflows. This helper remains for lower-level binding machinery that still needs to work with a single dependency directly.">
 <link href="http://localhost:3000/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -406,7 +406,7 @@ Remarks Named capability interfaces inherit this contract once and then expose t
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-referencecapability-li">
-    <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="">Resolver</span></a>
+    <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="">Capability</span></a>
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-resolver-environment-li">
     <a href="http://localhost:3000/reference/capability/m-resolver-environment/" title="Resolver.environment" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilitym-resolver-environment"><span class="">environment</span></a>
@@ -573,7 +573,7 @@ Remarks Named capability interfaces inherit this contract once and then expose t
   <li class="breadcrumb-item">
     <a href="http://localhost:3000/reference/">Reference</a></li>
   <li class="breadcrumb-item">
-    <a href="http://localhost:3000/reference/capability/">Resolver</a></li>
+    <a href="http://localhost:3000/reference/capability/">Capability</a></li>
   <li class="breadcrumb-item active" aria-current="page">
     Requires&lt;dep&gt;</li>
   </ol>
@@ -584,13 +584,18 @@ Remarks Named capability interfaces inherit this contract once and then expose t
 	<header class="article-meta">
 		
 </header>
-	<p>Describes the capability contract for a single dependency.</p>
+	<p>Compatibility contract for a single dependency.</p>
 <h2 id="remarks">Remarks</h2>
-<p>Named capability interfaces inherit this contract once and then expose the dependency through a
-member such as <code>Clock</code> or <code>Logger</code>. Workflow builders can accept any environment
-that implements <code>Requires&lt;'dep&gt;</code>, which lets larger runtimes satisfy smaller
-boundaries.</p>
+<p>Prefer nominal capability interfaces for public workflows. This helper remains for lower-level
+binding machinery that still needs to work with a single dependency directly.</p>
 
+	<nav class="docs-page-nav"><a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="http://localhost:3000/reference/capability/m-layer-providelayer/" aria-label="Previous - Layer.provideLayer">
+    <span class="docs-page-nav__arrow" aria-hidden="true">←</span>
+    <span>Previous</span>
+  </a><a class="docs-home-cta docs-page-nav__link docs-page-nav__next" href="http://localhost:3000/reference/capability/m-resolver-resolve/" aria-label="Next - Resolver.resolve">
+    <span>Next</span>
+    <span class="docs-page-nav__arrow" aria-hidden="true">→</span>
+  </a></nav>
 	
 </div>
 

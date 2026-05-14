@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Resolver on FsFlow</title>
+    <title>Capability on FsFlow</title>
     <link>http://localhost:3000/reference/capability/</link>
-    <description>Recent content in Resolver on FsFlow</description>
+    <description>Recent content in Capability on FsFlow</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="http://localhost:3000/reference/capability/index.xml" rel="self" type="application/rss+xml" />
@@ -40,7 +40,7 @@
       <link>http://localhost:3000/reference/capability/t-requires-1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/capability/t-requires-1/</guid>
-      <description>&lt;p&gt;Describes the capability contract for a single dependency.&lt;/p&gt;&#xA;&lt;h2 id=&#34;remarks&#34;&gt;Remarks&lt;/h2&gt;&#xA;&lt;p&gt;Named capability interfaces inherit this contract once and then expose the dependency through a&#xA;member such as &lt;code&gt;Clock&lt;/code&gt; or &lt;code&gt;Logger&lt;/code&gt;. Workflow builders can accept any environment&#xA;that implements &lt;code&gt;Requires&amp;lt;&#39;dep&amp;gt;&lt;/code&gt;, which lets larger runtimes satisfy smaller&#xA;boundaries.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Compatibility contract for a single dependency.&lt;/p&gt;&#xA;&lt;h2 id=&#34;remarks&#34;&gt;Remarks&lt;/h2&gt;&#xA;&lt;p&gt;Prefer nominal capability interfaces for public workflows. This helper remains for lower-level&#xA;binding machinery that still needs to work with a single dependency directly.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Resolver.resolve</title>
@@ -61,7 +61,7 @@
       <link>http://localhost:3000/reference/capability/t-resolve-1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:3000/reference/capability/t-resolve-1/</guid>
-      <description>&lt;p&gt;Request token for binding a whole dependency inside a workflow.&lt;/p&gt;&#xA;&lt;h2 id=&#34;remarks&#34;&gt;Remarks&lt;/h2&gt;&#xA;&lt;p&gt;Use this token when a workflow needs the dependency itself rather than a value projected from&#xA;that dependency. The &lt;code&gt;flow {}&lt;/code&gt; builder and its internal compatibility helpers&#xA;read it from any environment that implements &lt;code&gt;Requires&amp;lt;&#39;dep&amp;gt;&lt;/code&gt;.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Request token for binding a whole dependency inside a workflow.&lt;/p&gt;&#xA;&lt;h2 id=&#34;remarks&#34;&gt;Remarks&lt;/h2&gt;&#xA;&lt;p&gt;Use this token when a workflow needs the dependency itself rather than a value projected from&#xA;that dependency. The &lt;code&gt;flow {}&lt;/code&gt; builder and its compatibility helpers read it from any&#xA;environment that exposes the dependency directly or through a nominal capability contract.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Resolver.runtime</title>

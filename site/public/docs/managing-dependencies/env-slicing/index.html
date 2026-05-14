@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Level 1: Area-Scoped Records">
   <meta itemprop="description" content="The first and simplest dependency shape in FsFlow.">
-  <meta itemprop="wordCount" content="494">
+  <meta itemprop="wordCount" content="524">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Level 1: Area-Scoped Records">
   <meta name="twitter:description" content="The first and simplest dependency shape in FsFlow.">
@@ -276,6 +276,8 @@
 		
 </header>
 	<p>The first dependency shape in FsFlow is a record scoped to a boundary, not one global application bag.</p>
+<p>The first question is whether the whole record is already the right shape. If it is, use <code>Flow.env</code>.
+If you only need part of it, project with <code>Flow.read</code>.</p>
 <p>That boundary is usually one of these:</p>
 <ul>
 <li>an ASP.NET controller</li>
@@ -329,7 +331,7 @@
 </span></span><span style="display:flex;"><span>      <span style="color:#000">Log</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">app</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Log</span> <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span></code></pre></div><p>That mapping is the architectural win. It keeps the feature boundary visible and avoids handing a giant record to every workflow.</p>
 <h2 id="reading-fields">Reading Fields</h2>
-<p>The <code>Flow.read</code> helper projects what a workflow needs.</p>
+<p><code>Flow.read</code> projects what a workflow needs from the boundary record.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">submitOrder</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">SubmitOrderDeps</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">string</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">Guid</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">deps</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">env</span>

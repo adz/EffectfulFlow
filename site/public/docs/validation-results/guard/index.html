@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="The Guard">
   <meta itemprop="description" content="Bridging pure checks and effectful sources into Flow.">
-  <meta itemprop="wordCount" content="490">
+  <meta itemprop="wordCount" content="474">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="The Guard">
   <meta name="twitter:description" content="Bridging pure checks and effectful sources into Flow.">
@@ -167,21 +167,17 @@
     <a href="http://localhost:3000/docs/core-model/defects/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeldefects"><span class="">Defects and Exceptions</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modeltask-async-interop-li">
     <a href="http://localhost:3000/docs/core-model/task-async-interop/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modeltask-async-interop"><span class="">Task and Async Interop</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docscore-modelarchitectural-styles-li">
-    <a href="http://localhost:3000/docs/core-model/architectural-styles/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscore-modelarchitectural-styles"><span class="">Architectural Styles</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesenv-slicing-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/env-slicing/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesenv-slicing"><span class="">Level 1: Area-Scoped Records</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesruntime-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/runtime-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesruntime-context"><span class="">Level 2: RuntimeContext</span></a>
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesruntime-context-li">
+    <a href="http://localhost:3000/docs/managing-dependencies/runtime-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesruntime-context"><span class="">RuntimeContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Level 3: Provider Edge</span></a>
+    <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapability-contracts-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Level 4: Nominal Capability Helpers</span></a>
+    <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Nominal Capability Contracts</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsstate-concurrency-li">
@@ -209,7 +205,7 @@
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsecosystem-li">
-    <a href="http://localhost:3000/docs/ecosystem/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsecosystem"><span class="">Ecosystem Overview</span></a>
+    <a href="http://localhost:3000/docs/ecosystem/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsecosystem"><span class="">Comparisons and Integrations</span></a>
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsecosystemintegrations-fstoolkit-li">
     <a href="http://localhost:3000/docs/ecosystem/integrations-fstoolkit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsecosystemintegrations-fstoolkit"><span class="">FsToolkit.ErrorHandling</span></a>
@@ -244,7 +240,8 @@
     </div>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#why-do-i-need-guard">Why do I need Guard?</a></li>
+    <li><a href="#what-guard-works-on">What Guard Works On</a></li>
+    <li><a href="#why-it-exists">Why It Exists</a></li>
     <li><a href="#common-guard-patterns">Common Guard Patterns</a>
       <ul>
         <li><a href="#guarding-options">Guarding Options</a></li>
@@ -278,10 +275,35 @@
 	<header class="article-meta">
 		
 </header>
-	<p>The <strong>Guard</strong> is a bridge. It allows pure predicate checks and simple error-bearing sources (like <code>Option</code> or <code>Result</code>) to <strong>fail a computation</strong> with a specific domain error.</p>
-<p>While builders like <code>flow {}</code> and <code>result {}</code> can bind many types directly, Guard is the primary tool for assigning a domain-specific error to a source or &ldquo;unwrapping&rdquo; an effectful source before validation.</p>
-<h2 id="why-do-i-need-guard">Why do I need Guard?</h2>
-<p>Consider a simple user lookup. When it is a pure function, it works seamlessly with <code>Check</code>:</p>
+	<p>The <strong>Guard</strong> turns source shapes like <code>Option</code>,
+<code>ValueOption</code>, <code>bool</code>, <code>Result&lt;'value, unit&gt;</code>, <code>Validation&lt;'value, unit&gt;</code>, and the <code>Async</code> / <code>Task</code>
+/ <code>ValueTask</code> versions of those into bindable results.</p>
+<p>Inside a <code>flow {}</code>, bind the effect first, then apply <code>Guard</code> to the value the effect returned.
+That keeps the source shape explicit and keeps the domain error at the binding site.</p>
+<h2 id="what-guard-works-on">What Guard Works On</h2>
+<p><code>Guard.Of</code> works on:</p>
+<ul>
+<li><code>Option&lt;'value&gt;</code></li>
+<li><code>ValueOption&lt;'value&gt;</code></li>
+<li><code>bool</code></li>
+<li><code>Result&lt;'value, unit&gt;</code></li>
+<li><code>Validation&lt;'value, unit&gt;</code></li>
+<li><code>Async&lt;Option&lt;'value&gt;&gt;</code>, <code>Task&lt;Option&lt;'value&gt;&gt;</code>, <code>ValueTask&lt;Option&lt;'value&gt;&gt;</code></li>
+<li><code>Async&lt;ValueOption&lt;'value&gt;&gt;</code>, <code>Task&lt;ValueOption&lt;'value&gt;&gt;</code>, <code>ValueTask&lt;ValueOption&lt;'value&gt;&gt;</code></li>
+<li><code>Async&lt;bool&gt;</code>, <code>Task&lt;bool&gt;</code>, <code>ValueTask&lt;bool&gt;</code></li>
+<li><code>Async&lt;Result&lt;'value, unit&gt;&gt;</code>, <code>Task&lt;Result&lt;'value, unit&gt;&gt;</code>, <code>ValueTask&lt;Result&lt;'value, unit&gt;&gt;</code></li>
+</ul>
+<p><code>Guard.MapError</code> works on:</p>
+<ul>
+<li><code>Result&lt;'value, 'error&gt;</code></li>
+<li><code>Validation&lt;'value, 'error&gt;</code></li>
+<li><code>Flow&lt;'env, 'error, 'value&gt;</code></li>
+<li><code>Async&lt;Result&lt;'value, 'error&gt;&gt;</code></li>
+<li><code>Task&lt;Result&lt;'value, 'error&gt;&gt;</code></li>
+<li><code>ValueTask&lt;Result&lt;'value, 'error&gt;&gt;</code></li>
+</ul>
+<h2 id="why-it-exists">Why It Exists</h2>
+<p>Consider a simple user lookup. When it is pure, <code>Check</code> works directly:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow</span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow.Check</span>
 </span></span><span style="display:flex;"><span>
@@ -294,37 +316,32 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#000">users</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">List</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">tryFind</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">fun</span> <span style="color:#000">u</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">u</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">name</span><span style="color:#ce5c00;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">loginPure</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">[`</span><span style="color:#000">result</span> <span style="color:#ce5c00;font-weight:bold">{}`](</span><span style="color:#000">/reference/result/builders-result/</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// This works: okIfSome expects an Option, which tryGetUser returns
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">user</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">tryGetUser</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">okIfSome</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">orError</span> <span style="color:#000">UserNotFound</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">result</span> <span style="color:#ce5c00;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">user</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">tryGetUser</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">okIfSome</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">orError</span> <span style="color:#000">UserNotFound</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">user</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>However, in a real application, lookup usually requires a database connection from the environment or performs async work. Now it becomes a <code>Flow</code>:</p>
+</span></span></code></pre></div><p>However, in a real application, lookup usually requires a database connection from the environment or performs async work. Then it becomes a <code>Flow</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">// In reality, this needs the environment and is effectful
 </span></span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">tryGetUserFlow</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">DbEnv</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">User</span> <span style="color:#000">option</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">db</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Db</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">db</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Users</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">TryFind</span> <span style="color:#000">name</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>If you try to use the same <code>Check</code> pattern inside a <code>flow {}</code> block, it will fail to compile:</p>
+</span></span></code></pre></div><p>If you try to apply <code>Check</code> directly to the <code>Flow</code>, it fails to compile.
+Bind the <code>Flow</code> first, then guard the value it returns:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">login</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// COMPILE ERROR: tryGetUserFlow returns a Flow, but okIfSome expects an Option.
-</span></span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// The builder hasn&#39;t &#34;unwrapped&#34; the flow yet!
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">user</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">tryGetUserFlow</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Check</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">okIfSome</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Check</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">orError</span> <span style="color:#000">UserNotFound</span>
-</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">maybeUser</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">tryGetUserFlow</span> <span style="color:#000">name</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">user</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">maybeUser</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Guard</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Of</span> <span style="color:#000">UserNotFound</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">user</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p><code>Check</code> functions expect pure types (like <code>Option</code> or <code>string</code>). They don&rsquo;t know how to look &ldquo;inside&rdquo; a Flow.</p>
-<p><strong>Guard</strong> is the bridge. It allows you to &ldquo;mark&rdquo; an effectful source so that the flow builder binds it first before applying the check:</p>
+</span></span></code></pre></div><p><code>Guard</code> works on the value, not on the <code>Flow</code> itself. <code>flow {}</code> binds the effectful source; <code>Guard</code>
+maps the resulting <code>Option</code>, <code>Check</code>, <code>Result</code>, or <code>Validation</code> into the domain error you choose.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">login</span> <span style="color:#000">name</span> <span style="color:#000">password</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// 1. Guard binds the flow, sees the Option, and applies the error logic
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">user</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">tryGetUserFlow</span> <span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Guard</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Of</span> <span style="color:#000">UserNotFound</span>
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// 2. You can also guard pure checks that haven&#39;t been lifted yet
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">notBlank</span> <span style="color:#000">password</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Guard</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Of</span> <span style="color:#000">InvalidPassword</span>
-</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">maybeUser</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">tryGetUserFlow</span> <span style="color:#000">name</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">user</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">maybeUser</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Guard</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Of</span> <span style="color:#000">UserNotFound</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">notBlank</span> <span style="color:#000">password</span> <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Guard</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Of</span> <span style="color:#000">InvalidPassword</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">user</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span></code></pre></div><h2 id="common-guard-patterns">Common Guard Patterns</h2>
@@ -341,10 +358,17 @@
 <p>Use <strong>Guard</strong> whenever you need to:</p>
 <ul>
 <li>Assign a domain error to a pure <code>Check</code> or <code>Option</code> inside a computation.</li>
-<li>&ldquo;Unwrap&rdquo; an effectful source that returns a simple type before validating it.</li>
+<li>Bind an effectful source first, then turn its <code>Option</code>, <code>Check</code>, <code>Result</code>, or <code>Validation</code> into a domain error.</li>
 <li>Keep your business logic readable by avoiding manual matching or re-lifting inside your flows.</li>
 </ul>
 
+	<nav class="docs-page-nav"><a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="http://localhost:3000/docs/validation-results/result-ce/" aria-label="Previous - Result CE">
+    <span class="docs-page-nav__arrow" aria-hidden="true">←</span>
+    <span>Previous</span>
+  </a><a class="docs-home-cta docs-page-nav__link docs-page-nav__next" href="http://localhost:3000/docs/validation-results/validate-ce/" aria-label="Next - Validate CE">
+    <span>Next</span>
+    <span class="docs-page-nav__arrow" aria-hidden="true">→</span>
+  </a></nav>
 	
 </div>
 
