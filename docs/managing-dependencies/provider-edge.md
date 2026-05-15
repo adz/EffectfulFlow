@@ -62,8 +62,7 @@ let mapApiDeps (sp: IServiceProvider) =
       Clock = sp.GetRequiredService<IClock>() }
 ```
 
-Once you have the record, the rest of the workflow should usually stay on a named contract or on
-the `HostContext` split.
+Once you have the record, the rest of the workflow should usually stay on a named contract.
 
 ## When Not To Use It
 
@@ -72,7 +71,6 @@ Do not use `IServiceProvider` as the default shape for reusable helpers.
 If a helper is reusable, use:
 
 - a boundary record
-- `HostContext`
 - or a small nominal interface contract
 
 The host boundary is the edge, not the center. Keep it at the host boundary, adapt once, and then

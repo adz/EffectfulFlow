@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Nominal Capability Contracts">
   <meta itemprop="description" content="Small named interfaces for reusable helpers and public capability boundaries.">
-  <meta itemprop="wordCount" content="611">
+  <meta itemprop="wordCount" content="648">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Nominal Capability Contracts">
   <meta name="twitter:description" content="Small named interfaces for reusable helpers and public capability boundaries.">
@@ -150,8 +150,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialsapp-record-li">
     <a href="http://localhost:3000/docs/tutorials/app-record/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialsapp-record"><span class="">Tutorial: AppRecord</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialshost-context-li">
-    <a href="http://localhost:3000/docs/tutorials/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialshost-context"><span class="">Tutorial: HostContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialscapabilities-li">
     <a href="http://localhost:3000/docs/tutorials/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialscapabilities"><span class="">Tutorial: Capabilities</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialsapp-host-li">
@@ -187,9 +185,7 @@
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependencieshost-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependencieshost-context"><span class="">HostContext</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciesprovider-edge-li">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciesprovider-edge-li">
     <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docsmanaging-dependenciescapability-contracts-li">
     <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="td-sidebar-nav-active-item">Nominal Capability Contracts</span></a>
@@ -289,56 +285,55 @@
 	<header class="article-meta">
 		
 </header>
-	<p>In FsFlow, a capability is a named interface that describes what a flow needs from <code>env</code>.
+	<p>In FsFlow, a capability is a named interface that describes an application dependency in <code>env</code>.
 A capability contract puts that interface in the environment surface type.</p>
 <p>Using an interface through a capability contract makes the dependency visible in the type, so the
 compiler can check it, refactoring can move safely, and reusable helpers can advertise what they
 need.</p>
-<p>This page is for readers who want the dependency surface to be part of the type:</p>
+<p>This page is for readers who want the app dependency surface to be part of the type:</p>
 <ul>
 <li>the record is getting too wide</li>
 <li>the dependency list is becoming boilerplate</li>
 <li>you want the compiler to notice when a refactor changes what an effect needs</li>
 <li>you want the effect signature to read like a dependency statement, not a plumbing report</li>
 </ul>
-<p>The contract should be small, named, and stable. When it grows, split the bundle into host and app
-slices or move the boundary back to a concrete record.</p>
+<p>The contract should be small, named, and stable. When it grows, split the bundle into smaller app
+contracts or move the boundary back to a concrete record.</p>
 <h2 id="the-contract">The Contract</h2>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IClock</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">UtcNow</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">unit</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">DateTimeOffset</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IOrderRepository</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Save</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Order</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#204a87;font-weight:bold">unit</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">ILog</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Info</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">string</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#204a87;font-weight:bold">unit</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IEmailSender</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">SendConfirmation</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Order</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#204a87;font-weight:bold">unit</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IDb</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Query</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">string</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#204a87;font-weight:bold">string</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IRuntimeCaps</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Clock</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IClock</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Log</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">ILog</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IAppCaps</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Db</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IDb</span>
-</span></span></code></pre></div><p>The contract is the interface surface, not the lookup mechanism.</p>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IOrderCaps</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Orders</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IOrderRepository</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">abstract</span> <span style="color:#000">Email</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IEmailSender</span>
+</span></span></code></pre></div><p>The contract is the application dependency surface, not the lookup mechanism.</p>
+<p>Runtime-owned services such as clock and logging are implicit in the flow runtime. They are not
+part of <code>env</code>, and they can be overridden with <code>Flow.withClock</code> / <code>Flow.withLog</code> when you need a
+deterministic test or a scoped local change.</p>
 <h2 id="reading-through-the-contract">Reading Through The Contract</h2>
 <p>Use the contract directly from workflows and helper functions.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">getTimestamp</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;#</span><span style="color:#000">IRuntimeCaps</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">unit</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">DateTimeOffset</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">saveAndEmail</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;#</span><span style="color:#000">IOrderCaps</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">unit</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">clock</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Clock</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">clock</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">UtcNow</span><span style="color:#3465a4">()</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Orders</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">email</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Email</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">orders</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Save</span> <span style="color:#000">order</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">email</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">SendConfirmation</span> <span style="color:#000">order</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p>In practice, the contract often comes from an adapter-generated host type or a concrete record
-that implements the interface.</p>
+</span></span></code></pre></div><p>In practice, the contract often comes from a concrete record or adapter type that implements the
+interface.</p>
 <h2 id="why-use-a-contract">Why Use A Contract</h2>
 <p>Capability contracts give you:</p>
 <ul>
-<li>compiler checks on the dependency surface</li>
+<li>compiler checks on the app dependency surface</li>
 <li>refactor safety when a helper changes what it needs</li>
 <li>workflow signatures that read as “this effect needs logging, clock, and db”</li>
 <li>reusable helpers that advertise what they depend on</li>
 <li>programming to interfaces, but for effects</li>
 </ul>
-<p>That makes effects visible in the flow without forcing every boundary to become a big record.
+<p>That makes app effects visible in the flow without forcing every boundary to become a big record.
 If the boundary is already obvious, a record already gives you direct access. A contract adds a
 type-level name that the compiler checks and that helpers can reuse across flows.</p>
 <h2 id="what-a-record-gives-you">What A Record Gives You</h2>
@@ -358,9 +353,10 @@ type-level name that the compiler checks and that helpers can reuse across flows
 <li>a readable type instead of a long parameter bag</li>
 </ul>
 <h2 id="binding-tokens">Binding Tokens</h2>
-<p><code>Requires&lt;'dep&gt;</code>, <code>Resolve&lt;'dep&gt;</code>, and <code>Resolve&lt;'dep, 'value&gt;</code> are the binding tokens FsFlow uses
-to name a dependency at the projection boundary.</p>
-<p>These tokens project a single service from <code>env</code> and keep the lookup shape explicit in the type.</p>
+<p><code>Requires&lt;'dep&gt;</code>, <code>Resolve&lt;'dep&gt;</code>, and <code>Resolve&lt;'dep, 'value&gt;</code> are compatibility binding tokens
+for single-dependency projections.</p>
+<p>Use <code>Flow.read</code> and small app contracts first. Reach for these tokens only when a single dependency
+request is clearer than naming a broader app contract.</p>
 <h2 id="what-a-named-contract-gives-you">What A Named Contract Gives You</h2>
 <p>A named contract gives you:</p>
 <ul>
@@ -372,18 +368,19 @@ to name a dependency at the projection boundary.</p>
 <h2 id="when-it-is-not-worth-it">When It Is Not Worth It</h2>
 <p>Do not add a named contract just to make the code look more abstract.</p>
 <p>A record keeps a concrete boundary direct.
-<code>HostContext</code> separates your app services from the host.
+Runtime overrides separate operational services from the app environment, and you can override
+them in tests without changing the app contract.
 Standard <code>.NET</code> AppHost plus DI adapts the container once at the host edge.</p>
 <h2 id="what-this-replaces">What This Replaces</h2>
 <p>The current shape is simple:</p>
 <ul>
 <li>a concrete record boundary</li>
 <li>a small nominal interface</li>
-<li><code>HostContext&lt;'host, 'appEnv&gt;</code> for separating your app services from the host</li>
-<li><code>Flow.read</code> or <code>Flow.readHost</code> / <code>Flow.readAppEnv</code> to project values from the contract</li>
+<li><code>Flow.read</code> for app dependencies</li>
+<li><code>Flow.withClock</code> / <code>Flow.withLog</code> / <code>Flow.withRandom</code> / <code>Flow.withGuid</code> for runtime-owned services</li>
 </ul>
-<p>See the <a href="http://localhost:3000/reference/capability/">Capability reference</a> for the binding tokens, the
-host/app readers, and the layer surface.</p>
+<p>See the <a href="http://localhost:3000/reference/capability/">Capability reference</a> for the compatibility binding tokens,
+edge helpers, and layer helper.</p>
 
 	<nav class="docs-page-nav docs-page-nav--prev-only"><a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="http://localhost:3000/docs/managing-dependencies/provider-edge/" aria-label="Previous - Standard .NET AppHost Plus DI">
     <span class="docs-page-nav__arrow" aria-hidden="true">←</span>

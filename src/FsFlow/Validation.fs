@@ -30,7 +30,7 @@ module Validation =
     let ok (value: 'value) : Validation<'value, 'error> =
         Validation (Ok value)
 
-    /// <summary>Alias for <see cref="ok" />.</summary>
+    /// <summary>Alias for <c>ok</c>.</summary>
     /// <param name="value">The success value of type <c>'value</c>.</param>
     /// <returns>A successful <see cref="T:FsFlow.Validation`2" />.</returns>
     let succeed (value: 'value) : Validation<'value, 'error> =
@@ -42,7 +42,7 @@ module Validation =
     let error (diagnostics: Diagnostics<'error>) : Validation<'value, 'error> =
         Validation (Error diagnostics)
 
-    /// <summary>Alias for <see cref="error" />.</summary>
+    /// <summary>Alias for <c>error</c>.</summary>
     /// <param name="diagnostics">The <see cref="T:FsFlow.Diagnostics`1" /> graph.</param>
     /// <returns>A failing <see cref="T:FsFlow.Validation`2" />.</returns>
     let fail (diagnostics: Diagnostics<'error>) : Validation<'value, 'error> =

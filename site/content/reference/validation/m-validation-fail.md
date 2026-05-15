@@ -8,7 +8,7 @@ type: docs
 <code><span>Validation.fail&#32;<span>diagnostics</span></span></code>
 </div>
 
-Alias for <a href="https://learn.microsoft.com/dotnet/api/error">error</a>.
+Alias for <code>error</code>.
 
 ## Parameters
 

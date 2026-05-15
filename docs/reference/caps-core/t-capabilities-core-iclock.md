@@ -1,5 +1,5 @@
 ---
-title: "Capabilities.Core.IClock"
+title: "IClock"
 linkTitle: "IClock"
 ---
 

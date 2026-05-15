@@ -8,7 +8,7 @@ type: docs
 <code><span>Validation.succeed&#32;<span>value</span></span></code>
 </div>
 
-Alias for <a href="https://learn.microsoft.com/dotnet/api/ok">ok</a>.
+Alias for <code>ok</code>.
 
 ## Parameters
 

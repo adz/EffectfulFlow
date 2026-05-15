@@ -23,22 +23,35 @@ type RecordingLoggerFactory(logger: RecordingLogger) =
         member _.CreateLogger(_) = logger
         member _.Dispose() = ()
 
-type private MockEnv =
-    { EnvVars: IEnvironmentVariables }
-
 module HostingTests =
     [<Fact>]
-    let ``FsFlowLogger: forwards entries correctly`` () =
+    let ``Hosting.run forwards runtime services from IServiceProvider`` () =
         let innerLogger = RecordingLogger()
-        let fsLogger = FsFlowLogger(innerLogger)
-        
-        fsLogger.Log { Level = FsFlow.LogLevel.Information; Message = "Hello"; TimestampUtc = DateTimeOffset.UtcNow }
-        
+        let loggerFactory = new RecordingLoggerFactory(innerLogger) :> ILoggerFactory
+        let sp =
+            { new IServiceProvider with
+                member _.GetService(requestedType) =
+                    if requestedType = typeof<ILoggerFactory> then loggerFactory :> obj else null }
+
+        let flow : Flow<unit, string, string> =
+            flow {
+                let! now = Clock.now
+                do! Log.info "Hello"
+                return now.ToString("HH:mm")
+            }
+
+        let result =
+            Hosting.run sp () flow
+            |> fun effect -> effect.AsTask().GetAwaiter().GetResult()
+
+        match result with
+        | Exit.Success _ -> ()
+        | _ -> failwithf "Expected success, got %A" result
         test <@ innerLogger.Entries |> List.exists (fun (l, m) -> l = Microsoft.Extensions.Logging.LogLevel.Information && m.Contains("Hello")) @>
 
     [<Fact>]
     let ``Startup: validateEnvironment detects missing variables`` () =
-        let flow : Flow<IEnvironmentVariables, EnvironmentVariableError, string> =
+        let flow : Flow<unit, EnvironmentVariableError, string> =
             EnvironmentVariable.get "FSFLOW_HOSTING_MISSING"
         let result = Startup.validateEnvironment flow
         

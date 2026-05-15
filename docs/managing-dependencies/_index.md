@@ -18,9 +18,11 @@ and easy to understand at the boundary of an application.
 
 FsFlow also supports these shapes:
 
-- `HostContext<'host, 'appEnv>` gives your app services a separate lane from the host
-- a nominal capability puts a name on the dependency surface so the compiler can check it and
+- a nominal capability puts a name on the app dependency surface so the compiler can check it and
   helper signatures can advertise it
+- runtime-owned services like clock, logging, random, and guid are implicit in the runtime, stay
+  outside the visible environment, and can be overridden with `Flow.withClock`, `Flow.withLog`,
+  `Flow.withRandom`, and `Flow.withGuid`
 - standard `.NET` AppHost plus DI adapts the host container into a boundary record or nominal
   contract once, then workflow code stays on typed values
 
@@ -33,7 +35,7 @@ the others.
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | Environment + record | One record gives you an explicit boundary, direct field access, and easy construction | **[AppRecord](../../tutorials/app-record/)** | `Flow.env`, `Flow.read`, `Flow.localEnv` |
 | 2 | [Nominal capability contracts](./capability-contracts/) | An interface through a capability contract puts the dependency surface in the type, so the compiler checks it and helpers advertise it | **[Capabilities](../../tutorials/capabilities/)** | interfaces, `Flow.read` |
-| 3 | [HostContext<'host, 'appEnv>](./host-context/) | Two readers separate the host from app services, so each side stays named and explicit | **[HostContext](../../tutorials/host-context/)** | `HostContext.create`, `Flow.readHost`, `Flow.readAppEnv` |
+| 3 | Runtime overrides | Operational services stay runtime-owned and are supplied at execution time | **[AppHost](../../tutorials/app-host/)** | `Flow.withClock`, `Flow.withLog`, `Flow.withRandom`, `Flow.withGuid` |
 | 4 | [Standard .NET AppHost Plus DI](./provider-edge/) | Host registrations become a boundary record or nominal contract once, and workflow code stays on typed values | **[AppHost](../../tutorials/app-host/)** | `Resolver.fromProvider`, `MissingCapability` |
 
 ## Start With A Record
@@ -94,15 +96,16 @@ That makes caps attractive even when a record would still work.
 
 ## More Direct Dependency Management
 
-Under the hood, the runtime foundation does the heavy lifting:
+Two mechanisms stay deliberately separate:
 
-- `Registry` stores tagged services and overrides.
-- `Scope` registers finalizers and disposes them deterministically.
-- `Layer` builds and composes runtime state.
-- the adapter layer projects runtime state into nominal contracts.
+- `env` carries the application dependency shape that workflow code reads with `Flow.env` and
+  `Flow.read`.
+- runtime overrides carry operational services such as clock, logging, random, GUID generation,
+  and environment-variable lookup.
 
-That split keeps workflow code readable while still giving the host enough structure to manage
-lifetimes and service selection.
+The internal registry, scope, adapter, and runtime layer machinery support hosting and generated
+reference behavior. They are not the public dependency model for ordinary workflows. User code
+should normally choose between a record, a nominal capability contract, and a host-edge adapter.
 
 ## Choosing A Shape
 
@@ -115,7 +118,8 @@ type ApiDeps =
       Clock : IClock }
 ```
 
-`HostContext` gives your app services a separate lane from the host.
+Runtime overrides keep clock, logging, and similar services out of the visible environment. They
+are implicit in normal flows, and test code can override them locally.
 
 Standard `.NET` AppHost plus DI adapts the container into a boundary record or nominal contract
 once, then workflow code stays on typed values.
@@ -204,7 +208,33 @@ small and focused.
 This style maps well to nominal capability contracts because the type itself carries the dependency
 surface. It maps to a concrete record when the dependency list is local and obvious.
 
-### 3. Standard `.NET` AppHost Plus DI
+### 3. Runtime-Owned Services
+
+This style keeps operational services out of the visible environment and supplies them at the
+execution boundary.
+
+```fsharp
+let handle command =
+    flow {
+        let! env = Flow.env
+        do! Log.info $"handling {command.Id}"
+        let! now = Clock.now
+        return! runWorkflow env command now
+    }
+    |> Flow.withClock Clock.live
+    |> Flow.withLog Log.live
+```
+
+This style gives you:
+
+- runtime-owned clock, logging, random, and guid services
+- a clean app environment that stays focused on business dependencies
+- local overrides for tests and scoped changes
+
+The benefit is separation: the app sees only its own dependencies, while the runtime owns the
+operational services and tests can swap them without changing the app environment.
+
+### 4. Standard `.NET` AppHost Plus DI
 
 This style keeps the host conventional and turns registrations into a boundary record or nominal
 contract once.
@@ -217,12 +247,11 @@ type AppEnv =
     { Gateway : IShippingGateway }
 
 type ShipOrderWorkflow() =
-    member _.Run(input : ShipOrderInput) : Flow<HostContext<RuntimeServices, AppEnv>, AppError, ShipmentId> =
-    flow {
-            let! logger = Flow.readHost _.Logger
+    member _.Run(input : ShipOrderInput) : Flow<AppEnv, AppError, ShipmentId> =
+        flow {
             let! gateway = Flow.read _.Gateway
 
-            logger.LogInformation("shipping order {OrderId}", input.OrderId)
+            do! Log.info $"shipping order {input.OrderId}"
             let! shipmentId = gateway.CreateShipment(input.OrderId)
             return shipmentId
         }
@@ -235,11 +264,7 @@ This style gives you:
 - incremental adoption
 
 The benefit is that the host remains familiar while workflow code can still use explicit contracts
-and `HostContext` where they fit.
-
-If the task boundary needs your app services separate from the host runtime, use
-`HostContext<'host, 'appEnv>` and the `Flow.readHost` / `Flow.read` split instead of forcing
-everything into one record.
+and runtime overrides where they fit.
 
 This style maps directly onto standard `.NET` AppHost Plus DI because the host container can be
 adapted into typed values once. It maps into nominal capability contracts when the workflow code
@@ -249,10 +274,10 @@ should speak in named capabilities rather than container lookups.
 
 The dependency story is:
 
-- host registrations become runtime state at the edge
-- runtime state is adapted into public contracts
-- public workflows consume contracts, not lookup machinery
-- `HostContext` is the carrier for the host split
-- `Resolver` is the host-edge binding surface, not the main application shape
+- host registrations are adapted into a boundary record or nominal contract at the edge
+- public workflows consume `env` or app capability contracts, not lookup machinery
+- runtime overrides carry operational services that should not widen `env`
+- `Resolver.fromProvider` is an edge binding helper, not the main application shape
+- `Layer.provideLayer` derives one `env` from another; it is not a service container
 
 That is the shape the rest of the dependency docs follow.

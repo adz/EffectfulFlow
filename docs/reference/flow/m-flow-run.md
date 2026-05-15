@@ -20,12 +20,12 @@ Uncaught exceptions become <code>Cause.Die</code>; cancellation becomes <code>Ca
 
 ## Examples
 
-<pre class="fssnip highlighted"><code lang="fsharp"> <span class="k">let</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">flow</span> <span class="o">=</span> <span class="id">Flow</span><span class="pn">.</span><span class="id">read</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">env</span> <span class="k">-&gt;</span> <span class="s">$&quot;Hello, {</span><span class="id">env</span><span class="s">}!&quot;</span><span class="pn">)</span>
- <span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">result</span> <span class="o">=</span> <span class="id">Flow</span><span class="pn">.</span><span class="id">run</span> <span class="s">&quot;World&quot;</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="id">flow</span>
+<pre class="fssnip highlighted"><code lang="fsharp"> <span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">flow</span> <span class="o">=</span> <span class="id">Flow</span><span class="pn">.</span><span class="id">read</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">env</span> <span class="k">-&gt;</span> <span class="s">$&quot;Hello, {</span><span class="id">env</span><span class="s">}!&quot;</span><span class="pn">)</span>
+ <span class="k">let</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">result</span> <span class="o">=</span> <span class="id">Flow</span><span class="pn">.</span><span class="id">run</span> <span class="s">&quot;World&quot;</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="3" class="id">flow</span>
  <span class="c">// result = Effect that resolves to Success &quot;Hello, World!&quot; on both .NET and Fable</span>
 </code></pre>
-<div class="fsdocs-tip" id="fs1">val flow: obj</div>
-<div class="fsdocs-tip" id="fs2">val result: obj</div>
+<div popover class="fsdocs-tip" id="fs1">val flow: obj</div>
+<div popover class="fsdocs-tip" id="fs2">val result: obj</div>
 
 
 

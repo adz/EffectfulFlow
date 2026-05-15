@@ -230,22 +230,11 @@ let pageSpecs = [
         OutPath = ["capability"; "_index.md"]
         Title = "Capability"
         Description = "Source-documented dependency resolution and layers for FsFlow."
-        Intro = "In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with `Requires` and `Resolve` as the binding surface."
+        Intro = "In FsFlow, a capability is a named interface that describes what a flow needs from `env`. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. For ordinary workflow code, prefer small app contracts plus `Flow.read`. Runtime-owned services such as clock, logging, random, GUID generation, and environment variables are read through `FsFlow.Capabilities.Core` helpers and overridden with `Flow.withClock`, `Flow.withLog`, `Flow.withRandom`, `Flow.withGuid`, and `Flow.withEnvironmentVariables`. This page shows the source-documented compatibility binding tokens, host-edge helpers, and layer helper."
         SymbolIds = [
             "Binding tokens", ["T:FsFlow.Requires`1"; "T:FsFlow.Resolve`1"; "T:FsFlow.Resolve`2"]
-            "Edge helpers", ["T:FsFlow.MissingCapability"; "M:FsFlow.Resolver.resolve"; "M:FsFlow.Resolver.host"; "M:FsFlow.Resolver.appEnv"; "M:FsFlow.Resolver.fromProvider"]
+            "Edge helpers", ["T:FsFlow.MissingCapability"; "M:FsFlow.Resolver.resolve"; "M:FsFlow.Resolver.fromProvider"]
             "Layers", ["M:FsFlow.Layer.provideLayer"]
-        ]
-        Alias = None
-    }
-    {
-        OutPath = ["host"; "_index.md"]
-        Title = "HostContext"
-        Description = "Source-documented host/application split for FsFlow."
-        Intro = "The `HostContext` type and module split host services from application dependencies and carry the cancellation token for task-based execution. In the current foundation it is the execution carrier above the adapter layer, not the host storage engine."
-        SymbolIds = [
-            "Core type", ["T:FsFlow.HostContext`2"]
-            "Module functions", ["M:FsFlow.HostContext.create"; "M:FsFlow.HostContext.host"; "M:FsFlow.HostContext.appEnv"; "M:FsFlow.HostContext.cancellationToken"; "M:FsFlow.HostContext.mapHost"; "M:FsFlow.HostContext.mapAppEnv"; "M:FsFlow.HostContext.withHost"; "M:FsFlow.HostContext.withAppEnv"]
         ]
         Alias = None
     }

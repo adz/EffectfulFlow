@@ -1,5 +1,5 @@
 ---
-title: "Capabilities.Core.IEnvironmentVariables"
+title: "IEnvironmentVariables"
 linkTitle: "IEnvironmentVariables"
 ---
 

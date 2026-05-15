@@ -42,17 +42,17 @@ linkTitle: "validate { }"
  let validatedUser =
      validate {
          let! name = Check.notBlank input.Name
-         let! age = Check.okIf (input.Age > 0) "Age must be positive"
+         let! age = Check.okIf (input.Age &gt; 0) &quot;Age must be positive&quot;
          return { Name = name; Age = age }
      }
  ```
 
  ```fsharp
  let validatedCustomer =
-     validate.key "customer" {
+     validate.key &quot;customer&quot; {
          let! name =
-             validate.name "Name" {
-                 return! input.Name |> Check.notBlank |> Check.orError "Name required"
+             validate.name &quot;Name&quot; {
+                 return! input.Name |&gt; Check.notBlank |&gt; Check.orError &quot;Name required&quot;
              }
 
          return name

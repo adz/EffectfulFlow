@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Tutorial: AppHost">
   <meta itemprop="description" content="Integration with .NET Generic Host and Dependency Injection.">
-  <meta itemprop="wordCount" content="446">
+  <meta itemprop="wordCount" content="346">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Tutorial: AppHost">
   <meta name="twitter:description" content="Integration with .NET Generic Host and Dependency Injection.">
@@ -150,8 +150,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docstutorialsapp-record-li">
     <a href="http://localhost:3000/docs/tutorials/app-record/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialsapp-record"><span class="">Tutorial: AppRecord</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docstutorialshost-context-li">
-    <a href="http://localhost:3000/docs/tutorials/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialshost-context"><span class="">Tutorial: HostContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docstutorialscapabilities-li">
     <a href="http://localhost:3000/docs/tutorials/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialscapabilities"><span class="">Tutorial: Capabilities</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docstutorialsapp-host-li">
@@ -187,9 +185,7 @@
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependencieshost-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependencieshost-context"><span class="">HostContext</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
     <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapability-contracts-li">
     <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Nominal Capability Contracts</span></a>
@@ -256,10 +252,10 @@
     <nav id="TableOfContents">
   <ul>
     <li><a href="#1-register-services-in-the-container">1. Register Services in the Container</a></li>
-    <li><a href="#2-bridge-the-provider-to-a-workflow">2. Bridge the Provider to a Workflow</a></li>
-    <li><a href="#3-use-hosting-helpers">3. Use Hosting Helpers</a></li>
-    <li><a href="#4-the-preferred-pattern-adapting-at-the-boundary">4. The Preferred Pattern: Adapting at the Boundary</a></li>
-    <li><a href="#why-use-apphost-integration">Why use AppHost integration?</a></li>
+    <li><a href="#2-adapt-the-provider-once">2. Adapt The Provider Once</a></li>
+    <li><a href="#3-write-the-workflow">3. Write The Workflow</a></li>
+    <li><a href="#4-run-the-workflow">4. Run The Workflow</a></li>
+    <li><a href="#why-use-apphost-integration">Why Use AppHost Integration?</a></li>
     <li><a href="#summary">Summary</a></li>
   </ul>
 </nav>
@@ -286,10 +282,15 @@
 	<header class="article-meta">
 		
 </header>
-	<p>In enterprise .NET applications, you typically use a dependency injection (DI) container managed by <code>IHostBuilder</code> or <code>IWebHostBuilder</code>. FsFlow provides a bridge to adapt these containers into typed workflows.</p>
-<p>In this tutorial, we will integrate FsFlow into a standard .NET worker service or web app.</p>
+	<p>In enterprise .NET applications, you typically use a dependency injection (DI) container managed by <code>IHostBuilder</code> or <code>IWebHostBuilder</code>. FsFlow keeps that at the boundary: adapt the container into a plain record once, then use <code>Flow</code> with runtime overrides for clocking and logging. Those runtime services are implicit in normal flows and only become visible when you override them for tests or a local scope.</p>
+<p>This tutorial shows a practical boundary:</p>
+<ul>
+<li><code>IServiceProvider</code> is only used in the host layer</li>
+<li>your app dependencies stay in a typed record</li>
+<li>runtime services like clock and log are implicit in normal flows, and <code>Flow.withClock</code> / <code>Flow.withLog</code> let you override them when you need test control</li>
+</ul>
 <h2 id="1-register-services-in-the-container">1. Register Services in the Container</h2>
-<p>In your <code>Program.fs</code> or <code>Startup.fs</code>, register your services as you normally would.</p>
+<p>Register your application services as you normally would.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">Microsoft.Extensions.DependencyInjection</span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">Microsoft.Extensions.Hosting</span>
 </span></span><span style="display:flex;"><span>
@@ -300,78 +301,50 @@
 </span></span><span style="display:flex;"><span>            <span style="color:#000">services</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">AddSingleton</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IEmailSender</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">ConsoleEmail</span><span style="color:#ce5c00;font-weight:bold">&gt;</span><span style="color:#3465a4">()</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Build</span><span style="color:#3465a4">()</span>
-</span></span></code></pre></div><h2 id="2-bridge-the-provider-to-a-workflow">2. Bridge the Provider to a Workflow</h2>
-<p>You can use <code>Resolver.fromProvider</code> to read a service directly from <code>IServiceProvider</code>.</p>
+</span></span></code></pre></div><h2 id="2-adapt-the-provider-once">2. Adapt The Provider Once</h2>
+<p>Turn the provider into a typed boundary record at the edge.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">AppEnv</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IOrderRepository</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#000">Email</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IEmailSender</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">createAppEnv</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">sp</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IServiceProvider</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">sp</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetRequiredService</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IOrderRepository</span><span style="color:#ce5c00;font-weight:bold">&gt;</span><span style="color:#3465a4">()</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#000">Email</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">sp</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetRequiredService</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IEmailSender</span><span style="color:#ce5c00;font-weight:bold">&gt;</span><span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span></code></pre></div><h2 id="3-write-the-workflow">3. Write The Workflow</h2>
+<p>Use the record directly and keep runtime concerns separate.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow.Capabilities.Core</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">placeOrder</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IServiceProvider</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">MissingCapability</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">Guid</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">placeOrder</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// Read services directly from the DI container
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Resolver</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">fromProvider</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IOrderRepository</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">email</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Resolver</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">fromProvider</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IEmailSender</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">orders</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Save</span> <span style="color:#000">order</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">email</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">SendConfirmation</span> <span style="color:#000">order</span>
-</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">env</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">info</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">sprintf</span> <span style="color:#4e9a06">&#34;Placing order %A&#34;</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span><span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">env</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Orders</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Save</span> <span style="color:#000">order</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">env</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Email</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">SendConfirmation</span> <span style="color:#000">order</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><h2 id="3-use-hosting-helpers">3. Use Hosting Helpers</h2>
-<p>The <code>FsFlow.Hosting</code> package provides a <code>Hosting.run</code> helper that automatically creates a <code>DefaultHost</code> (containing logging and clock) from the service provider and combines it with your custom app environment.</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow</span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow.Hosting</span>
+</span></span></code></pre></div><h2 id="4-run-the-workflow">4. Run The Workflow</h2>
+<p>Inject clock and logging at the boundary when you want deterministic behavior, then run the workflow against the app record.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">run</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">appEnv</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">createAppEnv</span> <span style="color:#000">host</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Services</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">AppEnv</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">TraceId</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#204a87;font-weight:bold">string</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">placeOrderWithLog</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// We now have access to the host slice and the app environment as one context
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">Logger</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">logWith</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">fun</span> <span style="color:#000">ctx</span> <span style="color:#ce5c00;font-weight:bold">-&gt;</span> <span style="color:#000">sprintf</span> <span style="color:#4e9a06">&#34;[%s] Placing order %A&#34;</span> <span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">AppEnv</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">TraceId</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Resolver</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">fromProvider</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IOrderRepository</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">orders</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Save</span> <span style="color:#000">order</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">sp</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">host</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Services</span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">TraceId</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;abc-123&#34;</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">// Hosting.run bridges the provider into the flow
-</span></span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">run</span> <span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">result</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Hosting</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">run</span> <span style="color:#000">sp</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">placeOrderWithLog</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#000">printfn</span> <span style="color:#4e9a06">&#34;Result: %A&#34;</span> <span style="color:#000">result</span>
-</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#000">run</span><span style="color:#3465a4">()</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetAwaiter</span><span style="color:#3465a4">()</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetResult</span><span style="color:#3465a4">()</span>
-</span></span></code></pre></div><h2 id="4-the-preferred-pattern-adapting-at-the-boundary">4. The Preferred Pattern: Adapting at the Boundary</h2>
-<p>While <code>Resolver.fromProvider</code> is useful for gradual migration, the preferred pattern is to adapt the DI container into a typed record or capability contract <em>once</em> at the edge (e.g., in a Controller or BackgroundService).</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">OrderHandler</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">sp</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IServiceProvider</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">member</span> <span style="color:#000">_</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Handle</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// Adapt DI once into a concrete AppEnv record
-</span></span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span> 
-</span></span><span style="display:flex;"><span>            <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">sp</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetRequiredService</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IOrderRepository</span><span style="color:#ce5c00;font-weight:bold">&gt;</span><span style="color:#3465a4">()</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#000">Email</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">sp</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetRequiredService</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">IEmailSender</span><span style="color:#ce5c00;font-weight:bold">&gt;</span><span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        <span style="color:#8f5902;font-style:italic">// Now use the simpler AppRecord or Capabilities pattern
-</span></span></span><span style="display:flex;"><span>        <span style="color:#000">task</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">exit</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">run</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">placeOrder</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">exit</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><h2 id="why-use-apphost-integration">Why use AppHost integration?</h2>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">placeOrder</span> <span style="color:#000">order</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">withClock</span> <span style="color:#000">Clock</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">live</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">withLog</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">live</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">run</span> <span style="color:#000">appEnv</span>
+</span></span></code></pre></div><h2 id="why-use-apphost-integration">Why Use AppHost Integration?</h2>
 <ul>
-<li><strong>Interoperability</strong>: Works seamlessly with existing .NET libraries and middleware that rely on <code>IServiceProvider</code>.</li>
-<li><strong>Infrastructure Support</strong>: Automatically inherits logging, configuration, and lifetime management from the .NET host.</li>
-<li><strong>Gradual Migration</strong>: You can start using FsFlow in a single endpoint or background job within a large legacy application.</li>
+<li><strong>Interoperability</strong>: Works with existing ASP.NET Core and worker-service setups.</li>
+<li><strong>Boundary Clarity</strong>: The app record is typed; runtime services stay runtime-owned and test-overridable.</li>
+<li><strong>Gradual Migration</strong>: You can adapt a provider once and keep the rest of the workflow on simple values.</li>
 </ul>
 <h2 id="summary">Summary</h2>
-<p>You&rsquo;ve now seen the full progression of dependency management in FsFlow:</p>
+<p>The default FsFlow pattern is now:</p>
 <ol>
-<li><strong><a href="http://localhost:3000/docs/tutorials/app-record/">AppRecord</a></strong>: Simple records for direct access.</li>
-<li><strong><a href="http://localhost:3000/docs/tutorials/host-context/">HostContext</a></strong>: Splitting host services from app logic.</li>
-<li><strong><a href="http://localhost:3000/docs/tutorials/capabilities/">Capabilities</a></strong>: Type-checked interface contracts.</li>
-<li><strong><a href="http://localhost:3000/docs/tutorials/app-host/">AppHost</a></strong>: Integration with standard .NET containers.</li>
+<li>use <code>AppRecord</code> or <code>Capabilities</code> for app dependencies</li>
+<li>use <code>Flow.withClock</code>, <code>Flow.withLog</code>, <code>Flow.withRandom</code>, and <code>Flow.withGuid</code> only when you need to override the implicit runtime services</li>
+<li>use <code>IServiceProvider</code> only at the host edge</li>
 </ol>
-<p>Choose the pattern that matches the complexity and scale of your application.</p>
 
 	<nav class="docs-page-nav docs-page-nav--prev-only"><a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="http://localhost:3000/docs/tutorials/capabilities/" aria-label="Previous - Tutorial: Capabilities">
     <span class="docs-page-nav__arrow" aria-hidden="true">←</span>

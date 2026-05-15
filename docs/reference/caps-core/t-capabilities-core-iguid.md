@@ -1,5 +1,5 @@
 ---
-title: "Capabilities.Core.IGuid"
+title: "IGuid"
 linkTitle: "IGuid"
 ---
 

@@ -12,7 +12,7 @@ Sequences a synchronous continuation after a successful value.
 ## Remarks
 
 
- This is the "flatmap" operation for <a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html">Flow</a>. It allows for dependent
+ This is the &quot;flatmap&quot; operation for <a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html">Flow</a>. It allows for dependent
  steps where the second flow depends on the value produced by the first.
  
 

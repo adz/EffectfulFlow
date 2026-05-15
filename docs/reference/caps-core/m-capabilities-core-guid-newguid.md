@@ -7,5 +7,5 @@ linkTitle: "newGuid"
 <code><span>Guid.newGuid&#32;<span></span></span></code>
 </div>
 
-Reads a GUID from the environment.
+Reads a GUID from the ambient runtime.
 

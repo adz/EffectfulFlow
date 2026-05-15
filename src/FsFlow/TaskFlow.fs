@@ -31,16 +31,6 @@ module internal TaskFlow =
                 return Exit.Failure (EffectFlow.causeOfException error)
         }
 
-    /// <summary>Runs a task flow against a <see cref="T:FsFlow.HostContext`2" /> and its internal cancellation token.</summary>
-    /// <param name="context">The <see cref="T:FsFlow.HostContext`2" /> providing services and cancellation.</param>
-    /// <param name="flow">The task flow to run.</param>
-    /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> with the final exit value.</returns>
-    let runContext
-        (context: HostContext<'host, 'appEnv>)
-        (flow: TaskFlow<HostContext<'host, 'appEnv>, 'error, 'value>)
-        : Task<Exit<'value, 'error>> =
-        run context context.CancellationToken flow
-
     /// <summary>Converts a task flow into a hot <see cref="T:System.Threading.Tasks.Task`1" />.</summary>
     /// <remarks>
     /// This is an alias for <see cref="run" /> that emphasizes the conversion to a standard .NET Task.
@@ -62,11 +52,11 @@ module internal TaskFlow =
     let ok (value: 'value) : TaskFlow<'env, 'error, 'value> =
         TaskFlow(fun _ _ -> Task.FromResult(Exit.Success value))
 
-    /// <summary>Alias for <see cref="ok" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>ok</c> that reads well in some call sites.</summary>
     let succeed (value: 'value) : TaskFlow<'env, 'error, 'value> =
         ok value
 
-    /// <summary>Alias for <see cref="ok" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>ok</c> that reads well in some call sites.</summary>
     let value (item: 'value) : TaskFlow<'env, 'error, 'value> =
         succeed item
 
@@ -76,7 +66,7 @@ module internal TaskFlow =
     let error (failure: 'error) : TaskFlow<'env, 'error, 'value> =
         TaskFlow(fun _ _ -> Task.FromResult(Exit.Failure (Cause.Fail failure)))
 
-    /// <summary>Alias for <see cref="error" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>error</c> that reads well in some call sites.</summary>
     let fail (failure: 'error) : TaskFlow<'env, 'error, 'value> =
         error failure
 

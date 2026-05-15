@@ -14,7 +14,7 @@ type IConsole =
 [<RequireQualifiedAccess>]
 module Console =
     /// <summary>Reads a line from the console environment.</summary>
-    let readLine<'env when 'env :> IConsole> : Flow<'env, 'e, string> =
+    let readLine<'env, 'e when 'env :> IConsole> : Flow<'env, 'e, string> =
         Flow.read (fun (env: 'env) -> env.ReadLine())
 
     /// <summary>Writes a line to the console environment.</summary>

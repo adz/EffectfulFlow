@@ -58,16 +58,21 @@ Use `orElse` and `orElseWith` for alternate computations in the same flow family
 
 ### 5. Capability Boundaries
 
-Use capability boundaries when the edge should name what it requires instead of exposing the whole runtime.
+Use capability boundaries when workflow code should name app dependencies instead of exposing a
+large concrete record. Keep runtime-owned services out of app contracts unless they are true
+domain dependencies.
 
 | Boundary Shape | Idiomatic Pattern |
 | :--- | :--- |
-| Named contract | `type LoginCaps = abstract Clock : IClock` |
-| Whole dependency | `let! clock = Resolve<IClock>` |
-| Projected value | `let! now = Resolve<IClock> _.UtcNow` |
+| Named contract | `type LoginCaps = abstract Users : IUserStore` |
+| Projected value | `let! users = Flow.read _.Users` |
+| Runtime clock | `let! now = Clock.now` |
+| Runtime override | `workflow |> Flow.withClock fixedClock` |
 | Flexible public API | `let login : Flow<#LoginCaps, _, _> = ...` |
 
-Prefer this over raw `IServiceProvider` lookup or exact runtime types when callers may provide a larger app runtime.
+Prefer this over raw `IServiceProvider` lookup or exact app runtime types when callers may provide
+a larger app environment. Use `Resolve<'dep>` only as a compatibility token for single-dependency
+projection shapes.
 
 ### 6. Rosetta Stone
 Translate common patterns from other libraries into idiomatic FsFlow.

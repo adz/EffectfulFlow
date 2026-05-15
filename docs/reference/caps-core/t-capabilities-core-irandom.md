@@ -1,5 +1,5 @@
 ---
-title: "Capabilities.Core.IRandom"
+title: "IRandom"
 linkTitle: "IRandom"
 ---
 

@@ -16,5 +16,5 @@ Signals a fiber to stop and waits for it to finish its cleanup.
 
 ## Returns
 
-A flow that completes with the fiber's final outcome after interruption.
+A flow that completes with the fiber&#39;s final outcome after interruption.
 

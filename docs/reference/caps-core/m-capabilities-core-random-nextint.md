@@ -7,7 +7,7 @@ linkTitle: "nextInt"
 <code><span>Random.nextInt&#32;<span>minInclusive&#32;maxExclusive</span></span></code>
 </div>
 
-Reads a random integer from the environment.
+Reads a random integer from the ambient runtime.
 
 ## Parameters
 

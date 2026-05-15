@@ -6,13 +6,17 @@ description: Integration with .NET Generic Host and Dependency Injection.
 
 # Tutorial: AppHost
 
-In enterprise .NET applications, you typically use a dependency injection (DI) container managed by `IHostBuilder` or `IWebHostBuilder`. FsFlow provides a bridge to adapt these containers into typed workflows.
+In enterprise .NET applications, you typically use a dependency injection (DI) container managed by `IHostBuilder` or `IWebHostBuilder`. FsFlow keeps that at the boundary: adapt the container into a plain record once, then use `Flow` with runtime overrides for clocking and logging. Those runtime services are implicit in normal flows and only become visible when you override them for tests or a local scope.
 
-In this tutorial, we will integrate FsFlow into a standard .NET worker service or web app.
+This tutorial shows a practical boundary:
+
+- `IServiceProvider` is only used in the host layer
+- your app dependencies stay in a typed record
+- runtime services like clock and log are implicit in normal flows, and `Flow.withClock` / `Flow.withLog` let you override them when you need test control
 
 ## 1. Register Services in the Container
 
-In your `Program.fs` or `Startup.fs`, register your services as you normally would.
+Register your application services as you normally would.
 
 ```fsharp
 open Microsoft.Extensions.DependencyInjection
@@ -27,90 +31,62 @@ let host =
         .Build()
 ```
 
-## 2. Bridge the Provider to a Workflow
+## 2. Adapt The Provider Once
 
-You can use `Resolver.fromProvider` to read a service directly from `IServiceProvider`.
+Turn the provider into a typed boundary record at the edge.
+
+```fsharp
+type AppEnv =
+    { Orders: IOrderRepository
+      Email: IEmailSender }
+
+let createAppEnv (sp: IServiceProvider) =
+    { Orders = sp.GetRequiredService<IOrderRepository>()
+      Email = sp.GetRequiredService<IEmailSender>() }
+```
+
+## 3. Write The Workflow
+
+Use the record directly and keep runtime concerns separate.
 
 ```fsharp
 open FsFlow
+open FsFlow.Capabilities.Core
 
-let placeOrder order : Flow<IServiceProvider, MissingCapability, Guid> =
+let placeOrder order =
     flow {
-        // Read services directly from the DI container
-        let! orders = Resolver.fromProvider<IOrderRepository>
-        let! email = Resolver.fromProvider<IEmailSender>
-
-        do! orders.Save order
-        do! email.SendConfirmation order
-
+        let! env = Flow.env
+        do! Log.info (sprintf "Placing order %A" order.Id)
+        do! env.Orders.Save order
+        do! env.Email.SendConfirmation order
         return order.Id
     }
 ```
 
-## 3. Use Hosting Helpers
+## 4. Run The Workflow
 
-The `FsFlow.Hosting` package provides a `Hosting.run` helper that automatically creates a `DefaultHost` (containing logging and clock) from the service provider and combines it with your custom app environment.
-
-```fsharp
-open FsFlow
-open FsFlow.Hosting
-
-type AppEnv = { TraceId: string }
-
-let placeOrderWithLog order =
-    flow {
-        // We now have access to the host slice and the app environment as one context
-        do! Logger.logWith (fun ctx -> sprintf "[%s] Placing order %A" ctx.AppEnv.TraceId order.Id)
-
-        let! orders = Resolver.fromProvider<IOrderRepository>
-        do! orders.Save order
-
-        return order.Id
-    }
-
-let sp = host.Services
-let env = { TraceId = "abc-123" }
-
-// Hosting.run bridges the provider into the flow
-let run () = task {
-    let! result = Hosting.run sp env (placeOrderWithLog order)
-    printfn "Result: %A" result
-}
-
-run().GetAwaiter().GetResult()
-```
-
-## 4. The Preferred Pattern: Adapting at the Boundary
-
-While `Resolver.fromProvider` is useful for gradual migration, the preferred pattern is to adapt the DI container into a typed record or capability contract *once* at the edge (e.g., in a Controller or BackgroundService).
+Inject clock and logging at the boundary when you want deterministic behavior, then run the workflow against the app record.
 
 ```fsharp
-type OrderHandler(sp: IServiceProvider) =
-    member _.Handle(order) =
-        // Adapt DI once into a concrete AppEnv record
-        let env = 
-            { Orders = sp.GetRequiredService<IOrderRepository>()
-              Email = sp.GetRequiredService<IEmailSender>() }
-        
-        // Now use the simpler AppRecord or Capabilities pattern
-        task {
-            let! exit = Flow.run env (placeOrder order)
-            return exit
-        }
+let run order =
+    let appEnv = createAppEnv host.Services
+
+    placeOrder order
+    |> Flow.withClock Clock.live
+    |> Flow.withLog Log.live
+    |> Flow.run appEnv
 ```
 
-## Why use AppHost integration?
+## Why Use AppHost Integration?
 
-- **Interoperability**: Works seamlessly with existing .NET libraries and middleware that rely on `IServiceProvider`.
-- **Infrastructure Support**: Automatically inherits logging, configuration, and lifetime management from the .NET host.
-- **Gradual Migration**: You can start using FsFlow in a single endpoint or background job within a large legacy application.
+- **Interoperability**: Works with existing ASP.NET Core and worker-service setups.
+- **Boundary Clarity**: The app record is typed; runtime services stay runtime-owned and test-overridable.
+- **Gradual Migration**: You can adapt a provider once and keep the rest of the workflow on simple values.
 
 ## Summary
 
-You've now seen the full progression of dependency management in FsFlow:
-1. **[AppRecord](./app-record/)**: Simple records for direct access.
-2. **[HostContext](./host-context/)**: Splitting host services from app logic.
-3. **[Capabilities](./capabilities/)**: Type-checked interface contracts.
-4. **[AppHost](./app-host/)**: Integration with standard .NET containers.
+The default FsFlow pattern is now:
 
-Choose the pattern that matches the complexity and scale of your application.
+1. use `AppRecord` or `Capabilities` for app dependencies
+2. use `Flow.withClock`, `Flow.withLog`, `Flow.withRandom`, and `Flow.withGuid` only when you need to override the implicit runtime services
+3. use `IServiceProvider` only at the host edge

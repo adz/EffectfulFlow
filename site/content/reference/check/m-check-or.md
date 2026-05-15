@@ -13,7 +13,7 @@ Returns success when either check succeeds.
 ## Remarks
 
 
- This is a logical "or" operation. It short-circuits: if <span class="fsdocs-param-name">left</span> succeeds,
+ This is a logical &quot;or&quot; operation. It short-circuits: if <span class="fsdocs-param-name">left</span> succeeds,
  <span class="fsdocs-param-name">right</span> is not evaluated.
  
 

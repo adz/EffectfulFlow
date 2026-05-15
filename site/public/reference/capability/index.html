@@ -20,20 +20,20 @@
 <link rel="icon" type="image/png" href="http://localhost:3000/favicons/android-192x192.png" sizes="192x192">
 
 <title>Capability | FsFlow</title>
-<meta name="description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
+<meta name="description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. For ordinary workflow code, prefer small app contracts plus Flow.read. Runtime-owned services such as clock, logging, random, GUID generation, and environment variables are read through FsFlow.Capabilities.Core helpers and overridden with Flow.withClock, Flow.withLog, Flow.withRandom, Flow.withGuid, and Flow.withEnvironmentVariables. This page shows the source-documented compatibility binding tokens, host-edge helpers, and layer helper.">
 <meta property="og:url" content="http://localhost:3000/reference/capability/">
   <meta property="og:site_name" content="FsFlow">
   <meta property="og:title" content="Capability">
-  <meta property="og:description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
+  <meta property="og:description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. For ordinary workflow code, prefer small app contracts plus Flow.read. Runtime-owned services such as clock, logging, random, GUID generation, and environment variables are read through FsFlow.Capabilities.Core helpers and overridden with Flow.withClock, Flow.withLog, Flow.withRandom, Flow.withGuid, and Flow.withEnvironmentVariables. This page shows the source-documented compatibility binding tokens, host-edge helpers, and layer helper.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
 
   <meta itemprop="name" content="Capability">
-  <meta itemprop="description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
-  <meta itemprop="wordCount" content="168">
+  <meta itemprop="description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. For ordinary workflow code, prefer small app contracts plus Flow.read. Runtime-owned services such as clock, logging, random, GUID generation, and environment variables are read through FsFlow.Capabilities.Core helpers and overridden with Flow.withClock, Flow.withLog, Flow.withRandom, Flow.withGuid, and Flow.withEnvironmentVariables. This page shows the source-documented compatibility binding tokens, host-edge helpers, and layer helper.">
+  <meta itemprop="wordCount" content="184">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Capability">
-  <meta name="twitter:description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with Requires and Resolve as the binding surface.">
+  <meta name="twitter:description" content="In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. For ordinary workflow code, prefer small app contracts plus Flow.read. Runtime-owned services such as clock, logging, random, GUID generation, and environment variables are read through FsFlow.Capabilities.Core helpers and overridden with Flow.withClock, Flow.withLog, Flow.withRandom, Flow.withGuid, and Flow.withEnvironmentVariables. This page shows the source-documented compatibility binding tokens, host-edge helpers, and layer helper.">
 <link href="http://localhost:3000/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -404,12 +404,8 @@
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-referencecapability-li">
     <a href="http://localhost:3000/reference/capability/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__section" id="m-referencecapability"><span class="td-sidebar-nav-active-item">Capability</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-resolver-appenv-li">
-    <a href="http://localhost:3000/reference/capability/m-resolver-appenv/" title="Resolver.appEnv" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilitym-resolver-appenv"><span class="">appEnv</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-resolver-fromprovider-li">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-resolver-fromprovider-li">
     <a href="http://localhost:3000/reference/capability/m-resolver-fromprovider/" title="Resolver.fromProvider" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilitym-resolver-fromprovider"><span class="">fromProvider</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-resolver-host-li">
-    <a href="http://localhost:3000/reference/capability/m-resolver-host/" title="Resolver.host" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilitym-resolver-host"><span class="">host</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilityt-missingcapability-li">
     <a href="http://localhost:3000/reference/capability/t-missingcapability/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilityt-missingcapability"><span class="">MissingCapability</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilitym-layer-providelayer-li">
@@ -422,29 +418,6 @@
     <a href="http://localhost:3000/reference/capability/t-resolve-2/" title="Resolve" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilityt-resolve-2"><span class="">Resolve&lt;dep, value&gt;</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-referencecapabilityt-resolve-1-li">
     <a href="http://localhost:3000/reference/capability/t-resolve-1/" title="Resolve" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencecapabilityt-resolve-1"><span class="">Resolve&lt;dep&gt;</span></a>
-  </li>
-    </ul>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-referencehost-li">
-    <a href="http://localhost:3000/reference/host/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-referencehost"><span class="">HostContext</span></a>
-    <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-appenv-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-appenv/" title="HostContext.appEnv" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-appenv"><span class="">appEnv</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-cancellationtoken-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-cancellationtoken/" title="HostContext.cancellationToken" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-cancellationtoken"><span class="">cancellationToken</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-create-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-create/" title="HostContext.create" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-create"><span class="">create</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-host-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-host/" title="HostContext.host" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-host"><span class="">host</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostt-hostcontext-2-li">
-    <a href="http://localhost:3000/reference/host/t-hostcontext-2/" title="HostContext" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostt-hostcontext-2"><span class="">HostContext&lt;host, appEnv&gt;</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-mapappenv-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-mapappenv/" title="HostContext.mapAppEnv" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-mapappenv"><span class="">mapAppEnv</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-maphost-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-maphost/" title="HostContext.mapHost" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-maphost"><span class="">mapHost</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-withappenv-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-withappenv/" title="HostContext.withAppEnv" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-withappenv"><span class="">withAppEnv</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-referencehostm-hostcontext-withhost-li">
-    <a href="http://localhost:3000/reference/host/m-hostcontext-withhost/" title="HostContext.withHost" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-referencehostm-hostcontext-withhost"><span class="">withHost</span></a>
   </li>
     </ul>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-referenceref-li">
@@ -566,7 +539,7 @@
 	<header class="article-meta">
 		
 </header>
-	<p>In FsFlow, a capability is a named interface that describes what a flow needs from env. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. This page shows the source-documented capability and layer surface, with <code>Requires</code> and <code>Resolve</code> as the binding surface.</p>
+	<p>In FsFlow, a capability is a named interface that describes what a flow needs from <code>env</code>. A capability contract puts that interface in the environment surface type. Using an interface through a capability contract makes the dependency visible in the type, so the compiler can check it, refactoring can move safely, and reusable helpers can advertise what they need. For ordinary workflow code, prefer small app contracts plus <code>Flow.read</code>. Runtime-owned services such as clock, logging, random, GUID generation, and environment variables are read through <code>FsFlow.Capabilities.Core</code> helpers and overridden with <code>Flow.withClock</code>, <code>Flow.withLog</code>, <code>Flow.withRandom</code>, <code>Flow.withGuid</code>, and <code>Flow.withEnvironmentVariables</code>. This page shows the source-documented compatibility binding tokens, host-edge helpers, and layer helper.</p>
 <h2 id="binding-tokens">Binding tokens</h2>
 <ul>
 <li><a href="http://localhost:3000/reference/capability/t-requires-1/"><code>Requires</code></a>: Compatibility contract for a single dependency.</li>
@@ -577,8 +550,6 @@
 <ul>
 <li><a href="http://localhost:3000/reference/capability/t-missingcapability/"><code>MissingCapability</code></a>: Describes a missing service-provider capability.</li>
 <li><a href="http://localhost:3000/reference/capability/m-resolver-resolve/"><code>Resolver.resolve</code></a>: Reads a dependency from the environment using the provided projection.</li>
-<li><a href="http://localhost:3000/reference/capability/m-resolver-host/"><code>Resolver.host</code></a>: Reads the current host from the environment.</li>
-<li><a href="http://localhost:3000/reference/capability/m-resolver-appenv/"><code>Resolver.appEnv</code></a>: Reads the application environment from the environment.</li>
 <li><a href="http://localhost:3000/reference/capability/m-resolver-fromprovider/"><code>Resolver.fromProvider</code></a>: Reads a dependency from <a href="https://learn.microsoft.com/dotnet/api/iserviceprovider">IServiceProvider</a> and fails when it is not registered.</li>
 </ul>
 <h2 id="layers">Layers</h2>
@@ -592,19 +563,7 @@
     <hr class="panel-line">
         <div class="entry">
                 <h5>
-                    <a href="http://localhost:3000/reference/capability/m-resolver-appenv/">Resolver.appEnv</a>
-                </h5>
-                <p></p>
-            </div>
-        <div class="entry">
-                <h5>
                     <a href="http://localhost:3000/reference/capability/m-resolver-fromprovider/">Resolver.fromProvider</a>
-                </h5>
-                <p></p>
-            </div>
-        <div class="entry">
-                <h5>
-                    <a href="http://localhost:3000/reference/capability/m-resolver-host/">Resolver.host</a>
                 </h5>
                 <p></p>
             </div>

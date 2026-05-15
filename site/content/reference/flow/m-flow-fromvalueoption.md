@@ -19,5 +19,5 @@ Lifts a value option into a synchronous flow with the supplied error.
 
 ## Returns
 
-A <a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html">Flow</a> that succeeds with the option's value or fails with the provided error.
+A <a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-flow-3.html">Flow</a> that succeeds with the option&#39;s value or fails with the provided error.
 

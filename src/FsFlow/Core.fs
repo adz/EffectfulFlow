@@ -228,10 +228,10 @@ module RetryPolicy =
 /// type IClock =
 ///     abstract UtcNow : unit -&gt; DateTimeOffset
 ///
-/// type IRuntimeCaps =
-///     abstract Clock : IClock
+/// type Runtime =
+///     { Clock : IClock }
 ///
-/// let readClock : Flow&lt;#IRuntimeCaps, unit, IClock&gt; =
+/// let readClock : Flow&lt;Runtime, unit, IClock&gt; =
 ///     flow {
 ///         let! clock = Flow.read _.Clock
 ///         return clock
@@ -282,10 +282,10 @@ type Resolve<'dep> =
 /// type IClock =
 ///     abstract UtcNow : unit -&gt; DateTimeOffset
 ///
-/// type IRuntimeCaps =
-///     abstract Clock : IClock
+/// type Runtime =
+///     { Clock : IClock }
 ///
-/// let readClockNow : Flow&lt;#IRuntimeCaps, unit, DateTimeOffset&gt; =
+/// let readClockNow : Flow&lt;Runtime, unit, DateTimeOffset&gt; =
 ///     flow {
 ///         let! now = Flow.read (fun runtime -> runtime.Clock.UtcNow())
 ///         return now

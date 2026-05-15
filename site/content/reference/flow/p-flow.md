@@ -31,8 +31,8 @@ type: docs
  let greeting =
      flow {
          let! name = Flow.env
-         let! suffix = async { return "!" }
-         return $"Hello, {name}{suffix}"
+         let! suffix = async { return &quot;!&quot; }
+         return $&quot;Hello, {name}{suffix}&quot;
      }
  ```
  

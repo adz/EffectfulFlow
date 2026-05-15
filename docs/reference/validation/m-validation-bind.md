@@ -12,7 +12,7 @@ Sequences a validation-producing continuation.
 ## Remarks
 
 
- This is the monadic "bind" for validation. Note that this operation short-circuits
+ This is the monadic &quot;bind&quot; for validation. Note that this operation short-circuits
  and does not accumulate errors from the binder if the source has already failed.
  For accumulation, use <a href="https://learn.microsoft.com/dotnet/api/map2">map2</a> or the applicative <code>and!</code> syntax.
  

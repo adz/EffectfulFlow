@@ -29,11 +29,11 @@ module internal AsyncFlow =
     let ok (value: 'value) : AsyncFlow<'env, 'error, 'value> =
         AsyncFlow(fun _ -> async.Return(Exit.Success value))
 
-    /// <summary>Alias for <see cref="ok" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>ok</c> that reads well in some call sites.</summary>
     let succeed (value: 'value) : AsyncFlow<'env, 'error, 'value> =
         ok value
 
-    /// <summary>Alias for <see cref="ok" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>ok</c> that reads well in some call sites.</summary>
     let value (item: 'value) : AsyncFlow<'env, 'error, 'value> =
         succeed item
 
@@ -41,7 +41,7 @@ module internal AsyncFlow =
     let error (failure: 'error) : AsyncFlow<'env, 'error, 'value> =
         AsyncFlow(fun _ -> async.Return(Exit.Failure (Cause.Fail failure)))
 
-    /// <summary>Alias for <see cref="error" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>error</c> that reads well in some call sites.</summary>
     let fail (failure: 'error) : AsyncFlow<'env, 'error, 'value> =
         error failure
 

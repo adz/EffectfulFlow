@@ -105,4 +105,4 @@ let main _ =
 
 ## Next Steps
 
-As your application grows, you might find that you want to separate "host" services (like logging) from "business" services. Proceed to the **[HostContext](./host-context/)** tutorial to learn how to do that.
+As your application grows, you might find that you want stronger dependency names and reusable helpers. Proceed to the **[Capabilities](./capabilities/)** tutorial to learn how to do that.

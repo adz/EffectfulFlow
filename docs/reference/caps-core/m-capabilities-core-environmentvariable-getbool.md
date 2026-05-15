@@ -7,7 +7,7 @@ linkTitle: "getBool"
 <code><span>EnvironmentVariable.getBool&#32;<span>name</span></span></code>
 </div>
 
-Reads a boolean environment variable from the environment.
+Reads a boolean environment variable from the ambient runtime.
 
 ## Parameters
 

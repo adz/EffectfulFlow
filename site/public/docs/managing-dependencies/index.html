@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Managing Dependencies">
   <meta itemprop="description" content="How FsFlow models dependency boundaries after the Registry / Scope / Layer foundation.">
-  <meta itemprop="wordCount" content="1250">
+  <meta itemprop="wordCount" content="1386">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Managing Dependencies">
   <meta name="twitter:description" content="How FsFlow models dependency boundaries after the Registry / Scope / Layer foundation.">
@@ -150,8 +150,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialsapp-record-li">
     <a href="http://localhost:3000/docs/tutorials/app-record/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialsapp-record"><span class="">Tutorial: AppRecord</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialshost-context-li">
-    <a href="http://localhost:3000/docs/tutorials/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialshost-context"><span class="">Tutorial: HostContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialscapabilities-li">
     <a href="http://localhost:3000/docs/tutorials/capabilities/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialscapabilities"><span class="">Tutorial: Capabilities</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docstutorialsapp-host-li">
@@ -187,9 +185,7 @@
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="td-sidebar-nav-active-item">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependencieshost-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependencieshost-context"><span class="">HostContext</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciesprovider-edge-li">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciesprovider-edge-li">
     <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsmanaging-dependenciescapability-contracts-li">
     <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Nominal Capability Contracts</span></a>
@@ -265,7 +261,8 @@
       <ul>
         <li><a href="#1-booted-app-environment">1. Booted App Environment</a></li>
         <li><a href="#2-explicit-dependencies-plus-context">2. Explicit Dependencies Plus Context</a></li>
-        <li><a href="#3-standard-net-apphost-plus-di">3. Standard <code>.NET</code> AppHost Plus DI</a></li>
+        <li><a href="#3-runtime-owned-services">3. Runtime-Owned Services</a></li>
+        <li><a href="#4-standard-net-apphost-plus-di">4. Standard <code>.NET</code> AppHost Plus DI</a></li>
       </ul>
     </li>
     <li><a href="#how-the-pieces-fit-together">How The Pieces Fit Together</a></li>
@@ -303,9 +300,11 @@ needs.</p>
 and easy to understand at the boundary of an application.</p>
 <p>FsFlow also supports these shapes:</p>
 <ul>
-<li><code>HostContext&lt;'host, 'appEnv&gt;</code> gives your app services a separate lane from the host</li>
-<li>a nominal capability puts a name on the dependency surface so the compiler can check it and
+<li>a nominal capability puts a name on the app dependency surface so the compiler can check it and
 helper signatures can advertise it</li>
+<li>runtime-owned services like clock, logging, random, and guid are implicit in the runtime, stay
+outside the visible environment, and can be overridden with <code>Flow.withClock</code>, <code>Flow.withLog</code>,
+<code>Flow.withRandom</code>, and <code>Flow.withGuid</code></li>
 <li>standard <code>.NET</code> AppHost plus DI adapts the host container into a boundary record or nominal
 contract once, then workflow code stays on typed values</li>
 </ul>
@@ -339,10 +338,10 @@ the others.</p>
       </tr>
       <tr>
           <td style="text-align: left">3</td>
-          <td style="text-align: left"><a href="http://localhost:3000/docs/managing-dependencies/host-context/">HostContext&lt;&lsquo;host, &lsquo;appEnv&gt;</a></td>
-          <td style="text-align: left">Two readers separate the host from app services, so each side stays named and explicit</td>
-          <td style="text-align: left"><strong><a href="http://localhost:3000/docs/managing-dependencies/host-context/">HostContext</a></strong></td>
-          <td style="text-align: left"><code>HostContext.create</code>, <code>Flow.readHost</code>, <code>Flow.readAppEnv</code></td>
+          <td style="text-align: left">Runtime overrides</td>
+          <td style="text-align: left">Operational services stay runtime-owned and are supplied at execution time</td>
+          <td style="text-align: left"><strong><a href="http://localhost:3000/docs/tutorials/app-host/">AppHost</a></strong></td>
+          <td style="text-align: left"><code>Flow.withClock</code>, <code>Flow.withLog</code>, <code>Flow.withRandom</code>, <code>Flow.withGuid</code></td>
       </tr>
       <tr>
           <td style="text-align: left">4</td>
@@ -399,22 +398,24 @@ sentence instead of a bag of fields.</p>
 </ul>
 <p>That makes caps attractive even when a record would still work.</p>
 <h2 id="more-direct-dependency-management">More Direct Dependency Management</h2>
-<p>Under the hood, the runtime foundation does the heavy lifting:</p>
+<p>Two mechanisms stay deliberately separate:</p>
 <ul>
-<li><code>Registry</code> stores tagged services and overrides.</li>
-<li><code>Scope</code> registers finalizers and disposes them deterministically.</li>
-<li><code>Layer</code> builds and composes runtime state.</li>
-<li>the adapter layer projects runtime state into nominal contracts.</li>
+<li><code>env</code> carries the application dependency shape that workflow code reads with <code>Flow.env</code> and
+<code>Flow.read</code>.</li>
+<li>runtime overrides carry operational services such as clock, logging, random, GUID generation,
+and environment-variable lookup.</li>
 </ul>
-<p>That split keeps workflow code readable while still giving the host enough structure to manage
-lifetimes and service selection.</p>
+<p>The internal registry, scope, adapter, and runtime layer machinery support hosting and generated
+reference behavior. They are not the public dependency model for ordinary workflows. User code
+should normally choose between a record, a nominal capability contract, and a host-edge adapter.</p>
 <h2 id="choosing-a-shape">Choosing A Shape</h2>
 <p>The record shape gives you a concrete boundary and direct field access.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">ApiDeps</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IOrderRepository</span>
 </span></span><span style="display:flex;"><span>      <span style="color:#000">Email</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IEmailSender</span>
 </span></span><span style="display:flex;"><span>      <span style="color:#000">Clock</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IClock</span> <span style="color:#ce5c00;font-weight:bold">}</span>
-</span></span></code></pre></div><p><code>HostContext</code> gives your app services a separate lane from the host.</p>
+</span></span></code></pre></div><p>Runtime overrides keep clock, logging, and similar services out of the visible environment. They
+are implicit in normal flows, and test code can override them locally.</p>
 <p>Standard <code>.NET</code> AppHost plus DI adapts the container into a boundary record or nominal contract
 once, then workflow code stays on typed values.</p>
 <p>Nominal capability contracts let a helper or workflow name the capabilities it needs and give the
@@ -484,7 +485,27 @@ inputs.</p>
 small and focused.</p>
 <p>This style maps well to nominal capability contracts because the type itself carries the dependency
 surface. It maps to a concrete record when the dependency list is local and obvious.</p>
-<h3 id="3-standard-net-apphost-plus-di">3. Standard <code>.NET</code> AppHost Plus DI</h3>
+<h3 id="3-runtime-owned-services">3. Runtime-Owned Services</h3>
+<p>This style keeps operational services out of the visible environment and supplies them at the
+execution boundary.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">handle</span> <span style="color:#000">command</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">env</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">info</span> <span style="color:#ce5c00;font-weight:bold">$</span><span style="color:#4e9a06">&#34;handling {command.Id}&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">now</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Clock</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">now</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">runWorkflow</span> <span style="color:#000">env</span> <span style="color:#000">command</span> <span style="color:#000">now</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">withClock</span> <span style="color:#000">Clock</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">live</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">withLog</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">live</span>
+</span></span></code></pre></div><p>This style gives you:</p>
+<ul>
+<li>runtime-owned clock, logging, random, and guid services</li>
+<li>a clean app environment that stays focused on business dependencies</li>
+<li>local overrides for tests and scoped changes</li>
+</ul>
+<p>The benefit is separation: the app sees only its own dependencies, while the runtime owns the
+operational services and tests can swap them without changing the app environment.</p>
+<h3 id="4-standard-net-apphost-plus-di">4. Standard <code>.NET</code> AppHost Plus DI</h3>
 <p>This style keeps the host conventional and turns registrations into a boundary record or nominal
 contract once.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">RuntimeServices</span> <span style="color:#ce5c00;font-weight:bold">=</span>
@@ -494,12 +515,11 @@ contract once.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Gateway</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IShippingGateway</span> <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">ShipOrderWorkflow</span><span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">member</span> <span style="color:#000">_</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Run</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">ShipOrderInput</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">HostContext</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">RuntimeServices</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppEnv</span><span style="color:#ce5c00;font-weight:bold">&gt;,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">ShipmentId</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">logger</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">readHost</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Logger</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">member</span> <span style="color:#000">_</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Run</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">ShipOrderInput</span><span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">AppEnv</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">AppError</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">ShipmentId</span><span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">gateway</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Gateway</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#000">logger</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">LogInformation</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#4e9a06">&#34;shipping order {OrderId}&#34;</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">OrderId</span><span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">info</span> <span style="color:#ce5c00;font-weight:bold">$</span><span style="color:#4e9a06">&#34;shipping order {input.OrderId}&#34;</span>
 </span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">shipmentId</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">gateway</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">CreateShipment</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">input</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">OrderId</span><span style="color:#ce5c00;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">shipmentId</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">}</span>
@@ -510,21 +530,18 @@ contract once.</p>
 <li>incremental adoption</li>
 </ul>
 <p>The benefit is that the host remains familiar while workflow code can still use explicit contracts
-and <code>HostContext</code> where they fit.</p>
-<p>If the task boundary needs your app services separate from the host runtime, use
-<code>HostContext&lt;'host, 'appEnv&gt;</code> and the <code>Flow.readHost</code> / <code>Flow.read</code> split instead of forcing
-everything into one record.</p>
+and runtime overrides where they fit.</p>
 <p>This style maps directly onto standard <code>.NET</code> AppHost Plus DI because the host container can be
 adapted into typed values once. It maps into nominal capability contracts when the workflow code
 should speak in named capabilities rather than container lookups.</p>
 <h2 id="how-the-pieces-fit-together">How The Pieces Fit Together</h2>
 <p>The dependency story is:</p>
 <ul>
-<li>host registrations become runtime state at the edge</li>
-<li>runtime state is adapted into public contracts</li>
-<li>public workflows consume contracts, not lookup machinery</li>
-<li><code>HostContext</code> is the carrier for the host split</li>
-<li><code>Resolver</code> is the host-edge binding surface, not the main application shape</li>
+<li>host registrations are adapted into a boundary record or nominal contract at the edge</li>
+<li>public workflows consume <code>env</code> or app capability contracts, not lookup machinery</li>
+<li>runtime overrides carry operational services that should not widen <code>env</code></li>
+<li><code>Resolver.fromProvider</code> is an edge binding helper, not the main application shape</li>
+<li><code>Layer.provideLayer</code> derives one <code>env</code> from another; it is not a service container</li>
 </ul>
 <p>That is the shape the rest of the dependency docs follow.</p>
 
@@ -532,12 +549,6 @@ should speak in named capabilities rather than container lookups.</p>
     
     
     <hr class="panel-line">
-        <div class="entry">
-                <h5>
-                    <a href="http://localhost:3000/docs/managing-dependencies/host-context/">HostContext</a>
-                </h5>
-                <p>Splitting host services from application dependencies.</p>
-            </div>
         <div class="entry">
                 <h5>
                     <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/">Standard .NET AppHost Plus DI</a>

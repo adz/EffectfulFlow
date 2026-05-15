@@ -228,9 +228,6 @@ module CapsRuntimePatternTests =
                     Some todos[index])
             |> TaskFlow.fromFlow
 
-        let _chooseTodoBoundary : TaskFlow<#ChooseTodoCapabilities, TodoError, string option> = chooseTodoFlow
-        let _appBoundary : TaskFlow<#AppCapabilities, TodoError, string option> = chooseTodoFlow
-
         let chooseTodoResult =
             TaskFlow.run appRuntime CancellationToken.None chooseTodoFlow
             |> fun task -> task.GetAwaiter().GetResult()

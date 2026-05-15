@@ -15,8 +15,8 @@ This page shows the source-documented `Validation` surface: the accumulating res
 - [`Validation.toResult`](./m-validation-toresult.md): Converts a <a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-validation-2.html">Validation</a> into a standard <a href="https://learn.microsoft.com/dotnet/api/system.result-2">Result</a>.
 - [`Validation.ok`](./m-validation-ok.md): Creates a successful validation result.
 - [`Validation.error`](./m-validation-error.md): Creates a failing validation result with the provided diagnostics.
-- [`Validation.succeed`](./m-validation-succeed.md): Alias for <a href="https://learn.microsoft.com/dotnet/api/ok">ok</a>.
-- [`Validation.fail`](./m-validation-fail.md): Alias for <a href="https://learn.microsoft.com/dotnet/api/error">error</a>.
+- [`Validation.succeed`](./m-validation-succeed.md): Alias for <code>ok</code>.
+- [`Validation.fail`](./m-validation-fail.md): Alias for <code>error</code>.
 - [`Validation.fromResult`](./m-validation-fromresult.md): Lifts a standard <a href="https://learn.microsoft.com/dotnet/api/system.result-2">Result</a> into the <a href="https://adz.github.io/FsFlow/reference/FsFlow/fsflow-validation-2.html">Validation</a> context.
 - [`Validation.map`](./m-validation-map.md): Maps the successful value of a validation.
 - [`Validation.bind`](./m-validation-bind.md): Sequences a validation-producing continuation.

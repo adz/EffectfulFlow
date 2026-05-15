@@ -7,7 +7,7 @@ linkTitle: "get"
 <code><span>EnvironmentVariable.get&#32;<span>name</span></span></code>
 </div>
 
-Reads a raw string environment variable from the environment.
+Reads a raw string environment variable from the ambient runtime.
 
 ## Parameters
 

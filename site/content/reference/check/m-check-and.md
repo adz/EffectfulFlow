@@ -13,7 +13,7 @@ Returns success when both checks succeed.
 ## Remarks
 
 
- This is a logical "and" operation. It short-circuits: if <span class="fsdocs-param-name">left</span> fails,
+ This is a logical &quot;and&quot; operation. It short-circuits: if <span class="fsdocs-param-name">left</span> fails,
  <span class="fsdocs-param-name">right</span> is not evaluated.
  
 

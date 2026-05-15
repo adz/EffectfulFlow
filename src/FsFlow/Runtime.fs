@@ -34,109 +34,127 @@ type IHasUser<'user> =
     /// <summary>The current authenticated user, if available.</summary>
     abstract User: 'user option
 
-/// <summary>
-/// Captures the two-context shape of a task workflow execution:
-/// host services, application capabilities, and the cancellation token for the current run.
-/// </summary>
-/// <remarks>
-/// This type is the execution carrier above the adapter layer for the unified
-/// <see cref="T:FsFlow.Flow`3" />.
-/// It separates low-level operational concerns (Host) from high-level domain dependencies
-/// (AppEnv).
-/// </remarks>
-/// <typeparam name="host">The type that carries host concerns, such as logging or metrics.</typeparam>
-/// <typeparam name="appEnv">The type that carries application capabilities, such as repositories.</typeparam>
-type HostContext<'host, 'appEnv> =
+/// <summary>Provides synchronous access to the current UTC clock.</summary>
+type IClock =
+    /// <summary>Returns the current UTC timestamp.</summary>
+    abstract UtcNow: unit -> DateTimeOffset
+
+/// <summary>Provides synchronous access to runtime logging.</summary>
+type ILog =
+    /// <summary>Writes an informational log message.</summary>
+    abstract Info: string -> unit
+
+/// <summary>Provides synchronous random-number generation.</summary>
+type IRandom =
+    /// <summary>Returns a random integer in the requested range.</summary>
+    abstract NextInt: minInclusive: int -> maxExclusive: int -> int
+
+/// <summary>Provides synchronous GUID generation.</summary>
+type IGuid =
+    /// <summary>Returns a new GUID value.</summary>
+    abstract NewGuid: unit -> Guid
+
+/// <summary>Provides synchronous environment-variable lookup.</summary>
+type IEnvironmentVariables =
+    /// <summary>Returns the environment-variable value if it is present.</summary>
+    abstract TryGet: name: string -> string option
+
+/// <summary>Internal runtime services owned by the flow execution engine.</summary>
+type internal RuntimeContext =
     {
-        /// <summary>Host services for logging, metrics, tracing, or other operational concerns.</summary>
-        Host: 'host
-
-        /// <summary>Application dependencies and capabilities for the workflow.</summary>
-        AppEnv: 'appEnv
-
-        /// <summary>The cancellation token for the current task execution.</summary>
-        CancellationToken: CancellationToken
+        Clock: IClock
+        Log: ILog
+        Random: IRandom
+        Guid: IGuid
+        EnvironmentVariables: IEnvironmentVariables
     }
 
-/// <summary>Helpers for building and reshaping <see cref="HostContext{host, appEnv}" /> values.</summary>
+/// <summary>Helpers for creating and overriding runtime-owned services.</summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
-module HostContext =
-    /// <summary>Creates a host context from the supplied host services, app environment, and cancellation token.</summary>
-    /// <param name="host">The host services of type <c>'host</c>.</param>
-    /// <param name="appEnv">The application environment of type <c>'appEnv</c>.</param>
-    /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" />.</param>
-    /// <returns>A new <see cref="T:FsFlow.HostContext`2" />.</returns>
-    let create
-        (host: 'host)
-        (appEnv: 'appEnv)
-        (cancellationToken: CancellationToken)
-        : HostContext<'host, 'appEnv> =
+module internal RuntimeContext =
+    let live : RuntimeContext =
+        let rng = Random()
+        let gate = obj()
+
         {
-            Host = host
-            AppEnv = appEnv
-            CancellationToken = cancellationToken
+            Clock =
+                { new IClock with
+                    member _.UtcNow() = DateTimeOffset.UtcNow }
+            Log =
+                { new ILog with
+                    member _.Info _ = () }
+            Random =
+                { new IRandom with
+                    member _.NextInt minInclusive maxExclusive =
+                        #if FABLE_COMPILER
+                        rng.Next(minInclusive, maxExclusive)
+                        #else
+                        lock gate (fun () -> rng.Next(minInclusive, maxExclusive))
+                        #endif
+                }
+            Guid =
+                { new IGuid with
+                    member _.NewGuid() = global.System.Guid.NewGuid() }
+            EnvironmentVariables =
+                { new IEnvironmentVariables with
+                    member _.TryGet name =
+                        #if FABLE_COMPILER
+                        None
+                        #else
+                        match Environment.GetEnvironmentVariable name with
+                        | null -> None
+                        | value -> Some value
+                        #endif
+                }
         }
 
-    /// <summary>Reads the host half of a host context.</summary>
-    /// <param name="context">The <see cref="T:FsFlow.HostContext`2" /> to read.</param>
-    /// <returns>The host services of type <c>'host</c>.</returns>
-    let host (context: HostContext<'host, 'appEnv>) : 'host = context.Host
+    let withClock (clock: IClock) (runtime: RuntimeContext) : RuntimeContext =
+        { runtime with Clock = clock }
 
-    /// <summary>Reads the application environment half of a host context.</summary>
-    /// <param name="context">The <see cref="T:FsFlow.HostContext`2" /> to read.</param>
-    /// <returns>The application environment of type <c>'appEnv</c>.</returns>
-    let appEnv (context: HostContext<'host, 'appEnv>) : 'appEnv = context.AppEnv
+    let withLog (log: ILog) (runtime: RuntimeContext) : RuntimeContext =
+        { runtime with Log = log }
 
-    /// <summary>Reads the cancellation token stored in a host context.</summary>
-    /// <param name="context">The <see cref="T:FsFlow.HostContext`2" /> to read.</param>
-    /// <returns>The <see cref="T:System.Threading.CancellationToken" />.</returns>
-    let cancellationToken (context: HostContext<'host, 'appEnv>) : CancellationToken = context.CancellationToken
+    let withRandom (random: IRandom) (runtime: RuntimeContext) : RuntimeContext =
+        { runtime with Random = random }
 
-    /// <summary>Maps the host half of a host context.</summary>
-    /// <param name="mapper">A function of type <c>'host -> 'nextHost</c>.</param>
-    /// <param name="context">The source context.</param>
-    /// <returns>A new context with the mapped host services.</returns>
-    let mapHost
-        (mapper: 'host -> 'nextHost)
-        (context: HostContext<'host, 'appEnv>)
-        : HostContext<'nextHost, 'appEnv> =
-        {
-            Host = mapper context.Host
-            AppEnv = context.AppEnv
-            CancellationToken = context.CancellationToken
-        }
+    let withGuid (guid: IGuid) (runtime: RuntimeContext) : RuntimeContext =
+        { runtime with Guid = guid }
 
-    /// <summary>Maps the application environment half of a host context.</summary>
-    /// <param name="mapper">A function of type <c>'appEnv -> 'nextAppEnv</c>.</param>
-    /// <param name="context">The source context.</param>
-    /// <returns>A new context with the mapped app environment.</returns>
-    let mapAppEnv
-        (mapper: 'appEnv -> 'nextAppEnv)
-        (context: HostContext<'host, 'appEnv>)
-        : HostContext<'host, 'nextAppEnv> =
-        {
-            Host = context.Host
-            AppEnv = mapper context.AppEnv
-            CancellationToken = context.CancellationToken
-        }
+    let withEnvironmentVariables (environmentVariables: IEnvironmentVariables) (runtime: RuntimeContext) : RuntimeContext =
+        { runtime with EnvironmentVariables = environmentVariables }
 
-    /// <summary>Replaces the host half of a host context.</summary>
-    /// <param name="host">The new host services.</param>
-    /// <param name="context">The source context.</param>
-    /// <returns>A new context with the replaced host services.</returns>
-    let withHost
-        (host: 'nextHost)
-        (context: HostContext<'host, 'appEnv>)
-        : HostContext<'nextHost, 'appEnv> =
-        mapHost (fun _ -> host) context
+/// <summary>Stores the ambient runtime context for the current execution.</summary>
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<RequireQualifiedAccess>]
+module internal RuntimeState =
+#if FABLE_COMPILER
+    let mutable private currentRuntime = RuntimeContext.live
 
-    /// <summary>Replaces the application environment half of a host context.</summary>
-    /// <param name="appEnv">The new application environment.</param>
-    /// <param name="context">The source context.</param>
-    /// <returns>A new context with the replaced app environment.</returns>
-    let withAppEnv
-        (appEnv: 'nextAppEnv)
-        (context: HostContext<'host, 'appEnv>)
-        : HostContext<'host, 'nextAppEnv> =
-        mapAppEnv (fun _ -> appEnv) context
+    let current () : RuntimeContext = currentRuntime
+
+    let withRuntime (runtime: RuntimeContext) (operation: unit -> 'value) : 'value =
+        let previous = currentRuntime
+        currentRuntime <- runtime
+
+        try
+            operation ()
+        finally
+            currentRuntime <- previous
+#else
+    let private currentRuntime = AsyncLocal<RuntimeContext>()
+
+    let current () : RuntimeContext =
+        match box currentRuntime.Value with
+        | null -> RuntimeContext.live
+        | _ -> currentRuntime.Value
+
+    let withRuntime (runtime: RuntimeContext) (operation: unit -> 'value) : 'value =
+        let previous = currentRuntime.Value
+        currentRuntime.Value <- runtime
+
+        try
+            operation ()
+        finally
+            currentRuntime.Value <- previous
+#endif

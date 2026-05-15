@@ -17,23 +17,25 @@ module Flow =
         (cancellationToken: CancellationToken)
         (flow: Flow<'env, 'error, 'value>)
         : Effect<'value, 'error> =
-        #if FABLE_COMPILER
-        async {
-            try
-                return! invoke flow environment cancellationToken
-            with error ->
-                return Exit.Failure (EffectFlow.causeOfException error)
-        }
-        #else
-        ValueTask<Exit<'value, 'error>>(
-            task {
+        RuntimeState.withRuntime RuntimeContext.live (fun () ->
+            #if FABLE_COMPILER
+            async {
                 try
-                    let! exit = invoke flow environment cancellationToken
-                    return exit
+                    return! invoke flow environment cancellationToken
                 with error ->
                     return Exit.Failure (EffectFlow.causeOfException error)
-            })
-        #endif
+            }
+            #else
+            ValueTask<Exit<'value, 'error>>(
+                task {
+                    try
+                        let! exit = invoke flow environment cancellationToken
+                        return exit
+                    with error ->
+                        return Exit.Failure (EffectFlow.causeOfException error)
+                })
+            #endif
+        )
 
     /// <summary>Creates a flow from an execution outcome.</summary>
     let ofExit (exit: Exit<'value, 'error>) : Flow<'env, 'error, 'value> =
@@ -66,7 +68,7 @@ module Flow =
     let ok (value: 'value) : Flow<'env, 'error, 'value> =
         Flow(fun _ _ -> EffectFlow.ofValue value)
 
-    /// <summary>Alias for <see cref="ok" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>ok</c> that reads well in some call sites.</summary>
     /// <example>
     /// <code>
     /// let flow = Flow.succeed 42
@@ -77,7 +79,7 @@ module Flow =
     let succeed (value: 'value) : Flow<'env, 'error, 'value> =
         ok value
 
-    /// <summary>Alias for <see cref="ok" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>ok</c> that reads well in some call sites.</summary>
     /// <example>
     /// <code>
     /// let flow = Flow.value "constant"
@@ -90,7 +92,7 @@ module Flow =
     let error (failure: 'error) : Flow<'env, 'error, 'value> =
         Flow(fun _ _ -> EffectFlow.ofError failure)
 
-    /// <summary>Alias for <see cref="error" /> that reads well in some call sites.</summary>
+    /// <summary>Alias for <c>error</c> that reads well in some call sites.</summary>
     /// <example>
     /// <code>
     /// let flow = Flow.fail "error"
@@ -103,8 +105,8 @@ module Flow =
 
     /// <summary>Creates a defective flow that fails with an exception.</summary>
     /// <remarks>
-    /// This is the public constructor for non-domain defects. Use <see cref="fail" /> for expected
-    /// typed failures and <see cref="die" /> when the workflow should surface a bug or panic.
+    /// This is the public constructor for non-domain defects. Use <c>fail</c> for expected
+    /// typed failures and <c>die</c> when the workflow should surface a bug or panic.
     /// </remarks>
     let die (exn: exn) : Flow<'env, 'error, 'value> =
         Flow(fun _ _ -> EffectFlow.ofDie exn)
@@ -118,6 +120,52 @@ module Flow =
     /// </example>
     let fromResult (result: Result<'value, 'error>) : Flow<'env, 'error, 'value> =
         Flow(fun _ _ -> EffectFlow.ofResult result)
+
+    let inline private withRuntime
+        (mapper: RuntimeContext -> RuntimeContext)
+        (flow: Flow<'env, 'error, 'value>)
+        : Flow<'env, 'error, 'value> =
+        Flow(fun environment cancellationToken ->
+            let runtime = mapper (RuntimeState.current())
+
+            #if FABLE_COMPILER
+            async {
+                return!
+                    RuntimeState.withRuntime runtime (fun () ->
+                        invoke flow environment cancellationToken)
+            }
+            #else
+            ValueTask<Exit<'value, 'error>>(
+                task {
+                    return!
+                        RuntimeState.withRuntime runtime (fun () ->
+                            invoke flow environment cancellationToken |> _.AsTask())
+                })
+            #endif
+        )
+
+    /// <summary>Overrides the ambient clock for the duration of the supplied flow.</summary>
+    let withClock (clock: IClock) (flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
+        withRuntime (RuntimeContext.withClock clock) flow
+
+    /// <summary>Overrides the ambient logger for the duration of the supplied flow.</summary>
+    let withLog (log: ILog) (flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
+        withRuntime (RuntimeContext.withLog log) flow
+
+    /// <summary>Overrides the ambient random-number generator for the duration of the supplied flow.</summary>
+    let withRandom (random: IRandom) (flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
+        withRuntime (RuntimeContext.withRandom random) flow
+
+    /// <summary>Overrides the ambient GUID generator for the duration of the supplied flow.</summary>
+    let withGuid (guid: IGuid) (flow: Flow<'env, 'error, 'value>) : Flow<'env, 'error, 'value> =
+        withRuntime (RuntimeContext.withGuid guid) flow
+
+    /// <summary>Overrides the ambient environment-variable provider for the duration of the supplied flow.</summary>
+    let withEnvironmentVariables
+        (environmentVariables: IEnvironmentVariables)
+        (flow: Flow<'env, 'error, 'value>)
+        : Flow<'env, 'error, 'value> =
+        withRuntime (RuntimeContext.withEnvironmentVariables environmentVariables) flow
 
     /// <summary>Runtime helpers for operational concerns like logging, timeout, retry, and cleanup.</summary>
     [<RequireQualifiedAccess>]
@@ -144,6 +192,29 @@ module Flow =
                     })
                 #endif
             )
+
+        /// <summary>Reads the ambient UTC clock owned by the runtime.</summary>
+        let now : Flow<'env, 'error, DateTimeOffset> =
+            Flow(fun _ _ -> EffectFlow.ofValue (RuntimeState.current().Clock.UtcNow()))
+
+        /// <summary>Writes a message through the ambient runtime logger.</summary>
+        let log (message: string) : Flow<'env, 'error, unit> =
+            Flow(fun _ _ ->
+                RuntimeState.current().Log.Info message
+                EffectFlow.ofValue ())
+
+        /// <summary>Creates a new GUID through the ambient runtime GUID generator.</summary>
+        let newGuid : Flow<'env, 'error, Guid> =
+            Flow(fun _ _ -> EffectFlow.ofValue (RuntimeState.current().Guid.NewGuid()))
+
+        /// <summary>Creates a random integer through the ambient runtime random generator.</summary>
+        let nextInt (minInclusive: int) (maxExclusive: int) : Flow<'env, 'error, int> =
+            Flow(fun _ _ ->
+                EffectFlow.ofValue (RuntimeState.current().Random.NextInt minInclusive maxExclusive))
+
+        /// <summary>Reads an environment variable from the ambient runtime environment provider.</summary>
+        let tryGetEnvironmentVariable (name: string) : Flow<'env, 'error, string option> =
+            Flow(fun _ _ -> EffectFlow.ofValue (RuntimeState.current().EnvironmentVariables.TryGet name))
 
     /// <summary>Starts a flow in a new fiber without waiting for it to complete.</summary>
     /// <param name="flow">The flow to fork.</param>
@@ -260,28 +331,29 @@ module Flow =
                     let rightFiberTask = rightOp environment cts.Token |> _.AsTask()
                     
                     let! completed = Task.WhenAny(leftFiberTask, rightFiberTask)
-                    
-                    let firstExit = 
-                        if obj.ReferenceEquals(completed, leftFiberTask) then
-                            leftFiberTask.GetAwaiter().GetResult()
-                        else
-                            rightFiberTask.GetAwaiter().GetResult()
-                    
-                    match firstExit with
-                    | Exit.Failure cause ->
-                        cts.Cancel()
-                        return Exit.Failure cause
-                    | Exit.Success _ ->
-                        let other = if obj.ReferenceEquals(completed, leftFiberTask) then rightFiberTask else leftFiberTask
-                        let! secondExit = other
-                        
-                        let leftExit = leftFiberTask.GetAwaiter().GetResult()
-                        let rightExit = rightFiberTask.GetAwaiter().GetResult()
-                        
-                        match leftExit, rightExit with
-                        | Exit.Success l, Exit.Success r -> return Exit.Success (l, r)
-                        | Exit.Failure c, _ -> return Exit.Failure c
-                        | _, Exit.Failure c -> return Exit.Failure c
+
+                    if obj.ReferenceEquals(completed, leftFiberTask) then
+                        match leftFiberTask.GetAwaiter().GetResult() with
+                        | Exit.Failure cause ->
+                            cts.Cancel()
+                            return Exit.Failure cause
+                        | Exit.Success leftValue ->
+                            let! rightExit = rightFiberTask
+
+                            match rightExit with
+                            | Exit.Success rightValue -> return Exit.Success (leftValue, rightValue)
+                            | Exit.Failure cause -> return Exit.Failure cause
+                    else
+                        match rightFiberTask.GetAwaiter().GetResult() with
+                        | Exit.Failure cause ->
+                            cts.Cancel()
+                            return Exit.Failure cause
+                        | Exit.Success rightValue ->
+                            let! leftExit = leftFiberTask
+
+                            match leftExit with
+                            | Exit.Success leftValue -> return Exit.Success (leftValue, rightValue)
+                            | Exit.Failure cause -> return Exit.Failure cause
                 })
             #endif
         )
@@ -311,7 +383,7 @@ module Flow =
                     let! completed = Task.WhenAny(leftFiberTask, rightFiberTask)
                     cts.Cancel()
                     
-                    return (completed :?> Task<Exit<'value, 'error>>).GetAwaiter().GetResult()
+                    return completed.GetAwaiter().GetResult()
                 })
             #endif
         )
@@ -375,30 +447,6 @@ module Flow =
     /// <returns>A <see cref="T:FsFlow.Flow`3" /> containing the projected value.</returns>
     let read (projection: 'env -> 'value) : Flow<'env, 'error, 'value> =
         Flow(fun environment _ -> EffectFlow.ofValue (projection environment))
-
-    /// <summary>Projects a value from the host half of a <see cref="T:FsFlow.HostContext`2" /> environment.</summary>
-    /// <remarks>
-    /// Use this when a workflow needs operational services such as logging, tracing, or clocks from the host slice.
-    /// For the application dependency half of the same context, use <see cref="readAppEnv" />.
-    /// </remarks>
-    /// <param name="projection">A function that extracts a value from the host object.</param>
-    /// <returns>A <see cref="T:FsFlow.Flow`3" /> containing the projected host value.</returns>
-    let readHost
-        (projection: 'host -> 'value)
-        : Flow<HostContext<'host, 'appEnv>, 'error, 'value> =
-        read (fun context -> projection context.Host)
-
-    /// <summary>Projects a value from the application environment half of a <see cref="T:FsFlow.HostContext`2" /> environment.</summary>
-    /// <remarks>
-    /// Use this when a workflow needs feature- or boundary-specific dependencies from the application environment.
-    /// For the host half of the same context, use <see cref="readHost" />.
-    /// </remarks>
-    /// <param name="projection">A function that extracts a value from the application environment.</param>
-    /// <returns>A <see cref="T:FsFlow.Flow`3" /> containing the projected application value.</returns>
-    let readAppEnv
-        (projection: 'appEnv -> 'value)
-        : Flow<HostContext<'host, 'appEnv>, 'error, 'value> =
-        read (fun context -> projection context.AppEnv)
 
     /// <summary>Maps the successful value of a synchronous flow.</summary>
     /// <remarks>

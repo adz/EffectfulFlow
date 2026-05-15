@@ -30,7 +30,7 @@
 
   <meta itemprop="name" content="Tutorial: Capabilities">
   <meta itemprop="description" content="Using nominal interface contracts as the environment.">
-  <meta itemprop="wordCount" content="376">
+  <meta itemprop="wordCount" content="553">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Tutorial: Capabilities">
   <meta name="twitter:description" content="Using nominal interface contracts as the environment.">
@@ -150,8 +150,6 @@
     <ul class="ul-2 foldable">
       <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docstutorialsapp-record-li">
     <a href="http://localhost:3000/docs/tutorials/app-record/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialsapp-record"><span class="">Tutorial: AppRecord</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docstutorialshost-context-li">
-    <a href="http://localhost:3000/docs/tutorials/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docstutorialshost-context"><span class="">Tutorial: HostContext</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docstutorialscapabilities-li">
     <a href="http://localhost:3000/docs/tutorials/capabilities/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docstutorialscapabilities"><span class="td-sidebar-nav-active-item">Tutorial: Capabilities</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docstutorialsapp-host-li">
@@ -187,9 +185,7 @@
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docsmanaging-dependencies-li">
     <a href="http://localhost:3000/docs/managing-dependencies/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docsmanaging-dependencies"><span class="">Managing Dependencies</span></a>
     <ul class="ul-2 foldable">
-      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependencieshost-context-li">
-    <a href="http://localhost:3000/docs/managing-dependencies/host-context/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependencieshost-context"><span class="">HostContext</span></a>
-  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciesprovider-edge-li">
     <a href="http://localhost:3000/docs/managing-dependencies/provider-edge/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciesprovider-edge"><span class="">Standard .NET AppHost Plus DI</span></a>
   </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docsmanaging-dependenciescapability-contracts-li">
     <a href="http://localhost:3000/docs/managing-dependencies/capability-contracts/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsmanaging-dependenciescapability-contracts"><span class="">Nominal Capability Contracts</span></a>
@@ -259,6 +255,7 @@
     <li><a href="#2-write-helpers-using-capability-constraints">2. Write Helpers using Capability Constraints</a></li>
     <li><a href="#3-compose-the-main-workflow">3. Compose the Main Workflow</a></li>
     <li><a href="#4-implement-the-environment">4. Implement the Environment</a></li>
+    <li><a href="#5-override-runtime-services-in-tests">5. Override Runtime Services In Tests</a></li>
     <li><a href="#why-use-capabilities">Why use Capabilities?</a></li>
     <li><a href="#next-steps">Next Steps</a></li>
   </ul>
@@ -286,8 +283,11 @@
 	<header class="article-meta">
 		
 </header>
-	<p>Nominal Capability Contracts use F# interfaces to name the dependency surface. This allows the compiler to check that your environment implements all the required capabilities and makes it easy to reuse helpers across different workflows.</p>
-<p>In this tutorial, we will refactor our workflow to use interface-based capabilities instead of concrete records.</p>
+	<p>Nominal Capability Contracts use F# interfaces to name app dependencies. This lets the compiler
+check that your environment implements the required capabilities and makes it easy to reuse
+helpers across different workflows.</p>
+<p>In this tutorial, we will refactor our workflow to use interface-based app capabilities instead of
+concrete records.</p>
 <h2 id="1-define-capability-interfaces">1. Define Capability Interfaces</h2>
 <p>Instead of one big record, define small, focused interfaces.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">System</span>
@@ -304,8 +304,12 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">IAppCaps</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">inherit</span> <span style="color:#000">IHasOrders</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">inherit</span> <span style="color:#000">IHasEmail</span>
-</span></span></code></pre></div><h2 id="2-write-helpers-using-capability-constraints">2. Write Helpers using Capability Constraints</h2>
-<p>Helper functions can now specify exactly which capabilities they need using the <code>#</code> flexible type constraint.</p>
+</span></span></code></pre></div><p>Runtime-owned services like clock and logging are not part of this contract. They are implicit in
+the runtime, and you override them with <code>Flow.withClock</code>, <code>Flow.withLog</code>, <code>Flow.withRandom</code>, or
+<code>Flow.withGuid</code> when you need test control or a local scope change.</p>
+<h2 id="2-write-helpers-using-capability-constraints">2. Write Helpers using Capability Constraints</h2>
+<p>Helper functions can now specify exactly which app capabilities they need using the <code>#</code> flexible
+type constraint.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">saveOrder</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">Flow</span><span style="color:#ce5c00;font-weight:bold">&lt;#</span><span style="color:#000">IHasOrders</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#ce5c00;font-weight:bold">_,</span> <span style="color:#ce5c00;font-weight:bold">_&gt;</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">repo</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">read</span> <span style="color:#ce5c00;font-weight:bold">_.</span><span style="color:#000">Orders</span>
@@ -318,7 +322,9 @@
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">sender</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">SendConfirmation</span> <span style="color:#000">order</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span></code></pre></div><h2 id="3-compose-the-main-workflow">3. Compose the Main Workflow</h2>
-<p>The main workflow combines these helpers. The compiler will infer that the environment must implement both <code>IHasOrders</code> and <code>IHasEmail</code>.</p>
+<p>The main workflow combines these helpers. The compiler will infer that the environment must
+implement both <code>IHasOrders</code> and <code>IHasEmail</code>. Runtime services are still implicit, so nothing extra
+is threaded through <code>env</code> for clock or logging here.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">placeOrder</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">saveOrder</span> <span style="color:#000">order</span>
@@ -326,7 +332,8 @@
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">order</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">Id</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span></code></pre></div><h2 id="4-implement-the-environment">4. Implement the Environment</h2>
-<p>Your application environment is now just a class or record that implements the required interfaces.</p>
+<p>Your application environment is now just a class or record that implements the required app
+interfaces.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">type</span> <span style="color:#000">AppEnv</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IOrderRepository</span>
 </span></span><span style="display:flex;"><span>      <span style="color:#000">Email</span><span style="color:#ce5c00;font-weight:bold">:</span> <span style="color:#000">IEmailSender</span> <span style="color:#ce5c00;font-weight:bold">}</span>
@@ -335,9 +342,10 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[&lt;</span><span style="color:#000">EntryPoint</span><span style="color:#ce5c00;font-weight:bold">&gt;]</span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">main</span> <span style="color:#ce5c00;font-weight:bold">_</span> <span style="color:#ce5c00;font-weight:bold">=</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">InMemoryOrders</span><span style="color:#3465a4">()</span>
 </span></span><span style="display:flex;"><span>          <span style="color:#000">Email</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ConsoleEmail</span><span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Id</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Guid</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">NewGuid</span><span style="color:#3465a4">()</span><span style="color:#ce5c00;font-weight:bold">;</span> <span style="color:#000">Total</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">99</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">99m</span> <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// env matches both #IHasOrders and #IHasEmail
 </span></span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">run</span> <span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task</span> <span style="color:#ce5c00;font-weight:bold">{</span>
@@ -346,16 +354,39 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">run</span><span style="color:#3465a4">()</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetAwaiter</span><span style="color:#3465a4">()</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">GetResult</span><span style="color:#3465a4">()</span>
+</span></span></code></pre></div><h2 id="5-override-runtime-services-in-tests">5. Override Runtime Services In Tests</h2>
+<p>When you need deterministic clocking or logging, override the implicit runtime services locally
+without changing the app contract.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fsharp" data-lang="fsharp"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">open</span> <span style="color:#000">FsFlow.Capabilities.Core</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">testRun</span> <span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">env</span> <span style="color:#ce5c00;font-weight:bold">=</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Orders</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">InMemoryOrders</span><span style="color:#3465a4">()</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#000">Email</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ConsoleEmail</span><span style="color:#3465a4">()</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">fixedClock</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Clock</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">fromValue</span> <span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">DateTimeOffset</span><span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000">2024</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">01</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">01</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">0</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">0</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">0</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">TimeSpan</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Zero</span><span style="color:#ce5c00;font-weight:bold">))</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">let</span> <span style="color:#000">order</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#000">Id</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Guid</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">NewGuid</span><span style="color:#3465a4">()</span><span style="color:#ce5c00;font-weight:bold">;</span> <span style="color:#000">Total</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">42m</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">flow</span> <span style="color:#ce5c00;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">do</span><span style="color:#ce5c00;font-weight:bold">!</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">info</span> <span style="color:#4e9a06">&#34;running test&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">timestamp</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">Clock</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">now</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">let!</span> <span style="color:#000">result</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">placeOrder</span> <span style="color:#000">order</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">timestamp</span><span style="color:#ce5c00;font-weight:bold">,</span> <span style="color:#000">result</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">withClock</span> <span style="color:#000">fixedClock</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">withLog</span> <span style="color:#000">Log</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">live</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">|&gt;</span> <span style="color:#000">Flow</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">run</span> <span style="color:#000">env</span>
 </span></span></code></pre></div><h2 id="why-use-capabilities">Why use Capabilities?</h2>
 <ul>
-<li><strong>Refactor Safety</strong>: If you add a new capability to a helper, the compiler will immediately tell you every call site that needs to be updated.</li>
+<li><strong>Refactor Safety</strong>: If you add a new app capability to a helper, the compiler will immediately tell you every call site that needs to be updated.</li>
 <li><strong>Granular Dependencies</strong>: Helpers only ask for what they actually need, making the code easier to reason about and test.</li>
-<li><strong>Reusable Logic</strong>: You can write general-purpose helpers (like &ldquo;retry with logging&rdquo;) that work on any environment that provides the required capabilities.</li>
+<li><strong>Reusable Logic</strong>: You can write general-purpose helpers that work on any environment that provides the required app capabilities.</li>
+<li><strong>Testable Runtime</strong>: Clock and logging stay implicit by default, but you can override them locally when a test needs a fixed value.</li>
 </ul>
 <h2 id="next-steps">Next Steps</h2>
 <p>For enterprise applications that use standard .NET dependency injection, proceed to the <strong><a href="http://localhost:3000/docs/tutorials/app-host/">AppHost</a></strong> tutorial to see how to bridge <code>IServiceProvider</code> into the FsFlow world.</p>
 
-	<nav class="docs-page-nav"><a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="http://localhost:3000/docs/tutorials/host-context/" aria-label="Previous - Tutorial: HostContext">
+	<nav class="docs-page-nav"><a class="docs-home-cta docs-page-nav__link docs-page-nav__prev" href="http://localhost:3000/docs/tutorials/app-record/" aria-label="Previous - Tutorial: AppRecord">
     <span class="docs-page-nav__arrow" aria-hidden="true">←</span>
     <span>Previous</span>
   </a><a class="docs-home-cta docs-page-nav__link docs-page-nav__next" href="http://localhost:3000/docs/tutorials/app-host/" aria-label="Next - Tutorial: AppHost">

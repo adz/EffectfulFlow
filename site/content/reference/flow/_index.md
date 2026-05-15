@@ -18,9 +18,9 @@ This page shows the source-documented `Flow` surface: the core type and module f
 - [`Flow.run`](./m-flow-run.md): Executes a flow with the provided environment and the default cancellation token.
 - [`Flow.ok`](./m-flow-ok.md): Creates a successful synchronous flow.
 - [`Flow.error`](./m-flow-error.md): Creates a failing synchronous flow.
-- [`Flow.succeed`](./m-flow-succeed.md): Alias for <a href="https://learn.microsoft.com/dotnet/api/ok">ok</a> that reads well in some call sites.
-- [`Flow.value`](./m-flow-value.md): Alias for <a href="https://learn.microsoft.com/dotnet/api/ok">ok</a> that reads well in some call sites.
-- [`Flow.fail`](./m-flow-fail.md): Alias for <a href="https://learn.microsoft.com/dotnet/api/error">error</a> that reads well in some call sites.
+- [`Flow.succeed`](./m-flow-succeed.md): Alias for <code>ok</code> that reads well in some call sites.
+- [`Flow.value`](./m-flow-value.md): Alias for <code>ok</code> that reads well in some call sites.
+- [`Flow.fail`](./m-flow-fail.md): Alias for <code>error</code> that reads well in some call sites.
 - [`Flow.fromResult`](./m-flow-fromresult.md): Lifts a <a href="https://learn.microsoft.com/dotnet/api/system.result-2">Result</a> into a synchronous flow.
 - [`Flow.fromOption`](./m-flow-fromoption.md): Lifts an option into a synchronous flow with the supplied error.
 - [`Flow.fromValueOption`](./m-flow-fromvalueoption.md): Lifts a value option into a synchronous flow with the supplied error.

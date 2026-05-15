@@ -69,9 +69,9 @@ module ResolverExtensions =
             )
 
 /// <summary>
-/// Helpers for working with capability contracts, runtime/application readers, and layer helpers.
+/// Helpers for working with capability contracts and layer helpers.
 /// These are compatibility and edge-binding helpers; nominal contracts and adapter-generated
-/// records are the preferred public model.
+/// records remain the preferred public model.
 /// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
@@ -80,18 +80,8 @@ module Resolver =
     /// <remarks>Use this as a compatibility helper or at the boundary where a projection is still the cleanest shape.</remarks>
     let resolve
         (projection: 'env -> 'resolve)
-        : Flow<HostContext<'host, 'appEnv>, 'error, 'resolve> =
-        Flow.readAppEnv projection
-
-    /// <summary>Reads the current host from the environment.</summary>
-    /// <remarks>Compatibility alias for the host half of <see cref="HostContext{host, appEnv}" />.</remarks>
-    let host<'host, 'appEnv, 'error> () : Flow<HostContext<'host, 'appEnv>, 'error, 'host> =
-        Flow.readHost id
-
-    /// <summary>Reads the application environment from the environment.</summary>
-    /// <remarks>Compatibility alias for the app environment half of <see cref="HostContext{host, appEnv}" />.</remarks>
-    let appEnv<'host, 'appEnv, 'error> () : Flow<HostContext<'host, 'appEnv>, 'error, 'appEnv> =
-        Flow.readAppEnv id
+        : Flow<'env, 'error, 'resolve> =
+        Flow.read projection
 
     /// <summary>Reads a dependency from <see cref="IServiceProvider" /> and fails when it is not registered.</summary>
     /// <remarks>Edge helper only. Prefer a record or nominal contract once the host boundary has been crossed.</remarks>

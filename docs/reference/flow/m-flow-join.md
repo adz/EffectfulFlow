@@ -16,5 +16,5 @@ Waits for a fiber to complete and returns its final outcome.
 
 ## Returns
 
-A flow that completes with the fiber's outcome.
+A flow that completes with the fiber&#39;s outcome.
 

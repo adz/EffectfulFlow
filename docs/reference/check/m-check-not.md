@@ -12,7 +12,7 @@ Returns success when the supplied check fails.
 ## Remarks
 
 
- This is a logical "not" operation for checks. Note that it discards the success value
+ This is a logical &quot;not&quot; operation for checks. Note that it discards the success value
  and returns <a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-unit">Unit</a> on success.
  
 

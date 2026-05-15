@@ -8,7 +8,7 @@ type: docs
 <code><span>value&#32;<span>item</span></span></code>
 </div>
 
-Alias for <a href="https://learn.microsoft.com/dotnet/api/ok">ok</a> that reads well in some call sites.
+Alias for <code>ok</code> that reads well in some call sites.
 
 ## Parameters
 
@@ -16,9 +16,9 @@ Alias for <a href="https://learn.microsoft.com/dotnet/api/ok">ok</a> that reads 
 
 ## Examples
 
-<pre class="fssnip highlighted"><code lang="fsharp"> <span class="k">let</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">flow</span> <span class="o">=</span> <span class="id">Flow</span><span class="pn">.</span><span class="id">value</span> <span class="s">&quot;constant&quot;</span>
+<pre class="fssnip highlighted"><code lang="fsharp"> <span class="k">let</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">flow</span> <span class="o">=</span> <span class="id">Flow</span><span class="pn">.</span><span class="id">value</span> <span class="s">&quot;constant&quot;</span>
 </code></pre>
-<div class="fsdocs-tip" id="fs1">val flow: obj</div>
+<div popover class="fsdocs-tip" id="fs1">val flow: obj</div>
 
 
 

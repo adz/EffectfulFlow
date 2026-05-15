@@ -148,7 +148,7 @@ module WorkflowBasicTests =
         test <@ result = Exit.Success 19 @>
 
     [<Fact>]
-    let ``Flow runtime context splits runtime services from app dependencies`` () =
+    let ``Flow runtime helpers stay separate from app dependencies`` () =
         let runtime = { RuntimePrefix = "rt:"; Seen = ResizeArray() }
 
         let app =
@@ -157,39 +157,28 @@ module WorkflowBasicTests =
                       member _.Name = "client" }
               Value = 41 }
 
-        let context = HostContext.create runtime app CancellationToken.None
-
-        let workflow : Flow<HostContext<RuntimeServices, AppDependencies>, string, string> =
+        let workflow : Flow<AppDependencies, string, string> =
             flow {
-                let! context = Flow.env
-                let prefix = context.Host.RuntimePrefix
-                let value = context.AppEnv.Value
-                runtime.Seen.Add $"value={value}"
-                return $"{prefix}{value}"
+                let! env = Flow.env
+                runtime.Seen.Add $"value={env.Value}"
+                return $"{runtime.RuntimePrefix}{env.Value}"
             }
 
         let result =
-            workflow
-            |> Flow.runSync context
+            Flow.runSync app workflow
 
         test <@ result = Exit.Success "rt:41" @>
         test <@ List.ofSeq runtime.Seen = [ "value=41" ] @>
 
     [<Fact>]
     let ``TaskFlow layers and capability helpers compose`` () =
-        let runtime =
-            { RuntimePrefix = "runtime:"
-              Seen = ResizeArray() }
-
         let app =
             { DeviceClient =
                   { new IDeviceClient with
                       member _.Name = "provider-client" }
               Value = 10 }
 
-        let outerContext = HostContext.create runtime () CancellationToken.None
-
-        let appLayer : Flow<HostContext<RuntimeServices, unit>, string, AppDependencies> =
+        let appLayer : Flow<unit, string, AppDependencies> =
             Flow.succeed app
 
         let workflow : Flow<AppDependencies, string, string> =
@@ -205,7 +194,7 @@ module WorkflowBasicTests =
 
         let composedResult =
             composed
-            |> Flow.runSync outerContext
+            |> Flow.runSync ()
 
         let provider = RecordingServiceProvider(typeof<IDeviceClient>, app.DeviceClient :> obj) :> IServiceProvider
 
@@ -217,12 +206,12 @@ module WorkflowBasicTests =
             Resolver.fromProvider<IDeviceClient>
             |> Flow.runSync (RecordingServiceProvider(typeof<string>, "nope") :> IServiceProvider)
 
-        let flowCapability : Flow<HostContext<RuntimeServices, AppDependencies>, string, IDeviceClient> =
+        let flowCapability : Flow<AppDependencies, string, IDeviceClient> =
             Resolver.resolve _.DeviceClient
 
         let flowCapabilityResult =
             flowCapability
-            |> Flow.runSync (HostContext.create runtime app CancellationToken.None)
+            |> Flow.runSync app
 
         let flowLayerWorkflow : Flow<AppDependencies, string, string> =
             flow {
