@@ -64,7 +64,9 @@
 
 ## Release Process
 
-Publish versions as Git tags such as `v0.2.0`.
+Publish versions as Git tags such as `v0.6.0`.
 
 The GitHub release workflow builds the package artifacts and attaches them to a GitHub Release.
-NuGet publishing stays manual.
+**Note:** Only the core `FsFlow` package is currently part of the public release cycle. Capability packages (`FsFlow.Capabilities.*`) are experimental and versioned independently.
+
+NuGet publishing stays manual. Use `scripts/pack.sh` to build the local artifacts.

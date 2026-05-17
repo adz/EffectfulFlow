@@ -4,5 +4,7 @@
 
 1. Update `RELEASE_NOTES.md` and `fsproj` version strings.
 2. Commit and push to `main` to trigger GitHub Pages.
-3. Tag the release with `git tag v0.3.0 && git push origin v0.3.0`.
+3. Tag the release with `git tag v0.x.y && git push origin v0.x.y`.
 4. `release.yml` builds NuGet packages and creates a GitHub Release.
+
+> **Note on Capability Packages**: The `FsFlow.Capabilities.*` packages (Console, FileSystem, etc.) are currently considered experimental and are **not** part of the public NuGet release cycle. Their versioning relationship to core `FsFlow` is TBD. For now, only pack and release the core `FsFlow` package.
