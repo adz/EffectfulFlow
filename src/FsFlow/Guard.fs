@@ -132,9 +132,8 @@ type Guard private () =
 #endif
 
     static member Of(error: 'error, flow: Flow<'env, unit, 'value>) : Flow<'env, 'error, 'value> =
-        let (Flow operation) = flow
         Flow(fun environment cancellationToken ->
-            operation environment cancellationToken
+            FlowInternal.invoke flow environment cancellationToken
             |> EffectFlow.fold
                 EffectFlow.ofValue
                 (fun _ -> EffectFlow.ofError error)

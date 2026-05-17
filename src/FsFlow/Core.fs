@@ -179,7 +179,6 @@ type Effect<'value, 'error> = ValueTask<Exit<'value, 'error>>
 /// <typeparam name="error">The type of the failure value.</typeparam>
 /// <typeparam name="value">The type of the success value.</typeparam>
 type Flow<'env, 'error, 'value> =
-    internal
     | Flow of ('env -> CancellationToken -> Effect<'value, 'error>)
 
 /// <summary>
@@ -190,7 +189,6 @@ type Flow<'env, 'error, 'value> =
 /// <typeparam name="error">The type of the failure value.</typeparam>
 /// <typeparam name="value">The type of the success value.</typeparam>
 type internal AsyncAdapterFlow<'env, 'error, 'value> =
-    private
     | AsyncAdapterFlow of ('env -> Async<Exit<'value, 'error>>)
 
 /// <summary>

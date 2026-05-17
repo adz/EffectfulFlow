@@ -3,6 +3,7 @@ namespace FsFlow
 open System
 open System.Threading
 open System.Threading.Tasks
+open System.ComponentModel
 
 module private ResultFlow =
     let map
@@ -23,7 +24,8 @@ module private ResultFlow =
         : Result<'value, 'nextError> =
         Result.mapError mapper result
 
-module internal OptionFlow =
+[<EditorBrowsable(EditorBrowsableState.Never)>]
+module OptionFlow =
     let toUnitResult (value: 'value option) : Result<'value, unit> =
         match value with
         | Some innerValue -> Ok innerValue
@@ -44,7 +46,7 @@ module internal OptionFlow =
         | ValueSome innerValue -> Ok innerValue
         | ValueNone -> Error error
 
-[<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
+[<EditorBrowsable(EditorBrowsableState.Never)>]
 module EffectFlow =
     let mapBoth
         (onSuccess: 'value -> 'next)
@@ -138,7 +140,7 @@ module EffectFlow =
     let mapError
         (mapper: 'error -> 'nextError)
         (effect: Effect<'value, 'error>)
-        : Effect<'value, 'nextError> =
+        : Effect<'next, 'nextError> =
         fold ofValue (fun cause ->
             match cause with
             | Cause.Fail error -> ofError (mapper error)
@@ -182,7 +184,8 @@ module internal InternalCombinatorCore =
         : 'environment -> 'operation =
         fun environment -> factory () |> run environment
 
-module internal FlowInternal =
+[<EditorBrowsable(EditorBrowsableState.Never)>]
+module FlowInternal =
     let inline invoke
         (Flow operation: Flow<'env, 'error, 'value>)
         (environment: 'env)

@@ -25,5 +25,4 @@ module internal RuntimeAdapter =
         (flow: Flow<'contract, 'error, 'value>)
         : Effect<'value, 'error> =
         let env = adapter registry
-        let (Flow operation) = flow
-        operation env CancellationToken.None
+        FlowInternal.invoke flow env CancellationToken.None

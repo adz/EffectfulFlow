@@ -4,7 +4,7 @@ linkTitle: "Fiber<error, value>"
 ---
 
 
- Represents a handle to a running workflow.
+ Represents a handle to a running workflow. See [**Fibers**]({{< relref "/docs/core-model/fibers.md" >}}) for a detailed conceptual overview.
  
 
 ## Signature
